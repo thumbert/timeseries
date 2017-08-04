@@ -57,7 +57,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     _data.length = i;
   }
 
-  operator [](int i) => _data[i];
+  IntervalTuple operator [](int i) => _data[i];
 
   operator []=(int i, IntervalTuple obs) => _data[i] = obs;
 
