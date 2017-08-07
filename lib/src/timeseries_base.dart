@@ -126,22 +126,22 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// return the index of the key in the List _data or -1.
-  int _endBinarySearch(DateTime key) {
-    int min = 0;
-    int max = _data.length;
-    while (min < max) {
-      int mid = min + ((max - min) >> 1);
-      var element = _data[mid].interval.end;
-      int comp = element.compareTo(key);
-      if (comp == 0) return mid;
-      if (comp < 0) {
-        min = mid + 1;
-      } else {
-        max = mid;
-      }
-    }
-    return -1;
-  }
+//  int _endBinarySearch(DateTime key) {
+//    int min = 0;
+//    int max = _data.length;
+//    while (min < max) {
+//      int mid = min + ((max - min) >> 1);
+//      var element = _data[mid].interval.end;
+//      int comp = element.compareTo(key);
+//      if (comp == 0) return mid;
+//      if (comp < 0) {
+//        min = mid + 1;
+//      } else {
+//        max = mid;
+//      }
+//    }
+//    return -1;
+//  }
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time interval.  When there is missing data for one timeseries,
@@ -154,7 +154,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
 
-  /// Get the observation at this interval
+  /// Get the observation at this interval.  Performs a binary search.
   IntervalTuple observationAt(Interval interval) {
     int i = _comparableBinarySearch(interval);
     return _data[i];

@@ -103,6 +103,36 @@ main() {
       expect(() => ts.add(new IntervalTuple(new Date(2014, 4, 1), 4)),
           throwsStateError);
     });
+
+    test('intersecttimeseries', (){
+      TimeSeries x =  new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2017, 1, 1), 11),
+        new IntervalTuple(new Date(2017, 1, 2), 12),
+        new IntervalTuple(new Date(2017, 1, 3), 13),
+        new IntervalTuple(new Date(2017, 1, 4), 14),
+        new IntervalTuple(new Date(2017, 1, 5), 15),
+        new IntervalTuple(new Date(2017, 1, 6), 16),
+        new IntervalTuple(new Date(2017, 1, 7), 17),
+      ]);
+      TimeSeries y =  new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2016,12,30), 30),
+        new IntervalTuple(new Date(2016,12,31), 31),
+        new IntervalTuple(new Date(2017, 1, 1), 21),
+        new IntervalTuple(new Date(2017, 1, 2), 22),
+        new IntervalTuple(new Date(2017, 1, 7), 27),
+        new IntervalTuple(new Date(2017, 1, 8), 28),
+      ]);
+      var res = intersect(x, y);
+      expect(res.length, 3);
+
+      var res2 = intersect(x, y, f: (a,b) => {'a': a, 'b': b});
+      // res2.forEach(print);
+      expect(res2.observationAt(new Date(2017,1,1)).item2, {'a': 11, 'b': 21});
+
+    });
+
+
+
   });
 
   group('Aggregations/Expansion:', () {
