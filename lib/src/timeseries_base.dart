@@ -179,15 +179,20 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Extract the subset of _data corresponding to a time interval.
-  /// The start/end of the interval need to match exactly a start and
-  /// an end of different observations.
   /// <p> Attention needs to be paid so the [interval] matches the same TZ info
   /// as the original timeseries.
   /// <p> The implementation uses binary search so it is efficient for slicing
   /// into large timeseries.
   List window(Interval interval) {
-    int iS = _startBinarySearch(interval.start);
-    int iE = _startBinarySearch(interval.end);
+    int iS,iE;
+    if (interval.start.isBefore(_data.first.item1.start))
+      iS = 0;
+    else
+     iS = _startBinarySearch(interval.start);
+    if (interval.end.isAfter(_data.last.item1.end))
+      iE = _data.length;
+    else
+      iE = _startBinarySearch(interval.end);
     return _data.sublist(iS,iE);
   }
 
