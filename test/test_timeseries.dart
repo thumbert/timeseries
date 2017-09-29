@@ -146,4 +146,30 @@ main() {
       expect(tsDaily.length, 60);
     });
   });
+  
+  group('Pack/Unpack a timeseries', () {
+    List x = [
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,0)), 0.1),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,1)), 0.1),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,2)), 0.1),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,3)), 0.1),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,4)), 0.1),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,5)), 0.3),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,6)), 0.3),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,7)), 0.3),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,8)), 0.4),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,9)), 0.5),
+      new IntervalTuple(new Hour.beginning(new TZDateTime.local(2017,1,1,10)), 0.6),
+    ];
+    var out = new TimeseriesPacker().pack(x);
+    test('Pack it', (){
+//      out.forEach(print);
+      expect(out.length, 5);
+      expect(out.map((e)=>e.length), [5,3,1,1,1]);
+    });
+    test('Unpack it', (){
+      var z = new TimeseriesPacker().unpack(out);
+      expect(z, x);
+    });
+  });
 }
