@@ -44,12 +44,12 @@ class TimeseriesPacker {
     x.forEach((chunk) {
       DateTime current = chunk.startChunk;
       for (int i=0; i < chunk.length; i++) {
-        var interval = new Interval(chunk.startChunk, chunk.startChunk.add(chunk.duration));
+        var interval = new Interval(current, current.add(chunk.duration));
         res.add(new IntervalTuple(interval, chunk.value));
         current = current.add(chunk.duration);
       }
     });
     return res;
-  }
+  } 
 }
 
