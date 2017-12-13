@@ -57,7 +57,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     _data.length = i;
   }
 
-  operator [](int i) => _data[i];
+  IntervalTuple operator [](int i) => _data[i];
 
   operator []=(int i, IntervalTuple obs) => _data[i] = obs;
 
@@ -137,22 +137,22 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// return the index of the key in the List _data or -1.
-  int _endBinarySearch(DateTime key) {
-    int min = 0;
-    int max = _data.length;
-    while (min < max) {
-      int mid = min + ((max - min) >> 1);
-      var element = _data[mid].interval.end;
-      int comp = element.compareTo(key);
-      if (comp == 0) return mid;
-      if (comp < 0) {
-        min = mid + 1;
-      } else {
-        max = mid;
-      }
-    }
-    return -1;
-  }
+//  int _endBinarySearch(DateTime key) {
+//    int min = 0;
+//    int max = _data.length;
+//    while (min < max) {
+//      int mid = min + ((max - min) >> 1);
+//      var element = _data[mid].interval.end;
+//      int comp = element.compareTo(key);
+//      if (comp == 0) return mid;
+//      if (comp < 0) {
+//        min = mid + 1;
+//      } else {
+//        max = mid;
+//      }
+//    }
+//    return -1;
+//  }
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time interval.  When there is missing data for one timeseries,
@@ -175,7 +175,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
 
-  /// Get the observation at this interval
+  /// Get the observation at this interval.  Performs a binary search.
   IntervalTuple observationAt(Interval interval) {
     int i = _comparableBinarySearch(interval);
     return _data[i];
@@ -200,15 +200,20 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Extract the subset of _data corresponding to a time interval.
-  /// The start/end of the interval need to match exactly a start and
-  /// an end of different observations.
   /// <p> Attention needs to be paid so the [interval] matches the same TZ info
   /// as the original timeseries.
   /// <p> The implementation uses binary search so it is efficient for slicing
   /// into large timeseries.
   List window(Interval interval) {
-    int iS = _startBinarySearch(interval.start);
-    int iE = _startBinarySearch(interval.end);
+    int iS,iE;
+    if (interval.start.isBefore(_data.first.item1.start))
+      iS = 0;
+    else
+     iS = _startBinarySearch(interval.start);
+    if (interval.end.isAfter(_data.last.item1.end))
+      iE = _data.length;
+    else
+      iE = _startBinarySearch(interval.end);
     return _data.sublist(iS,iE);
   }
 
