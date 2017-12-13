@@ -5,6 +5,7 @@ import 'package:test/test.dart';
 import 'package:date/date.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:timezone/standalone.dart';
+import 'package:tuple/tuple.dart';
 
 main() {
   Map env = Platform.environment;
@@ -78,6 +79,16 @@ main() {
       var ts = new TimeSeries.from([days.first], [1]);
       ts.addAll(days.skip(1).map((day) => new IntervalTuple(day, 1)));
       expect(ts.length, 31);
+    });
+
+    test('timeseries to columns', (){
+      var start = new Date(2016, 1, 1);
+      var end = new Date(2016, 1, 31);
+      var days = new TimeIterable(start, end).toList();
+      var ts = new TimeSeries.fill(days, 1);
+      var aux = ts.toColumns();
+      expect(aux is Tuple2, true);
+      expect(aux.item1.length, aux.item2.length);
     });
 
     test('filter observations', () {

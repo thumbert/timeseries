@@ -3,7 +3,7 @@ library timeseries_base;
 
 import 'dart:collection';
 import 'package:date/date.dart';
-import 'package:timezone/timezone.dart';
+import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
 
 enum JoinType {
@@ -76,8 +76,19 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     add(obs);
   });
 
-  Iterable get values => _data.map((obs) => obs.value);
+  Iterable get values => _data.map((IntervalTuple obs) => obs.value);
 
+  /// Return the time series in column format, first column the intervals,
+  /// the second column the values
+  Tuple2<List<Interval>, List<K>> toColumns() {
+    List i = [];
+    List v = [];
+    forEach((e) {
+      i.add(e.interval);
+      v.add(e.value);
+    });
+    return new Tuple2(i, v);
+  }
 
    /// Expand each observation of this timeseries using a function f.
    /// For example, can be used to expand a monthly timeseries to a daily series.
@@ -150,6 +161,16 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   ///
   TimeSeries merge(TimeSeries y, Function f, JoinType joinType) {
     /// TODO:  implement this
+    switch (joinType) {
+      case JoinType.Inner :
+        break;
+      case JoinType.Left :
+        break;
+      case JoinType.Right :
+        break;
+      case JoinType.Outer :
+        break;
+    }
     return this;
   }
 
