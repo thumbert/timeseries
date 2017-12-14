@@ -3,6 +3,7 @@ library test_timeseries;
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:date/date.dart';
+import 'package:timeseries/src/timeseries_packer.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:timezone/standalone.dart';
 import 'package:tuple/tuple.dart';
@@ -106,7 +107,7 @@ main() {
       expect(ts2.length, 3);
     });
 
-    test('adding to the middle of the tseries throws', () {
+    test('adding to the middle of the time series throws', () {
       var months =
           new TimeIterable(new Month(2014, 1), new Month(2014, 12)).toList();
       var ts =
@@ -115,7 +116,7 @@ main() {
           throwsStateError);
     });
 
-    test('intersecttimeseries', (){
+    test('intersect timeseries', (){
       TimeSeries x =  new TimeSeries.fromIterable([
         new IntervalTuple(new Date(2017, 1, 1), 11),
         new IntervalTuple(new Date(2017, 1, 2), 12),
@@ -139,7 +140,30 @@ main() {
       var res2 = intersect(x, y, f: (a,b) => {'a': a, 'b': b});
       // res2.forEach(print);
       expect(res2.observationAt(new Date(2017,1,1)).item2, {'a': 11, 'b': 21});
+    });
 
+    test('append timeseries', (){
+      TimeSeries x =  new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2017, 1, 1), 11),
+        new IntervalTuple(new Date(2017, 1, 2), 12),
+        new IntervalTuple(new Date(2017, 1, 3), 13),
+        new IntervalTuple(new Date(2017, 1, 4), 14),
+        new IntervalTuple(new Date(2017, 1, 5), 15),
+        new IntervalTuple(new Date(2017, 1, 6), 16),
+        new IntervalTuple(new Date(2017, 1, 7), 17),
+      ]);
+      TimeSeries y =  new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2016,12,30), 30),
+        new IntervalTuple(new Date(2016,12,31), 31),
+        new IntervalTuple(new Date(2017, 1, 1), 21),
+        new IntervalTuple(new Date(2017, 1, 2), 22),
+        new IntervalTuple(new Date(2017, 1, 7), 27),
+        new IntervalTuple(new Date(2017, 1, 8), 28),
+        new IntervalTuple(new Date(2017, 1, 9), 29),
+      ]);
+      var res = x.append(y);
+      expect(res.length, 9);
+      expect(res.values.toList(), [11,12,13,14,15,16,17,28,29]);
     });
 
 

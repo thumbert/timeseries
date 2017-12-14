@@ -76,7 +76,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     add(obs);
   });
 
-  Iterable get values => _data.map((IntervalTuple obs) => obs.value);
+  Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
+
 
   /// Return the time series in column format, first column the intervals,
   /// the second column the values
@@ -172,6 +173,18 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
         break;
     }
     return this;
+  }
+
+  /// Append observations from timeseries [y] to [this].
+  /// [y] observations that are before the first observation of
+  /// [this] are ignored.
+  TimeSeries append(TimeSeries y) {
+    var res = new TimeSeries.fromIterable(this._data);
+    DateTime last = _data.last.interval.end;
+    y.where((IntervalTuple e) => e.interval.start.isAfter(last) ||
+      e.interval.start.isAtSameMomentAs(last))
+        .forEach((IntervalTuple e) => res.add(e));
+    return res;
   }
 
 

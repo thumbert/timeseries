@@ -1,5 +1,9 @@
 library timeseries_packer;
 
+import 'package:date/date.dart';
+import 'interval_tuple.dart';
+
+
 /// Store repeating data in the timeseries.
 class Chunk<K extends Comparable<K>> {
   DateTime startChunk;
