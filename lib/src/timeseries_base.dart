@@ -2,6 +2,7 @@ library timeseries_base;
 
 
 import 'dart:collection';
+import 'package:func/func.dart';
 import 'package:date/date.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
@@ -101,7 +102,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
 
-  /// return the index of the key in the List __data or -1.
+  /// return the index of the key in the List _data or -1.
   int _comparableBinarySearch(Interval key) {
     int min = 0;
     int max = _data.length;
@@ -119,10 +120,12 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return -1;
   }
 
-  /// return the index of the key in the List _data or -1.
-  int _startBinarySearch(DateTime key) {
-    int min = 0;
-    int max = _data.length;
+  /// Allows to search for the beginning of an interval in the timeseries.
+  /// The search happens between the min and max index.
+  /// Return the index of the key in the List _data or -1.
+  int _startBinarySearch(DateTime key, {int min, int max}) {
+    min ??= 0;
+    max ??= _data.length;
     while (min < max) {
       int mid = min + ((max - min) >> 1);
       var element = _data[mid].interval.start;
@@ -175,6 +178,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return this;
   }
 
+  /// Aggregate the values of this time series that belong to the
+  /// interval [interval] according to the function [f].
+  /// For example, given an hourly temperatures for a full calendar year,
+  /// you can calculate the average temperature for a month.
+  /// <p>Function f: Iterable<K> => R
+  IntervalTuple aggregate(Interval interval, Function f) {
+    int i1 = _startBinarySearch(interval.start);
+    int i2 = _startBinarySearch(interval.end, min: i1);
+    return f(_data.sublist(i1,i2).map((e) => e.value));
+  }
+
   /// Append observations from timeseries [y] to [this].
   /// [y] observations that are before the first observation of
   /// [this] are ignored.
@@ -189,13 +203,14 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
 
   /// Get the observation at this interval.  Performs a binary search.
+  /// Throws an error if the interval is not found in the domain of the
+  /// timeseries.
   IntervalTuple observationAt(Interval interval) {
     int i = _comparableBinarySearch(interval);
     return _data[i];
   }
 
   toString() => _data.join("\n");
-
 
   /// Create a new TimeSeries by grouping the index of the current timeseries
   /// using the aggregation function [f].
