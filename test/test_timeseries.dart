@@ -8,11 +8,26 @@ import 'package:timeseries/timeseries.dart';
 import 'package:timezone/standalone.dart';
 import 'package:tuple/tuple.dart';
 
-main() {
-  Map env = Platform.environment;
-  String tzdb = env['HOME'] +
-      '/.pub-cache/hosted/pub.dartlang.org/timezone-0.4.3/lib/data/2015b.tzf';
-  initializeTimeZoneSync(tzdb);
+soloTest() {
+  Location location = getLocation('US/Eastern');
+
+  Hour firstHour = new Hour.beginning(new TZDateTime(location, 2016));
+  Hour lastHour = new Hour.ending(new TZDateTime(location, 2017));
+  var hours = new TimeIterable(firstHour, lastHour).toList();
+
+  test('aggregate calculate the number of hours in a month', () {
+    var ts = new TimeSeries.fill(hours, 1);
+    var months = new Interval(
+            new TZDateTime(location, 2016), new TZDateTime(location, 2017))
+        .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
+    var hrs = months
+        .map((month) => ts.aggregateValues(month, (Iterable x) => x.length))
+        .toList();
+    expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
+  });
+}
+
+timeseriesTests() {
   Location location = getLocation('US/Eastern');
 
   Hour firstHour = new Hour.beginning(new TZDateTime(location, 2016));
@@ -46,47 +61,48 @@ main() {
     });
 
     test('observationAt works for matching interval', () {
-      var months = new Interval(new DateTime(2014), new DateTime(2015))
-          .splitLeft((dt) => new Month.fromDateTime(dt));
+      var months = new Interval(new DateTime.utc(2014), new DateTime.utc(2015))
+          .splitLeft((dt) => new Month(dt.year, dt.month));
       var ts = new TimeSeries.fill(months, 1);
       expect(ts.observationAt(new Month(2014, 3)).interval, new Month(2014, 3));
     });
 
     test('observationAt throws if interval is outside the timeseries domain',
         () {
-      var months = new Interval(new DateTime(2014), new DateTime(2015))
-          .splitLeft((dt) => new Month.fromDateTime(dt));
+      var months = new Interval(new DateTime.utc(2014), new DateTime.utc(2015))
+          .splitLeft((dt) => new Month(dt.year, dt.month));
       var ts = new TimeSeries.fill(months, 1);
       expect(() => ts.observationAt(new Month(2015, 1)), throwsRangeError);
     });
 
-    test('groupBy calculate the number of hours in a month', () {
+    test('calculate the number of hours in a month using groupByIndex', () {
       var ts = new TimeSeries.fill(hours, 1);
-      var aux = ts
-          .groupByIndex((hour) => new Month(hour.start.year, hour.start.month));
+      var aux = ts.groupByIndex((hour) =>
+          new Month(hour.start.year, hour.start.month, location: location));
       var hrs = aux.map((x) => x.value.length).toList();
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
     });
 
-    test('aggregate calculate the number of hours in a month', () {
+    test('calculate the number of hours in a month using aggregateValues', () {
       var ts = new TimeSeries.fill(hours, 1);
       var months = new Interval(
               new TZDateTime(location, 2016), new TZDateTime(location, 2017))
-          .splitLeft((dt) => new Month(dt.year, dt.month));
-      months.forEach(print);
+          .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
       var hrs = months
-          .map((month) => ts.aggregate(month, (Iterable x) => x.length))
+          .map((month) => ts.aggregateValues(month, (Iterable x) => x.length))
           .toList();
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
     });
 
     test('slice the timeseries according to an interval (window)', () {
-      var months = new Interval(new DateTime(2014), new DateTime(2015))
-          .splitLeft((dt) => new Month.fromDateTime(dt));
+      var months = new Interval(
+              new TZDateTime(location, 2014), new TZDateTime(location, 2015))
+          .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
       var ts = new TimeSeries.fill(months, 1);
 
-      List<IntervalTuple> res =
-          ts.window(new Interval(new DateTime(2014, 3), new DateTime(2014, 7)));
+      List<IntervalTuple> res = ts.window(new Interval(
+          new TZDateTime(location, 2014, 3),
+          new TZDateTime(location, 2014, 7)));
       expect(res.length, 4);
       expect(res.join(", "), 'Mar14 -> 1, Apr14 -> 1, May14 -> 1, Jun14 -> 1');
     });
@@ -243,4 +259,14 @@ main() {
       expect(z, x);
     });
   });
+}
+
+main() {
+  Map env = Platform.environment;
+  String tzdb = env['HOME'] +
+      '/.pub-cache/hosted/pub.dartlang.org/timezone-0.4.3/lib/data/2015b.tzf';
+  initializeTimeZoneSync(tzdb);
+
+  timeseriesTests();
+  //soloTest();
 }

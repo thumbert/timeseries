@@ -1,19 +1,12 @@
 library timeseries_base;
 
-
 import 'dart:collection';
 import 'package:func/func.dart';
 import 'package:date/date.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
 
-enum JoinType {
-  Left,
-  Right,
-  Inner,
-  Outer
-}
-
+enum JoinType { Left, Right, Inner, Outer }
 
 /// A class for representing interval (aggregated) timeseries.
 /// By construction, the timeseries is time-ordered.  You can only
@@ -31,16 +24,16 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   ///Create a TimeSeries from components. The resulting timeseries will have
   ///the length of the shorter of the two iterables.
   TimeSeries.from(Iterable<Interval> index, Iterable<K> value) {
-     Iterator iI = index.iterator;
-     Iterator iV = value.iterator;
-     while (iI.moveNext() && iV.moveNext()) {
-       add(new IntervalTuple(iI.current, iV.current));
-     }
+    Iterator iI = index.iterator;
+    Iterator iV = value.iterator;
+    while (iI.moveNext() && iV.moveNext()) {
+      add(new IntervalTuple(iI.current, iV.current));
+    }
   }
 
   /// Create a TimeSeries with a constant value
   TimeSeries.fill(Iterable<Interval> index, value) {
-    index.forEach((Interval i) => add(new IntervalTuple(i,value)));
+    index.forEach((Interval i) => add(new IntervalTuple(i, value)));
   }
 
   /// Creates a TimeSeries of size [length] and fills it with observations
@@ -65,20 +58,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Only add at the end of a timeseries a non-overlapping interval.
   void add(IntervalTuple obs) {
     if (!_data.isEmpty &&
-        obs.interval.start.isBefore(
-            _data.last.interval.end)) {
-      throw new StateError(
-          "You can only add at the end of the TimeSeries");
+        obs.interval.start.isBefore(_data.last.interval.end)) {
+      throw new StateError("You can only add at the end of the TimeSeries");
     }
     _data.add(obs);
   }
 
   void addAll(Iterable<IntervalTuple> x) => x.forEach((obs) {
-    add(obs);
-  });
+        add(obs);
+      });
 
   Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
-
 
   /// Return the time series in column format, first column the intervals,
   /// the second column the values
@@ -92,15 +82,14 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return new Tuple2(i, v);
   }
 
-   /// Expand each observation of this timeseries using a function f.
-   /// For example, can be used to expand a monthly timeseries to a daily series.
-   /// Return a new time series.
+  /// Expand each observation of this timeseries using a function f.
+  /// For example, can be used to expand a monthly timeseries to a daily series.
+  /// Return a new time series.
   Iterable expand(Iterable f(IntervalTuple obs)) {
     TimeSeries ts = new TimeSeries.fromIterable([]);
     _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
     return ts;
   }
-
 
   /// return the index of the key in the List _data or -1.
   int _comparableBinarySearch(Interval key) {
@@ -166,13 +155,13 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   TimeSeries merge(TimeSeries y, Function f, JoinType joinType) {
     /// TODO:  implement this
     switch (joinType) {
-      case JoinType.Inner :
+      case JoinType.Inner:
         break;
-      case JoinType.Left :
+      case JoinType.Left:
         break;
-      case JoinType.Right :
+      case JoinType.Right:
         break;
-      case JoinType.Outer :
+      case JoinType.Outer:
         break;
     }
     return this;
@@ -183,10 +172,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// For example, given an hourly temperatures for a full calendar year,
   /// you can calculate the average temperature for a month.
   /// <p>Function f: Iterable<K> => R
-  IntervalTuple aggregate(Interval interval, Function f) {
+  /// TODO: what to do if the interval has start/ends that don't correspond
+  /// to the timeseries intervals.
+  R aggregateValues<R>(Interval interval, R f(Iterable<K> values)) {
     int i1 = _startBinarySearch(interval.start);
-    int i2 = _startBinarySearch(interval.end, min: i1);
-    return f(_data.sublist(i1,i2).map((e) => e.value));
+    int i2;
+    if (interval.end == _data.last.interval.end) {
+      i2 = _data.length;
+    } else {
+      i2 = _startBinarySearch(interval.end, min: i1);
+    }
+    return f(_data.sublist(i1, i2).map((e) => e.value));
   }
 
   /// Append observations from timeseries [y] to [this].
@@ -195,12 +191,13 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   TimeSeries append(TimeSeries y) {
     var res = new TimeSeries.fromIterable(this._data);
     DateTime last = _data.last.interval.end;
-    y.where((IntervalTuple e) => e.interval.start.isAfter(last) ||
-      e.interval.start.isAtSameMomentAs(last))
+    y
+        .where((IntervalTuple e) =>
+            e.interval.start.isAfter(last) ||
+            e.interval.start.isAtSameMomentAs(last))
         .forEach((IntervalTuple e) => res.add(e));
     return res;
   }
-
 
   /// Get the observation at this interval.  Performs a binary search.
   /// Throws an error if the interval is not found in the domain of the
@@ -233,20 +230,18 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// <p> The implementation uses binary search so it is efficient for slicing
   /// into large timeseries.
   List window(Interval interval) {
-    int iS,iE;
+    int iS, iE;
     if (interval.start.isBefore(_data.first.item1.start))
       iS = 0;
     else
-     iS = _startBinarySearch(interval.start);
+      iS = _startBinarySearch(interval.start);
     if (interval.end.isAfter(_data.last.item1.end))
       iE = _data.length;
     else
       iE = _startBinarySearch(interval.end);
-    return _data.sublist(iS,iE);
+    return _data.sublist(iS, iE);
   }
-
 }
-
 
 int _compareNonoverlappingIntervals(Interval i1, Interval i2) {
   /// don't need to check if the intervals overlap, because they shouldn't by
@@ -261,4 +256,3 @@ int _compareNonoverlappingIntervals(Interval i1, Interval i2) {
   }
   return res;
 }
-
