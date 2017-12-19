@@ -20,9 +20,7 @@ soloTest() {
     var months = new Interval(
             new TZDateTime(location, 2016), new TZDateTime(location, 2017))
         .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
-    var hrs = months
-        .map((month) => ts.aggregateValues(month, (Iterable x) => x.length))
-        .toList();
+    var hrs = months.map((month) => ts.window(month).length).toList();
     expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
   });
 }
@@ -88,9 +86,7 @@ timeseriesTests() {
       var months = new Interval(
               new TZDateTime(location, 2016), new TZDateTime(location, 2017))
           .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
-      var hrs = months
-          .map((month) => ts.aggregateValues(month, (Iterable x) => x.length))
-          .toList();
+      var hrs = months.map((month) => ts.window(month).length).toList();
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
     });
 

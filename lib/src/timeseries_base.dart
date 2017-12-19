@@ -129,24 +129,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return -1;
   }
 
-  /// return the index of the key in the List _data or -1.
-//  int _endBinarySearch(DateTime key) {
-//    int min = 0;
-//    int max = _data.length;
-//    while (min < max) {
-//      int mid = min + ((max - min) >> 1);
-//      var element = _data[mid].interval.end;
-//      int comp = element.compareTo(key);
-//      if (comp == 0) return mid;
-//      if (comp < 0) {
-//        min = mid + 1;
-//      } else {
-//        max = mid;
-//      }
-//    }
-//    return -1;
-//  }
-
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time interval.  When there is missing data for one timeseries,
   /// enter a null value.
@@ -172,18 +154,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// For example, given an hourly temperatures for a full calendar year,
   /// you can calculate the average temperature for a month.
   /// <p>Function f: Iterable<K> => R
-  /// TODO: what to do if the interval has start/ends that don't correspond
-  /// to the timeseries intervals.
-  R aggregateValues<R>(Interval interval, R f(Iterable<K> values)) {
-    int i1 = _startBinarySearch(interval.start);
-    int i2;
-    if (interval.end == _data.last.interval.end) {
-      i2 = _data.length;
-    } else {
-      i2 = _startBinarySearch(interval.end, min: i1);
-    }
-    return f(_data.sublist(i1, i2).map((e) => e.value));
-  }
+  /// DECIDED THIS IS NOT NEEDED BECAUSE I HAVE THE window() method.
+//  R aggregateValues<R>(Interval interval, R f(Iterable<K> values)) {
+//    int i1 = _startBinarySearch(interval.start);
+//    int i2;
+//    if (interval.end == _data.last.interval.end) {
+//      i2 = _data.length;
+//    } else {
+//      i2 = _startBinarySearch(interval.end, min: i1);
+//    }
+//    return f(_data.sublist(i1, i2).map((e) => e.value));
+//  }
 
   /// Append observations from timeseries [y] to [this].
   /// [y] observations that are before the first observation of
@@ -229,13 +210,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// as the original timeseries.
   /// <p> The implementation uses binary search so it is efficient for slicing
   /// into large timeseries.
-  List window(Interval interval) {
+  ///
+  List<IntervalTuple<K>> window(Interval interval) {
     int iS, iE;
-    if (interval.start.isBefore(_data.first.item1.start))
-      iS = 0;
-    else
-      iS = _startBinarySearch(interval.start);
-    if (interval.end.isAfter(_data.last.item1.end))
+    iS = _startBinarySearch(interval.start);
+    if (interval.end ==_data.last.item1.end)
       iE = _data.length;
     else
       iE = _startBinarySearch(interval.end);
