@@ -7,6 +7,7 @@ import 'package:timeseries/src/timeseries_packer.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:timezone/standalone.dart';
 import 'package:tuple/tuple.dart';
+import 'package:timeseries/src/numeric_timeseries.dart';
 
 soloTest() {
   Location location = getLocation('US/Eastern');
@@ -182,6 +183,50 @@ timeseriesTests() {
           res2.observationAt(new Date(2017, 1, 1)).item2, {'a': 11, 'b': 21});
     });
 
+    test('merge timeseries', () {
+      TimeSeries x = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2017, 1, 1), 11),
+        new IntervalTuple(new Date(2017, 1, 2), 12),
+        new IntervalTuple(new Date(2017, 1, 3), 13),
+        new IntervalTuple(new Date(2017, 1, 4), 14),
+        new IntervalTuple(new Date(2017, 1, 5), 15),
+        new IntervalTuple(new Date(2017, 1, 6), 16),
+        new IntervalTuple(new Date(2017, 1, 7), 17),
+      ]);
+      TimeSeries y = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2016, 12, 30), 30),
+        new IntervalTuple(new Date(2016, 12, 31), 31),
+        new IntervalTuple(new Date(2017, 1, 1), 21),
+        new IntervalTuple(new Date(2017, 1, 2), 22),
+        new IntervalTuple(new Date(2017, 1, 7), 27),
+        new IntervalTuple(new Date(2017, 1, 8), 28),
+      ]);
+      var res = x.merge(y);
+      expect(res.length, 3);
+    });
+
+    test('add two timeseries with merge', () {
+      TimeSeries x = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2017, 1, 1), 1),
+        new IntervalTuple(new Date(2017, 1, 2), 1),
+        new IntervalTuple(new Date(2017, 1, 3), 1),
+        new IntervalTuple(new Date(2017, 1, 4), 1),
+        new IntervalTuple(new Date(2017, 1, 5), 1),
+        new IntervalTuple(new Date(2017, 1, 6), 1),
+        new IntervalTuple(new Date(2017, 1, 7), 1),
+      ]);
+      TimeSeries y = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2016, 12, 30), 1),
+        new IntervalTuple(new Date(2016, 12, 31), 1),
+        new IntervalTuple(new Date(2017, 1, 1), 1),
+        new IntervalTuple(new Date(2017, 1, 2), 1),
+        new IntervalTuple(new Date(2017, 1, 7), 1),
+        new IntervalTuple(new Date(2017, 1, 8), 1),
+      ]);
+      var res = x.merge(y, f: (x, y) => x + y);
+      expect(res.values, [2, 2, 2]);
+    });
+
     test('append timeseries', () {
       TimeSeries x = new TimeSeries.fromIterable([
         new IntervalTuple(new Date(2017, 1, 1), 11),
@@ -246,13 +291,29 @@ timeseriesTests() {
     ];
     var out = new TimeseriesPacker().pack(x);
     test('Pack it', () {
-//      out.forEach(print);
       expect(out.length, 5);
       expect(out.map((e) => e.length), [5, 3, 1, 1, 1]);
     });
     test('Unpack it', () {
       var z = new TimeseriesPacker().unpack(out);
       expect(z, x);
+    });
+  });
+
+  group('NumericTimeSeries test:', () {
+    var x = new NumericTimeSeries.fromIterable([
+      new IntervalTuple(new Date(2017, 1, 1), 11),
+      new IntervalTuple(new Date(2017, 1, 2), 12),
+      new IntervalTuple(new Date(2017, 1, 3), 13),
+      new IntervalTuple(new Date(2017, 1, 4), 14),
+    ]);
+    test('add a value', () {
+      var y = x + 2.0;
+      expect(y.values, [13, 14, 15, 16]);
+    });
+    test('multiply by a value', () {
+      var y = x * 2.0;
+      expect(y.values, [22, 24, 26, 28]);
     });
   });
 }

@@ -32,7 +32,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Create a TimeSeries with a constant value
-  TimeSeries.fill(Iterable<Interval> index, value) {
+  TimeSeries.fill(Iterable<Interval> index, K value) {
     index.forEach((Interval i) => add(new IntervalTuple(i, value)));
   }
 
@@ -67,6 +67,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   void addAll(Iterable<IntervalTuple> x) => x.forEach((obs) {
         add(obs);
       });
+
+  Iterable<IntervalTuple<K>> get observations => _data;
 
   Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
 
@@ -130,14 +132,28 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
-  /// the common time interval.  When there is missing data for one timeseries,
-  /// enter a null value.
+  /// the common time intervals.  When there is missing data for one timeseries,
+  /// enter a null value.  This method should only be applied if time intervals
+  /// are of similar type.
+  /// <p>
   /// Two common examples for f = (x,y) => [x,y] or f = (x,y) => {'x': x, 'y': y}.
-  ///
-  TimeSeries merge(TimeSeries y, Function f, JoinType joinType) {
-    /// TODO:  implement this
+  /// This method can be used to add two numerical timeseries with
+  /// f = (x,y) => x + y.
+  TimeSeries merge(TimeSeries y, {Func2 f, JoinType joinType: JoinType.Inner}) {
+    /// TODO: finish implementation
+    f ??= (x,y) => [x,y];
+    List res = [];
     switch (joinType) {
       case JoinType.Inner:
+        int j = 0;
+        for (int i=0; i<this.length; i++) {
+          while (y[j].item1.start.isBefore(_data[i].item1.start)) {
+            ++j;
+          }
+          if (_data[i].item1 == y[j].item1) {
+            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+          }
+        }
         break;
       case JoinType.Left:
         break;
@@ -146,8 +162,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       case JoinType.Outer:
         break;
     }
-    return this;
+    return new TimeSeries.fromIterable(res);
   }
+
 
   /// Aggregate the values of this time series that belong to the
   /// interval [interval] according to the function [f].
@@ -193,7 +210,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Create a new TimeSeries by grouping the index of the current timeseries
   /// using the aggregation function [f].
   /// <p> This can be used as the first step of an aggregation, e.g. calculating
-  /// an average monthly value from daily _data.
+  /// an average monthly value from daily data.
   TimeSeries groupByIndex(Interval f(Interval interval)) {
     Map<Interval, List> grp = {};
     int N = _data.length;
