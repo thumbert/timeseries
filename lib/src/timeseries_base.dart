@@ -132,11 +132,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
-  /// the common time intervals.  When there is missing data for one timeseries,
-  /// enter a null value.  This method should only be applied if time intervals
-  /// are of similar type.
+  /// the common time intervals.  This method should only be applied if time
+  /// intervals are of similar type.  The default value of [f] is to concatenate
+  /// the two values: f = (x,y) => [x,y].
   /// <p>
-  /// Two common examples for f = (x,y) => [x,y] or f = (x,y) => {'x': x, 'y': y}.
+  /// Another common example for function f is (x,y) => {'x': x, 'y': y}.
   /// This method can be used to add two numerical timeseries with
   /// f = (x,y) => x + y.
   TimeSeries merge(TimeSeries y, {Func2 f, JoinType joinType: JoinType.Inner}) {
@@ -156,8 +156,31 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
         }
         break;
       case JoinType.Left:
+        int j = 0;
+        for (int i=0; i<this.length; i++) {
+          while (y[j].item1.start.isBefore(_data[i].item1.start)) {
+            ++j;
+          }
+          if (_data[i].item1 == y[j].item1) {
+            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+          } else {
+            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, null)));
+          }
+        }
         break;
       case JoinType.Right:
+//        int i = 0;
+//        for (int j=0; j<y.length; j++) {
+//          while (_data[i].item1.start.isBefore(y[j].item1.start)) {
+//            ++i;
+//          }
+//          if (_data[i].item1 == y[j].item1) {
+//            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+//          } else {
+//            res.add(new IntervalTuple(y[j].item1, f(null, y[j].item2)));
+//          }
+//        }
+
         break;
       case JoinType.Outer:
         break;

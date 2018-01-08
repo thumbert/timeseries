@@ -201,8 +201,38 @@ timeseriesTests() {
         new IntervalTuple(new Date(2017, 1, 7), 27),
         new IntervalTuple(new Date(2017, 1, 8), 28),
       ]);
-      var res = x.merge(y);
-      expect(res.length, 3);
+      var res1 = x.merge(y, joinType: JoinType.Inner);
+      expect(res1.length, 3);
+      expect(res1.values.toList(), [
+        [11, 21],
+        [12, 22],
+        [17, 27]
+      ]);
+
+      var res2 = x.merge(y, joinType: JoinType.Left);
+      expect(res2.length, 7);
+      expect(res2.values.toList(), [
+        [11, 21],
+        [12, 22],
+        [13, null],
+        [14, null],
+        [15, null],
+        [16, null],
+        [17, 27]
+      ]);
+
+//      var res3 = x.merge(y, joinType: JoinType.Right);
+//      expect(res3.length, 6);
+//      expect(res3.values.toList(), [
+//        [null,30],
+//        [null,31],
+//        [11, 21],
+//        [12, 22],
+//        [17, 27],
+//        [null, 28],
+//      ]);
+
+
     });
 
     test('add two timeseries with merge', () {
