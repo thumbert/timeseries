@@ -15,19 +15,28 @@ class NumericTimeSeries extends TimeSeries<double> {
       : super.generate(length, generator);
 
 
-  /// Add a constant to this numerical timeseries.
+  /// Add a constant to all elements of this timeseries.
   NumericTimeSeries operator +(double value) {
     return new NumericTimeSeries.fromIterable(observations
         .map((obs) => new IntervalTuple(obs.interval, obs.value + value)));
   }
 
-  /// Multiply this timeseries by a value.
+  /// Subtract a constant from all elements of this timeseries.
+  NumericTimeSeries operator -(double value) {
+    return new NumericTimeSeries.fromIterable(observations
+        .map((obs) => new IntervalTuple(obs.interval, obs.value - value)));
+  }
+
+  /// Multiply all elements of this timeseries by a value.
   NumericTimeSeries operator *(double value) {
     return new NumericTimeSeries.fromIterable(observations
         .map((obs) => new IntervalTuple(obs.interval, obs.value * value)));
   }
 
-
-
+  /// Divide all elements of this timeseries by a value
+  NumericTimeSeries operator /(double value) {
+    return new NumericTimeSeries.fromIterable(observations
+        .map((obs) => new IntervalTuple(obs.interval, obs.value / value)));
+  }
 
 }

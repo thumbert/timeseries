@@ -139,6 +139,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Another common example for function f is (x,y) => {'x': x, 'y': y}.
   /// This method can be used to add two numerical timeseries with
   /// f = (x,y) => x + y.
+  /// Or, you can use it to fill an irregular timeseries with
+  /// (x,y) => y == null ? x : y;
   TimeSeries merge(TimeSeries y, {Func2 f, JoinType joinType: JoinType.Inner}) {
     /// TODO: finish implementation
     f ??= (x,y) => [x,y];
@@ -147,7 +149,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       case JoinType.Inner:
         int j = 0;
         for (int i=0; i<this.length; i++) {
-          while (y[j].item1.start.isBefore(_data[i].item1.start)) {
+          while (y[j].item1.start.isBefore(_data[i].item1.start) && j<y.length-1) {
             ++j;
           }
           if (_data[i].item1 == y[j].item1) {
@@ -158,7 +160,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       case JoinType.Left:
         int j = 0;
         for (int i=0; i<this.length; i++) {
-          while (y[j].item1.start.isBefore(_data[i].item1.start)) {
+          while (y[j].item1.start.isBefore(_data[i].item1.start) && j<y.length-1) {
             ++j;
           }
           if (_data[i].item1 == y[j].item1) {
@@ -169,17 +171,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
         }
         break;
       case JoinType.Right:
-//        int i = 0;
-//        for (int j=0; j<y.length; j++) {
-//          while (_data[i].item1.start.isBefore(y[j].item1.start)) {
-//            ++i;
-//          }
-//          if (_data[i].item1 == y[j].item1) {
-//            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
-//          } else {
-//            res.add(new IntervalTuple(y[j].item1, f(null, y[j].item2)));
-//          }
-//        }
+        int i = 0;
+        for (int j=0; j<y.length; j++) {
+          while (_data[i].item1.start.isBefore(y[j].item1.start) && i<_data.length-1) {
+            ++i;
+          }
+          if (_data[i].item1 == y[j].item1) {
+            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+          } else {
+            res.add(new IntervalTuple(y[j].item1, f(null, y[j].item2)));
+          }
+        }
 
         break;
       case JoinType.Outer:
@@ -188,23 +190,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return new TimeSeries.fromIterable(res);
   }
 
-
-  /// Aggregate the values of this time series that belong to the
-  /// interval [interval] according to the function [f].
-  /// For example, given an hourly temperatures for a full calendar year,
-  /// you can calculate the average temperature for a month.
-  /// <p>Function f: Iterable<K> => R
-  /// DECIDED THIS IS NOT NEEDED BECAUSE I HAVE THE window() method.
-//  R aggregateValues<R>(Interval interval, R f(Iterable<K> values)) {
-//    int i1 = _startBinarySearch(interval.start);
-//    int i2;
-//    if (interval.end == _data.last.interval.end) {
-//      i2 = _data.length;
-//    } else {
-//      i2 = _startBinarySearch(interval.end, min: i1);
-//    }
-//    return f(_data.sublist(i1, i2).map((e) => e.value));
-//  }
 
   /// Append observations from timeseries [y] to [this].
   /// [y] observations that are before the first observation of
