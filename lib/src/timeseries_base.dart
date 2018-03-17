@@ -70,6 +70,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   Iterable<IntervalTuple<K>> get observations => _data;
 
+  /// Get the time intervals
+  Iterable<Interval> get intervals =>
+      _data.map((IntervalTuple obs) => obs.interval);
+
+  /// Get the values in this timeseries
   Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
 
   /// Return the time series in column format, first column the intervals,
@@ -143,53 +148,60 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// (x,y) => y == null ? x : y;
   TimeSeries merge(TimeSeries y, {Func2 f, JoinType joinType: JoinType.Inner}) {
     /// TODO: finish implementation
-    f ??= (x,y) => [x,y];
+    f ??= (x, y) => [x, y];
     List res = [];
     switch (joinType) {
       case JoinType.Inner:
         int j = 0;
-        for (int i=0; i<this.length; i++) {
-          while (y[j].item1.start.isBefore(_data[i].item1.start) && j<y.length-1) {
+        for (int i = 0; i < this.length; i++) {
+          while (y[j].item1.start.isBefore(_data[i].item1.start) &&
+              j < y.length - 1) {
             ++j;
           }
           if (_data[i].item1 == y[j].item1) {
-            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+            res.add(new IntervalTuple(
+                _data[i].item1, f(_data[i].item2, y[j].item2)));
           }
         }
         break;
+
       case JoinType.Left:
         int j = 0;
-        for (int i=0; i<this.length; i++) {
-          while (y[j].item1.start.isBefore(_data[i].item1.start) && j<y.length-1) {
+        for (int i = 0; i < this.length; i++) {
+          while (y[j].item1.start.isBefore(_data[i].item1.start) &&
+              j < y.length - 1) {
             ++j;
           }
           if (_data[i].item1 == y[j].item1) {
-            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+            res.add(new IntervalTuple(
+                _data[i].item1, f(_data[i].item2, y[j].item2)));
           } else {
             res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, null)));
           }
         }
         break;
+
       case JoinType.Right:
         int i = 0;
-        for (int j=0; j<y.length; j++) {
-          while (_data[i].item1.start.isBefore(y[j].item1.start) && i<_data.length-1) {
+        for (int j = 0; j < y.length; j++) {
+          while (_data[i].item1.start.isBefore(y[j].item1.start) &&
+              i < _data.length - 1) {
             ++i;
           }
           if (_data[i].item1 == y[j].item1) {
-            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+            res.add(new IntervalTuple(
+                _data[i].item1, f(_data[i].item2, y[j].item2)));
           } else {
             res.add(new IntervalTuple(y[j].item1, f(null, y[j].item2)));
           }
         }
-
         break;
+
       case JoinType.Outer:
         break;
     }
     return new TimeSeries.fromIterable(res);
   }
-
 
   /// Append observations from timeseries [y] to [this].
   /// [y] observations that are before the first observation of
@@ -239,7 +251,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   List<IntervalTuple<K>> window(Interval interval) {
     int iS, iE;
     iS = _startBinarySearch(interval.start);
-    if (interval.end ==_data.last.item1.end)
+    if (interval.end == _data.last.item1.end)
       iE = _data.length;
     else
       iE = _startBinarySearch(interval.end);

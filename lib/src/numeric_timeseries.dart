@@ -4,6 +4,7 @@ import 'package:date/date.dart';
 import 'interval_tuple.dart';
 import 'timeseries_base.dart';
 
+/// A convenience class with some arithmetic operators defined.
 class NumericTimeSeries extends TimeSeries<double> {
   NumericTimeSeries.fromIterable(Iterable<IntervalTuple<double>> x)
       : super.fromIterable(x);
