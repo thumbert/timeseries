@@ -42,3 +42,24 @@ Interval is done using binary search.
 ```dart
 x.observationAt(new Date(2017,1,5));
 ```
+## Examples
+
+One of the most useful methods on a timeseries is merge.  Allows you to join 
+(in an SQL sense) two timeseries.  Here is an example of how to add (by index) several 
+timeseries.
+
+```dart
+  var days = [
+    new Date(2018, 1, 1),
+    new Date(2018, 1, 2),
+    new Date(2018, 1, 3),
+  ];
+  var ts1 = new TimeSeries.from(days, [1, 1, 1]);
+  var ts2 = new TimeSeries.from(days, [2, 2, 2]);
+  var ts3 = new TimeSeries.from(days, [3, 3, 3]);
+
+  /// add all timeseries together
+  var out = [ts1, ts2, ts3].reduce((TimeSeries a, TimeSeries b) {
+    return a.merge(b, f: (x,y) => x + y);
+  });
+```
