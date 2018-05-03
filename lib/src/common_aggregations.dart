@@ -1,5 +1,10 @@
 library common_aggregations;
 
+import 'timeseries_base.dart';
+import 'package:timeseries/timeseries.dart';
+import 'package:date/date.dart';
+
+
 /// Convenience function to calculate daily summary.  Function f takes an Iterable and returns the 
 /// summary statistic.  The TimeSeries [x] should not cross day boundaries. 
 TimeSeries toDaily(TimeSeries x, Function f) {
