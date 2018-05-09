@@ -216,9 +216,27 @@ timeseriesTests() {
         [27, 17],
         [28, null],
       ]);
-
     });
 
+    test('merge two timeseries JoinType.Outer', () {
+    var ts1 = new TimeSeries.fromIterable([
+    new IntervalTuple(new Date(2018, 1, 1), 1),
+    new IntervalTuple(new Date(2018, 1, 2), 1),
+  ]);
+  var ts2 = new TimeSeries.fromIterable([
+    new IntervalTuple(new Date(2018, 1, 2), 2),
+    new IntervalTuple(new Date(2018, 1, 3), 2),
+  ]);
+  var out = ts1.merge(ts2, joinType: JoinType.Outer,
+    f: (x,y) {
+      x ??= 0;
+      y ??= 0;
+      return x+y;
+    });
+      expect(out.length, 3);
+      expect(out.values.toList(), [1,3,2]);
+    });
+    
     test('fill a timeseries using merge', (){
       var days = new TimeIterable(new Date(2017,1,1), new Date(2017,1,8)).toList();
       var zeros = new TimeSeries.fill(days, 0);
