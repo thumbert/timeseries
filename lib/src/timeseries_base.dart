@@ -207,7 +207,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
             i++;
             j++;
             
-          } else if (i < this.length && _data[i].item1.start.isBefore(y[j].item1.start)) {
+          
+          } else if (i < this.length &&
+              (j == y.length || _data[i].item1.start.isBefore(y[j].item1.start))) {
             res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, null)));
             i++;
             
