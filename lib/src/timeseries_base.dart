@@ -198,6 +198,24 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
         break;
 
       case JoinType.Outer:
+        int i = 0; 
+        int j = 0;
+        int n = this.length + y.length;
+        while (i+j < n) {
+          if (i < this.length && _data[i].item1 == y[j].item1) {
+            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
+            i++;
+            j++;
+            
+          } else if (i < this.length && _data[i].item1.start.isBefore(y[j].item1.start)) {
+            res.add(new IntervalTuple(_data[i].item1, f(_data[i].item2, null)));
+            i++;
+            
+          } else if (j < y.length){
+            res.add(new IntervalTuple(y[j].item1, f(null, y[j].item2)));
+            j++;
+          } 
+        }
         break;
     }
     return new TimeSeries.fromIterable(res);
