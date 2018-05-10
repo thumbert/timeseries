@@ -147,7 +147,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Or, you can use it to fill an irregular timeseries with
   /// (x,y) => y == null ? x : y;
   TimeSeries merge(TimeSeries y, {Func2 f, JoinType joinType: JoinType.Inner}) {
-    /// TODO: finish implementation
     f ??= (x, y) => [x, y];
     List res = [];
     switch (joinType) {

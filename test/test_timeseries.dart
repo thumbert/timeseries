@@ -253,6 +253,26 @@ timeseriesTests() {
       expect(out.values.toList(), [2, 2]);
     });
 
+    test('merge two hourly timeseries JoinType.Outer', () {
+      var ts1 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Hour.beginning(new TZDateTime(location, 2018, 1, 1, 0)), 100),
+        new IntervalTuple(new Hour.beginning(new TZDateTime(location, 2018, 1, 1, 1)), 101),
+      ]);
+      var ts2 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Hour.beginning(new TZDateTime(location, 2018, 1, 1, 0)), 1),
+        new IntervalTuple(new Hour.beginning(new TZDateTime(location, 2018, 1, 1, 1)), 2),
+      ]);
+      var out = ts1.merge(ts2, joinType: JoinType.Outer, f: (x, y) {
+        x ??= 0;
+        y ??= 0;
+        return x + y;
+      });
+      expect(out.length, 2);
+      expect(out.values.toList(), [101, 103]);
+    });
+
+
+
     test('reduce three timeseries JoinType.Outer', () {
       var ts1 = new TimeSeries.fromIterable([
         new IntervalTuple(new Date(2018, 1, 1), 1),
