@@ -253,6 +253,31 @@ timeseriesTests() {
       expect(out.values.toList(), [2, 2]);
     });
 
+    test('reduce three timeseries JoinType.Outer', () {
+      var ts1 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2018, 1, 1), 1),
+        new IntervalTuple(new Date(2018, 1, 2), 1),
+      ]);
+      var ts2 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2018, 1, 1), 1),
+        new IntervalTuple(new Date(2018, 1, 2), 1),
+      ]);
+      var ts3 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2018, 1, 1), 1),
+        new IntervalTuple(new Date(2018, 1, 3), 1),
+      ]);
+
+      var out = [ts1, ts2, ts3].reduce((a,b) => a.merge(b,
+          joinType: JoinType.Outer, f: (x, y) {
+        x ??= 0;
+        y ??= 0;
+        return x + y;
+      }));
+      expect(out.length, 3);
+      expect(out.values.toList(), [3, 2, 1]);
+    });
+
+
 
     test('fill a timeseries using merge', () {
       var days =
