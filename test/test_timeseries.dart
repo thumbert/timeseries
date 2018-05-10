@@ -156,7 +156,6 @@ timeseriesTests() {
       expect(ts2.length, 3);
     });
 
-
     test('merge timeseries', () {
       TimeSeries x = new TimeSeries.fromIterable([
         new IntervalTuple(new Date(2017, 1, 1), 11),
@@ -198,8 +197,8 @@ timeseriesTests() {
       var res3 = x.merge(y, joinType: JoinType.Right);
       expect(res3.length, 6);
       expect(res3.values.toList(), [
-        [null,30],
-        [null,31],
+        [null, 30],
+        [null, 31],
         [11, 21],
         [12, 22],
         [17, 27],
@@ -218,36 +217,54 @@ timeseriesTests() {
       ]);
     });
 
-    test('merge two timeseries JoinType.Outer', () {
-    var ts1 = new TimeSeries.fromIterable([
-    new IntervalTuple(new Date(2018, 1, 1), 1),
-    new IntervalTuple(new Date(2018, 1, 2), 1),
-  ]);
-  var ts2 = new TimeSeries.fromIterable([
-    new IntervalTuple(new Date(2018, 1, 2), 2),
-    new IntervalTuple(new Date(2018, 1, 3), 2),
-  ]);
-  var out = ts1.merge(ts2, joinType: JoinType.Outer,
-    f: (x,y) {
-      x ??= 0;
-      y ??= 0;
-      return x+y;
-    });
+    test('merge two timeseries JoinType.Outer 1', () {
+      var ts1 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2018, 1, 1), 1),
+        new IntervalTuple(new Date(2018, 1, 2), 1),
+      ]);
+      var ts2 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2018, 1, 2), 2),
+        new IntervalTuple(new Date(2018, 1, 3), 2),
+      ]);
+      var out = ts1.merge(ts2, joinType: JoinType.Outer, f: (x, y) {
+        x ??= 0;
+        y ??= 0;
+        return x + y;
+      });
       expect(out.length, 3);
-      expect(out.values.toList(), [1,3,2]);
-    });
-    
-    test('fill a timeseries using merge', (){
-      var days = new TimeIterable(new Date(2017,1,1), new Date(2017,1,8)).toList();
-      var zeros = new TimeSeries.fill(days, 0);
-      var fewDays = [0,1,3,4,7].map((i) => days[i]);
-      var ts = new TimeSeries.from(fewDays, [1,2,4,5,8]);
-      Function fill = (x,y) => y == null ? x : y;
-      var tsExt = zeros.merge(ts, f: fill, joinType: JoinType.Left);
-      expect(tsExt.length, 8);
-      expect(tsExt.values, [1,2,0,4,5,0,0,8]);
+      expect(out.values.toList(), [1, 3, 2]);
     });
 
+    test('merge two timeseries JoinType.Outer 2', () {
+      var ts1 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2018, 1, 1), 1),
+        new IntervalTuple(new Date(2018, 1, 2), 1),
+      ]);
+      var ts2 = new TimeSeries.fromIterable([
+        new IntervalTuple(new Date(2018, 1, 1), 1),
+        new IntervalTuple(new Date(2018, 1, 2), 1),
+      ]);
+      var out = ts1.merge(ts2, joinType: JoinType.Outer, f: (x, y) {
+        x ??= 0;
+        y ??= 0;
+        return x + y;
+      });
+      expect(out.length, 2);
+      expect(out.values.toList(), [2, 2]);
+    });
+
+
+    test('fill a timeseries using merge', () {
+      var days =
+          new TimeIterable(new Date(2017, 1, 1), new Date(2017, 1, 8)).toList();
+      var zeros = new TimeSeries.fill(days, 0);
+      var fewDays = [0, 1, 3, 4, 7].map((i) => days[i]);
+      var ts = new TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
+      Function fill = (x, y) => y == null ? x : y;
+      var tsExt = zeros.merge(ts, f: fill, joinType: JoinType.Left);
+      expect(tsExt.length, 8);
+      expect(tsExt.values, [1, 2, 0, 4, 5, 0, 0, 8]);
+    });
 
     test('add two timeseries with merge', () {
       TimeSeries x = new TimeSeries.fromIterable([
@@ -334,7 +351,7 @@ timeseriesTests() {
           new Hour.beginning(new TZDateTime.local(2017, 1, 1, 10)), 0.6),
     ];
     var out = new TimeseriesPacker().pack(x);
-    test('Pack it', () {
+      test('Pack it', () {
       expect(out.length, 5);
       expect(out.map((e) => e.length), [5, 3, 1, 1, 1]);
     });
