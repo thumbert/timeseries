@@ -270,7 +270,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   List<IntervalTuple<K>> window(Interval interval) {
     int iS, iE;
     iS = _startBinarySearch(interval.start);
-    if (interval.end == _data.last.item1.end)
+    if (interval.end.isAfter(_data.last.item1.end)
+        || interval.end.isAtSameMomentAs(_data.last.item1.end))
       iE = _data.length;
     else
       iE = _startBinarySearch(interval.end);
