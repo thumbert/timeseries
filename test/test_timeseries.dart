@@ -41,16 +41,16 @@ timeseriesTests() {
 
     test(
         'Construct mixed daily and monthly series works as long as not overlapping',
-        () {
-      List x = [
-        new IntervalTuple(new Date(2016, 1, 20), 20),
-        new IntervalTuple(new Date(2016, 1, 21), 21),
-        new IntervalTuple(new Month(2016, 2), 2),
-        new IntervalTuple(new Month(2016, 3), 3)
-      ];
-      var ts = new TimeSeries.fromIterable(x);
-      expect(ts.length, 4);
-    });
+            () {
+          List x = [
+            new IntervalTuple(new Date(2016, 1, 20), 20),
+            new IntervalTuple(new Date(2016, 1, 21), 21),
+            new IntervalTuple(new Month(2016, 2), 2),
+            new IntervalTuple(new Month(2016, 3), 3)
+          ];
+          var ts = new TimeSeries.fromIterable(x);
+          expect(ts.length, 4);
+        });
 
     test('check indexing', () {
       var ts = new TimeSeries.fill(hours, 1);
@@ -60,32 +60,75 @@ timeseriesTests() {
     });
 
     test('observationAt works for matching interval', () {
-      var months = new Interval(new DateTime.utc(2014), new DateTime.utc(2015))
+      var months = new Interval(new TZDateTime.utc(2014), new TZDateTime.utc(2015))
           .splitLeft((dt) => new Month(dt.year, dt.month));
       var ts = new TimeSeries.fill(months, 1);
       expect(ts.observationAt(new Month(2014, 3)).interval, new Month(2014, 3));
     });
 
     test('observationAt throws if interval is outside the timeseries domain',
-        () {
-      var months = new Interval(new DateTime.utc(2014), new DateTime.utc(2015))
-          .splitLeft((dt) => new Month(dt.year, dt.month));
-      var ts = new TimeSeries.fill(months, 1);
-      expect(() => ts.observationAt(new Month(2015, 1)), throwsRangeError);
-    });
+            () {
+          var months = new Interval(new TZDateTime.utc(2014), new TZDateTime.utc(2015))
+              .splitLeft((dt) => new Month(dt.year, dt.month));
+          var ts = new TimeSeries.fill(months, 1);
+          expect(() => ts.observationAt(new Month(2015, 1)), throwsRangeError);
+        });
 
     test('calculate the number of hours in a month using groupByIndex', () {
       var ts = new TimeSeries.fill(hours, 1);
       var aux = ts.groupByIndex((hour) =>
-          new Month(hour.start.year, hour.start.month, location: location));
+      new Month(hour.start.year, hour.start.month, location: location));
       var hrs = aux.map((x) => x.value.length).toList();
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
+    });
+
+    test('window inside interval', () {
+      var days = new Month(2018, 1, location: location)
+          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+      var ts = new TimeSeries.fill(days, 1);
+
+      List<IntervalTuple> res = ts.window(new Interval(
+          new TZDateTime(location, 2018, 1, 3),
+          new TZDateTime(location, 2018, 1, 7)));
+      expect(res.length, 4);
+    });
+
+    test('window right overlapping interval', () {
+      var days = new Month(2018, 1, location: location)
+          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+      var ts = new TimeSeries.fill(days, 1);
+      List<IntervalTuple> res = ts.window(new Interval(
+          new TZDateTime(location, 2018, 1, 4),
+          new TZDateTime(location, 2018, 2, 7)));
+      expect(res.length, 28);
+    });
+
+    test('window left overlapping interval', () {
+      var days = new Month(2018, 1, location: location)
+          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+      var ts = new TimeSeries.fill(days, 1);
+
+      List<IntervalTuple> res = ts.window(new Interval(
+          new TZDateTime(location, 2017, 12, 27),
+          new TZDateTime(location, 2018, 1, 7)));
+      expect(res.length, 6);
+    });
+
+    test('window totally overlapping interval', () {
+      var days = new Month(2018, 1, location: location)
+          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+      var ts = new TimeSeries.fill(days, 1);
+
+      List<IntervalTuple> res = ts.window(new Interval(
+          new TZDateTime(location, 2017, 12, 27),
+          new TZDateTime(location, 2018, 2, 7)));
+      expect(res.length, 31);
     });
 
     test('calculate the number of hours in a month using aggregateValues', () {
       var ts = new TimeSeries.fill(hours, 1);
       var months = new Interval(
-              new TZDateTime(location, 2016), new TZDateTime(location, 2017))
+          new TZDateTime(location, 2016), new TZDateTime(location, 2017))
           .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
       var hrs = months.map((month) => ts.window(month).length).toList();
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
@@ -93,7 +136,7 @@ timeseriesTests() {
 
     test('slice the timeseries according to an interval (window)', () {
       var months = new Interval(
-              new TZDateTime(location, 2014), new TZDateTime(location, 2015))
+          new TZDateTime(location, 2014), new TZDateTime(location, 2015))
           .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
       var ts = new TimeSeries.fill(months, 1);
 
@@ -103,6 +146,8 @@ timeseriesTests() {
       expect(res.length, 4);
       expect(res.join(", "), 'Mar14 -> 1, Apr14 -> 1, May14 -> 1, Jun14 -> 1');
     });
+
+
 
     test('add one observation at the end', () {
       var start = new Month(2015, 1);
@@ -115,9 +160,9 @@ timeseriesTests() {
 
     test('adding to the middle of the time series throws', () {
       var months =
-          new TimeIterable(new Month(2014, 1), new Month(2014, 12)).toList();
+      new TimeIterable(new Month(2014, 1), new Month(2014, 12)).toList();
       var ts =
-          new TimeSeries.generate(12, (i) => new IntervalTuple(months[i], i));
+      new TimeSeries.generate(12, (i) => new IntervalTuple(months[i], i));
       expect(() => ts.add(new IntervalTuple(new Date(2014, 4, 1), 4)),
           throwsStateError);
     });
@@ -143,15 +188,15 @@ timeseriesTests() {
 
     test('filter observations', () {
       var months =
-          new TimeIterable(new Month(2014, 1), new Month(2014, 7)).toList();
+      new TimeIterable(new Month(2014, 1), new Month(2014, 7)).toList();
       var ts =
-          new TimeSeries.generate(6, (i) => new IntervalTuple(months[i], i));
+      new TimeSeries.generate(6, (i) => new IntervalTuple(months[i], i));
       ts.retainWhere((obs) => obs.value > 2);
       expect(ts.values.first, 3);
       expect(ts.length, 3);
 
       var ts2 =
-          new TimeSeries.generate(6, (i) => new IntervalTuple(months[i], i));
+      new TimeSeries.generate(6, (i) => new IntervalTuple(months[i], i));
       ts2.removeWhere((e) => e.value > 2);
       expect(ts2.length, 3);
     });
@@ -289,10 +334,10 @@ timeseriesTests() {
 
       var out = [ts1, ts2, ts3].reduce((a,b) => a.merge(b,
           joinType: JoinType.Outer, f: (x, y) {
-        x ??= 0;
-        y ??= 0;
-        return x + y;
-      }));
+            x ??= 0;
+            y ??= 0;
+            return x + y;
+          }));
       expect(out.length, 3);
       expect(out.values.toList(), [3, 2, 1]);
     });
@@ -301,7 +346,7 @@ timeseriesTests() {
 
     test('fill a timeseries using merge', () {
       var days =
-          new TimeIterable(new Date(2017, 1, 1), new Date(2017, 1, 8)).toList();
+      new TimeIterable(new Date(2017, 1, 1), new Date(2017, 1, 8)).toList();
       var zeros = new TimeSeries.fill(days, 0);
       var fewDays = [0, 1, 3, 4, 7].map((i) => days[i]);
       var ts = new TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
@@ -361,7 +406,7 @@ timeseriesTests() {
   group('Aggregations/Expansion:', () {
     test('expand a monthly timeseries to a daily timeseries', () {
       var ts =
-          new TimeSeries.from([new Month(2016, 1), new Month(2016, 2)], [1, 2]);
+      new TimeSeries.from([new Month(2016, 1), new Month(2016, 2)], [1, 2]);
       var tsDaily = ts.expand((obs) {
         Month month = obs.interval;
         return month.days().map((day) => new IntervalTuple(day, obs.value));
@@ -396,7 +441,7 @@ timeseriesTests() {
           new Hour.beginning(new TZDateTime.local(2017, 1, 1, 10)), 0.6),
     ];
     var out = new TimeseriesPacker().pack(x);
-      test('Pack it', () {
+    test('Pack it', () {
       expect(out.length, 5);
       expect(out.map((e) => e.length), [5, 3, 1, 1, 1]);
     });
@@ -423,6 +468,7 @@ timeseriesTests() {
     });
   });
 }
+
 
 main() {
   Map env = Platform.environment;
