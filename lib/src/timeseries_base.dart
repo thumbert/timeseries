@@ -261,21 +261,26 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return new TimeSeries.from(grp.keys, grp.values);
   }
 
-  /// Extract the subset of _data corresponding to a time interval.
+  /// Extract the subset of this timeseries corresponding to a time interval.  The 
+  /// [interval] needs to match exactly the start/end of individual intervals of 
+  /// the timeseries.  If there is no overlap, return an empty TimeSeries. 
   /// <p> Attention needs to be paid so the [interval] matches the same TZ info
   /// as the original timeseries.
   /// <p> The implementation uses binary search so it is efficient for slicing
   /// into large timeseries.
   ///
   List<IntervalTuple<K>> window(Interval interval) {
-    int iS, iE;
-    iS = _startBinarySearch(interval.start);
-    if (interval.end.isAfter(_data.last.item1.end)
-        || interval.end.isAtSameMomentAs(_data.last.item1.end))
-      iE = _data.length;
-    else
+    if (interval.start.isAfter(_data.last.item1.start) ||
+      interval.end.isBefore(_data.first.item1.end)) {
+      return new TimeSeries.fromIterable([]);
+    }
+    int iS = 0;
+    int iE = _data.length;
+    if (interval.start.isAfter(_data.first.item1.start))
+      iS = _startBinarySearch(interval.start);
+    if (interval.end.isBefore(_data.last.item1.end))
       iE = _startBinarySearch(interval.end);
-    return _data.sublist(iS, iE);
+    return _data.sublist(iS, iE);  
   }
 }
 
