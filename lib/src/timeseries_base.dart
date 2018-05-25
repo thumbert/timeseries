@@ -98,44 +98,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return ts;
   }
 
-  /// return the index of the key in the List _data or -1.
-  int _comparableBinarySearch(Interval key) {
-    int min = 0;
-    int max = _data.length;
-    while (min < max) {
-      int mid = min + ((max - min) >> 1);
-      var element = _data[mid].interval;
-      int comp = _compareNonoverlappingIntervals(element, key);
-      if (comp == 0) return mid;
-      if (comp < 0) {
-        min = mid + 1;
-      } else {
-        max = mid;
-      }
-    }
-    return -1;
-  }
-
-  /// Allows to search for the beginning of an interval in the timeseries.
-  /// The search happens between the min and max index.
-  /// Return the index of the key in the List _data or -1.
-  int _startBinarySearch(DateTime key, {int min, int max}) {
-    min ??= 0;
-    max ??= _data.length;
-    while (min < max) {
-      int mid = min + ((max - min) >> 1);
-      var element = _data[mid].interval.start;
-      int comp = element.compareTo(key);
-      if (comp == 0) return mid;
-      if (comp < 0) {
-        min = mid + 1;
-      } else {
-        max = mid;
-      }
-    }
-    return -1;
-  }
-
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time intervals.  This method should only be applied if time
   /// intervals are of similar type.  The default value of [f] is to concatenate
@@ -261,9 +223,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return new TimeSeries.from(grp.keys, grp.values);
   }
 
-  /// Extract the subset of this timeseries corresponding to a time interval.  The 
-  /// [interval] needs to match exactly the start/end of individual intervals of 
-  /// the timeseries.  If there is no overlap, return an empty TimeSeries. 
+  /// Extract the subset of this timeseries corresponding to a time interval.
+  /// If there is no overlap, return an empty TimeSeries.
   /// <p> Attention needs to be paid so the [interval] matches the same TZ info
   /// as the original timeseries.
   /// <p> The implementation uses binary search so it is efficient for slicing
@@ -271,17 +232,97 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   ///
   List<IntervalTuple<K>> window(Interval interval) {
     if (interval.start.isAfter(_data.last.item1.start) ||
-      interval.end.isBefore(_data.first.item1.end)) {
+        interval.end.isBefore(_data.first.item1.end)) {
       return new TimeSeries.fromIterable([]);
     }
     int iS = 0;
     int iE = _data.length;
     if (interval.start.isAfter(_data.first.item1.start))
-      iS = _startBinarySearch(interval.start);
+      iS = _leftFirstSearch(interval.start);
     if (interval.end.isBefore(_data.last.item1.end))
-      iE = _startBinarySearch(interval.end);
-    return _data.sublist(iS, iE);  
+      iE = _rightFirstSearch(interval.end, min: iS, max: iE);
+    if (iE < iS) return new TimeSeries.fromIterable([]);
+    return _data.sublist(iS, iE);
   }
+
+
+  /// Find the index of the first observation with an interval start > key.
+  int _leftFirstSearch(DateTime key, {int min, int max}) {
+    min ??= 0;
+    max ??= _data.length;
+    while (min < max) {
+      int mid = min + ((max - min) >> 1);
+      var element = _data[mid].item1.start;
+      int comp = element.compareTo(key);
+      if (comp == 0 || (_data[mid-1].item1.start.isBefore(key) && _data[mid].item1.start.isAfter(key))) return mid;
+      if (comp < 0) {
+        min = mid + 1;
+      } else {
+        max = mid;
+      }
+    }
+    return -1;
+  }
+
+  int _rightFirstSearch(DateTime key, {int min, int max}) {
+    min ??= 0;
+    max ??= _data.length;
+    while (min < max) {
+      int mid = min + ((max - min) >> 1);
+      var element = _data[mid].item1.start;
+      int comp = element.compareTo(key);
+      if (_data[mid-1].item1.start.isBefore(key) && _data[mid].item1.start.isAfter(key))
+        return mid-1;
+      if (comp == 0) return mid;
+      if (comp < 0) {
+        min = mid + 1;
+      } else {
+        max = mid;
+      }
+    }
+    return -1;
+  }
+
+
+
+  /// return the index of the key in the List _data or -1.
+  int _comparableBinarySearch(Interval key) {
+    int min = 0;
+    int max = _data.length;
+    while (min < max) {
+      int mid = min + ((max - min) >> 1);
+      var element = _data[mid].interval;
+      int comp = _compareNonoverlappingIntervals(element, key);
+      if (comp == 0) return mid;
+      if (comp < 0) {
+        min = mid + 1;
+      } else {
+        max = mid;
+      }
+    }
+    return -1;
+  }
+
+  /// Allows to search for the beginning of an interval in the timeseries.
+  /// The search happens between the min and max index.
+  /// Return the index of the key in the List _data or -1.
+  int _startBinarySearch(DateTime key, {int min, int max}) {
+    min ??= 0;
+    max ??= _data.length;
+    while (min < max) {
+      int mid = min + ((max - min) >> 1);
+      var element = _data[mid].interval.start;
+      int comp = element.compareTo(key);
+      if (comp == 0) return mid;
+      if (comp < 0) {
+        min = mid + 1;
+      } else {
+        max = mid;
+      }
+    }
+    return -1;
+  }
+
 }
 
 int _compareNonoverlappingIntervals(Interval i1, Interval i2) {

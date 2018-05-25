@@ -9,21 +9,81 @@ import 'package:timezone/standalone.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/numeric_timeseries.dart';
 
-soloTest() {
+windowTest() {
   Location location = getLocation('US/Eastern');
+  List days = new Interval(new TZDateTime(location, 2018, 1, 1),
+      new TZDateTime(location, 2018, 1, 10))
+      .splitLeft(
+          (dt) => new Date(dt.year, dt.month, dt.day, location: location));
+  var ts = new TimeSeries.fill(days, 1);
 
-  Hour firstHour = new Hour.beginning(new TZDateTime(location, 2016));
-  Hour lastHour = new Hour.ending(new TZDateTime(location, 2017));
-  var hours = new TimeIterable(firstHour, lastHour).toList();
+  test('window inside interval', () {
+    var days = new Month(2018, 1, location: location)
+        .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+    var ts = new TimeSeries.fill(days, 1);
 
-  test('aggregate calculate the number of hours in a month', () {
-    var ts = new TimeSeries.fill(hours, 1);
-    var months = new Interval(
-            new TZDateTime(location, 2016), new TZDateTime(location, 2017))
-        .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
-    var hrs = months.map((month) => ts.window(month).length).toList();
-    expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
+    List<IntervalTuple> res = ts.window(new Interval(
+        new TZDateTime(location, 2018, 1, 3),
+        new TZDateTime(location, 2018, 1, 7)));
+    expect(res.length, 4);
   });
+
+  test('window right overlapping interval', () {
+    var days = new Month(2018, 1, location: location)
+        .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+    var ts = new TimeSeries.fill(days, 1);
+    List<IntervalTuple> res = ts.window(new Interval(
+        new TZDateTime(location, 2018, 1, 4),
+        new TZDateTime(location, 2018, 2, 7)));
+    expect(res.length, 28);
+  });
+
+  test('window left overlapping interval', () {
+    var days = new Month(2018, 1, location: location)
+        .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+    var ts = new TimeSeries.fill(days, 1);
+
+    List<IntervalTuple> res = ts.window(new Interval(
+        new TZDateTime(location, 2017, 12, 27),
+        new TZDateTime(location, 2018, 1, 7)));
+    expect(res.length, 6);
+  });
+
+  test('window totally overlapping interval', () {
+    var days = new Month(2018, 1, location: location)
+        .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
+    var ts = new TimeSeries.fill(days, 1);
+
+    List<IntervalTuple> res = ts.window(new Interval(
+        new TZDateTime(location, 2017, 12, 27),
+        new TZDateTime(location, 2018, 2, 7)));
+    expect(res.length, 31);
+  });
+
+  test('window non matching intervals, both sides', () {
+    var interval = new Interval(new TZDateTime(location, 2018, 1, 2, 5),
+      new TZDateTime(location, 2018, 1, 5, 1));
+    var aux = ts.window(interval);
+    //print(aux);
+    expect(aux.first.item1.start, new TZDateTime(location, 2018, 1, 3));
+    expect(aux.length, 2);
+  });
+
+  test('window non matching intervals, outside', () {
+    var interval = new Interval(new TZDateTime(location, 2017, 1, 2, 5),
+        new TZDateTime(location, 2018, 1, 15, 1));
+    var aux = ts.window(interval);
+    expect(aux.first.item1.start, new TZDateTime(location, 2018));
+    expect(aux.length, 9);
+  });
+
+  test('window inside an interval', () {
+    var interval = new Interval(new TZDateTime(location, 2018, 1, 2, 5),
+        new TZDateTime(location, 2018, 1, 2, 15));
+    var aux = ts.window(interval);
+    expect(aux.length, 0);
+  });
+
 }
 
 timeseriesTests() {
@@ -82,48 +142,7 @@ timeseriesTests() {
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
     });
 
-    test('window inside interval', () {
-      var days = new Month(2018, 1, location: location)
-          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
-      var ts = new TimeSeries.fill(days, 1);
 
-      List<IntervalTuple> res = ts.window(new Interval(
-          new TZDateTime(location, 2018, 1, 3),
-          new TZDateTime(location, 2018, 1, 7)));
-      expect(res.length, 4);
-    });
-
-    test('window right overlapping interval', () {
-      var days = new Month(2018, 1, location: location)
-          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
-      var ts = new TimeSeries.fill(days, 1);
-      List<IntervalTuple> res = ts.window(new Interval(
-          new TZDateTime(location, 2018, 1, 4),
-          new TZDateTime(location, 2018, 2, 7)));
-      expect(res.length, 28);
-    });
-
-    test('window left overlapping interval', () {
-      var days = new Month(2018, 1, location: location)
-          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
-      var ts = new TimeSeries.fill(days, 1);
-
-      List<IntervalTuple> res = ts.window(new Interval(
-          new TZDateTime(location, 2017, 12, 27),
-          new TZDateTime(location, 2018, 1, 7)));
-      expect(res.length, 6);
-    });
-
-    test('window totally overlapping interval', () {
-      var days = new Month(2018, 1, location: location)
-          .splitLeft((dt) => new Date(dt.year, dt.month, dt.day, location: location));
-      var ts = new TimeSeries.fill(days, 1);
-
-      List<IntervalTuple> res = ts.window(new Interval(
-          new TZDateTime(location, 2017, 12, 27),
-          new TZDateTime(location, 2018, 2, 7)));
-      expect(res.length, 31);
-    });
 
     test('calculate the number of hours in a month using aggregateValues', () {
       var ts = new TimeSeries.fill(hours, 1);
@@ -477,5 +496,5 @@ main() {
   initializeTimeZoneSync(tzdb);
 
   timeseriesTests();
-  //soloTest();
+  windowTest();
 }
