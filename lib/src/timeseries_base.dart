@@ -223,20 +223,19 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Split a timeseries into subseries according to a function.
-  /// Return a list of [TimeSeries].  This is similar, but slighly different
+  /// This is similar, but slighly different
   /// than [groupByIndex] which returns an aggregated timeseries.
-  /// Function [f] should return a classification factor. 
-  Iterable<TimeSeries> splitByIndex(f(Interval interval)) {
-    Map<dynamic, List> grp = {};
+  /// Function [f] should return a classification factor.
+  Map<K,TimeSeries> splitByIndex(K f(Interval interval)) {
+    Map<K,List> grp = {};
     int N = _data.length;
     for (int i = 0; i < N; i++) {
       var group = f(_data[i].interval);
       grp.putIfAbsent(group, () => new TimeSeries.fromIterable([]))
           .add(new IntervalTuple(_data[i].interval, _data[i].value));
     }
-    return grp.values;
+    return grp;
   }
-
   
   /// Extract the subset of this timeseries corresponding to a time interval.
   /// If there is no overlap, return an empty TimeSeries.
