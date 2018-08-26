@@ -17,10 +17,11 @@ class NumericTimeSeries extends TimeSeries<double> {
 
 
   /// Add a constant to all elements of this timeseries.
-  NumericTimeSeries operator +(double value) {
-    return new NumericTimeSeries.fromIterable(observations
-        .map((obs) => new IntervalTuple(obs.interval, obs.value + value)));
-  }
+  /// FIXME: operator + was added in Dart 2.0, how to override it properly?
+//  NumericTimeSeries operator +(double value) {
+//    return new NumericTimeSeries.fromIterable(observations
+//        .map((obs) => new IntervalTuple(obs.interval, obs.value + value)));
+//  }
 
   /// Subtract a constant from all elements of this timeseries.
   NumericTimeSeries operator -(double value) {

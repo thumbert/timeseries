@@ -1,7 +1,6 @@
 library timeseries_base;
 
 import 'dart:collection';
-import 'package:func/func.dart';
 import 'package:date/date.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
@@ -40,7 +39,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// created by calling the generator for each index in the range
   /// 0..length-1 in increasing order.
   /// The [generator] function needs to return IntervalTuple
-  TimeSeries.generate(int length, Function generator) {
+  TimeSeries.generate(int length, IntervalTuple generator(int)) {
     new List.generate(length, generator).forEach((IntervalTuple e) => add(e));
   }
 
@@ -51,7 +50,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     _data.length = i;
   }
 
-  IntervalTuple operator [](int i) => _data[i];
+  IntervalTuple<K> operator [](int i) => _data[i];
 
   operator []=(int i, IntervalTuple obs) => _data[i] = obs;
 
@@ -92,11 +91,23 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Expand each observation of this timeseries using a function f.
   /// For example, can be used to expand a monthly timeseries to a daily series.
   /// Return a new time series.
-  Iterable expand(Iterable f(IntervalTuple obs)) {
-    TimeSeries ts = new TimeSeries.fromIterable([]);
-    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
-    return ts;
-  }
+  /// FIXME: broken in Dart 2.0
+//  Iterable<T> expand<T>(Iterable<T> f(IntervalTuple<K> element)) {
+//    var ts = new TimeSeries.fromIterable(<IntervalTuple>[]);
+//    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
+//    return ts;
+//  }
+//  Iterable<IntervalTuple<T>> expand2(Iterable<IntervalTuple<T>> f(IntervalTuple<K> e)) {
+//    var ts = new TimeSeries.fromIterable([]);
+//    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
+//    return ts;
+//  }
+
+//  Iterable<dynamic> expand(Iterable<IntervalTuple> f(IntervalTuple e)) {
+//    TimeSeries ts = new TimeSeries.fromIterable([]);
+//    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
+//    return ts;
+//  }
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time intervals.  This method should only be applied if time
@@ -108,9 +119,10 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// f = (x,y) => x + y.
   /// Or, you can use it to fill an irregular timeseries with
   /// (x,y) => y == null ? x : y;
-  TimeSeries merge(TimeSeries y, {Func2 f, JoinType joinType: JoinType.Inner}) {
+  TimeSeries merge(TimeSeries y, {dynamic Function(dynamic,dynamic) f,
+    JoinType joinType: JoinType.Inner}) {
     f ??= (x, y) => [x, y];
-    List res = [];
+    var res = <IntervalTuple>[];
     switch (joinType) {
       case JoinType.Inner:
         int j = 0;
@@ -320,22 +332,22 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Allows to search for the beginning of an interval in the timeseries.
   /// The search happens between the min and max index.
   /// Return the index of the key in the List _data or -1.
-  int _startBinarySearch(DateTime key, {int min, int max}) {
-    min ??= 0;
-    max ??= _data.length;
-    while (min < max) {
-      int mid = min + ((max - min) >> 1);
-      var element = _data[mid].interval.start;
-      int comp = element.compareTo(key);
-      if (comp == 0) return mid;
-      if (comp < 0) {
-        min = mid + 1;
-      } else {
-        max = mid;
-      }
-    }
-    return -1;
-  }
+//  int _startBinarySearch(DateTime key, {int min, int max}) {
+//    min ??= 0;
+//    max ??= _data.length;
+//    while (min < max) {
+//      int mid = min + ((max - min) >> 1);
+//      var element = _data[mid].interval.start;
+//      int comp = element.compareTo(key);
+//      if (comp == 0) return mid;
+//      if (comp < 0) {
+//        min = mid + 1;
+//      } else {
+//        max = mid;
+//      }
+//    }
+//    return -1;
+//  }
 
 }
 

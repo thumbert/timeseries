@@ -11,7 +11,7 @@ import 'package:timeseries/src/numeric_timeseries.dart';
 
 windowTest() {
   Location location = getLocation('US/Eastern');
-  List days = new Interval(new TZDateTime(location, 2018, 1, 1),
+  var days = new Interval(new TZDateTime(location, 2018, 1, 1),
       new TZDateTime(location, 2018, 1, 10))
       .splitLeft(
           (dt) => new Date(dt.year, dt.month, dt.day, location: location));
@@ -102,7 +102,7 @@ timeseriesTests() {
     test(
         'Construct mixed daily and monthly series works as long as not overlapping',
             () {
-          List x = [
+          var x = <IntervalTuple>[
             new IntervalTuple(new Date(2016, 1, 20), 20),
             new IntervalTuple(new Date(2016, 1, 21), 21),
             new IntervalTuple(new Month(2016, 2), 2),
@@ -489,11 +489,11 @@ timeseriesTests() {
 }
 
 
-main() {
+main() async {
   Map env = Platform.environment;
   String tzdb = env['HOME'] +
       '/.pub-cache/hosted/pub.dartlang.org/timezone-0.4.3/lib/data/2015b.tzf';
-  initializeTimeZoneSync(tzdb);
+  await initializeTimeZone(tzdb);
 
   timeseriesTests();
   windowTest();

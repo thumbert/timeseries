@@ -3,12 +3,11 @@ library timeseries_packer;
 import 'package:date/date.dart';
 import 'interval_tuple.dart';
 
-
 /// Store repeating data in the timeseries.
-class Chunk<K extends Comparable<K>> {
+class Chunk {
   DateTime startChunk;
   Duration duration;
-  K value;
+  var value;
   int length;
   Chunk(this.startChunk, this.duration, this.value, this.length);
   Map toMap() => {
@@ -29,7 +28,7 @@ class TimeseriesPacker {
       List<Chunk> res = [];
       Interval interval = x.first.interval;
       Duration duration = interval.end.difference(interval.start);
-      Chunk chunk = new Chunk(interval.start, duration, x.first.value, 1);
+      var chunk = new Chunk(interval.start, duration, x.first.value, 1);
       x.skip(1).forEach((e) {
         duration = e.interval.end.difference(e.interval.start);
         if (e.value == chunk.value && duration == chunk.duration) ++chunk.length;
