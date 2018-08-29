@@ -55,7 +55,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   operator []=(int i, IntervalTuple obs) => _data[i] = obs;
 
   /// Only add at the end of a timeseries a non-overlapping interval.
-  void add(IntervalTuple obs) {
+  void add(IntervalTuple<K> obs) {
     if (!_data.isEmpty &&
         obs.interval.start.isBefore(_data.last.interval.end)) {
       throw new StateError("You can only add at the end of the TimeSeries");
@@ -63,7 +63,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     _data.add(obs);
   }
 
-  void addAll(Iterable<IntervalTuple> x) => x.forEach((obs) {
+  void addAll(Iterable<IntervalTuple<K>> x) => x.forEach((obs) {
         add(obs);
       });
 
@@ -76,11 +76,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Get the values in this timeseries
   Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
 
-  /// Return the time series in column format, first column the intervals,
-  /// the second column the values
+  /// Return the time series as a [Tuple2] in column format, first tuple value
+  /// of the intervals, the second tuple value the time series values.
   Tuple2<List<Interval>, List<K>> toColumns() {
-    List i = [];
-    List v = [];
+    var i = <Interval>[];
+    var v = <K>[];
     forEach((e) {
       i.add(e.interval);
       v.add(e.value);

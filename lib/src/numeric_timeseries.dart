@@ -5,12 +5,12 @@ import 'interval_tuple.dart';
 import 'timeseries_base.dart';
 
 /// A convenience class with some arithmetic operators defined.
-class NumericTimeSeries extends TimeSeries<double> {
-  NumericTimeSeries.fromIterable(Iterable<IntervalTuple<double>> x)
+class NumericTimeSeries extends TimeSeries<num> {
+  NumericTimeSeries.fromIterable(Iterable<IntervalTuple<num>> x)
       : super.fromIterable(x);
-  NumericTimeSeries.from(Iterable<Interval> index, Iterable<double> value)
+  NumericTimeSeries.from(Iterable<Interval> index, Iterable<num> value)
       : super.from(index, value);
-  NumericTimeSeries.fill(Iterable<Interval> index, double value)
+  NumericTimeSeries.fill(Iterable<Interval> index, num value)
       : super.fill(index, value);
   NumericTimeSeries.generate(int length, Function generator)
       : super.generate(length, generator);
@@ -24,19 +24,19 @@ class NumericTimeSeries extends TimeSeries<double> {
 //  }
 
   /// Subtract a constant from all elements of this timeseries.
-  NumericTimeSeries operator -(double value) {
+  NumericTimeSeries operator -(num value) {
     return new NumericTimeSeries.fromIterable(observations
         .map((obs) => new IntervalTuple(obs.interval, obs.value - value)));
   }
 
   /// Multiply all elements of this timeseries by a value.
-  NumericTimeSeries operator *(double value) {
+  NumericTimeSeries operator *(num value) {
     return new NumericTimeSeries.fromIterable(observations
         .map((obs) => new IntervalTuple(obs.interval, obs.value * value)));
   }
 
   /// Divide all elements of this timeseries by a value
-  NumericTimeSeries operator /(double value) {
+  NumericTimeSeries operator /(num value) {
     return new NumericTimeSeries.fromIterable(observations
         .map((obs) => new IntervalTuple(obs.interval, obs.value / value)));
   }

@@ -8,8 +8,6 @@ dependencies:
       git:
         url: git://github.com/thumbert/date.git
   intl: '>=0.14.0 <0.16.0'
-#  logging: any
-#  logging_handlers: any
   timezone: ^0.5.0-dev-3
   tuple: '>=1.0.0 <2.0.0'
 
