@@ -290,16 +290,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return -1;
   }
 
+ /// Find the index of the last observeration with the interval end <= key.
   int _rightFirstSearch(DateTime key, {int min, int max}) {
     min ??= 0;
     max ??= _data.length;
     while (min < max) {
       int mid = min + ((max - min) >> 1);
-      var element = _data[mid].item1.start;
+      var element = _data[mid].item1.end;
       int comp = element.compareTo(key);
-      if (_data[mid-1].item1.start.isBefore(key) && _data[mid].item1.start.isAfter(key))
-        return mid-1;
-      if (comp == 0) return mid;
+      if (_data[mid-1].item1.end.isBefore(key) && _data[mid].item1.end.isAfter(key))
+        return mid;
+      if (comp == 0) return mid+1;
       if (comp < 0) {
         min = mid + 1;
       } else {
