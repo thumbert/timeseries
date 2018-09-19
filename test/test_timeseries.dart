@@ -85,16 +85,16 @@ windowTest() {
       expect(aux.length, 0);
     });
     
-    test('irregular timeseries, window borders in timeseries gap', (){
-      Month month = new Month(2018, 1, location: location);
-      var hours = month.splitLeft((dt) => new Hour.beginning(dt));
-      var ts = new TimeSeries.fill(hours, 1);
-      var aux = splitByBucket(ts.toList(), [IsoNewEngland.bucketPeak, IsoNewEngland.bucketOffpeak]);
-      var peak = new TimeSeries.fromIterable(aux[IsoNewEngland.bucketPeak]);
-      var day = peak.window(new Date(2018, 1, 2, location: location));
-      //day.forEach(print);
-      expect(day.length, 16);
-    });
+//    test('irregular timeseries, window borders in timeseries gap', (){
+//      Month month = new Month(2018, 1, location: location);
+//      var hours = month.splitLeft((dt) => new Hour.beginning(dt));
+//      var ts = new TimeSeries.fill(hours, 1);
+//      var aux = splitByBucket(ts.toList(), [IsoNewEngland.bucketPeak, IsoNewEngland.bucketOffpeak]);
+//      var peak = new TimeSeries.fromIterable(aux[IsoNewEngland.bucketPeak]);
+//      var day = peak.window(new Date(2018, 1, 2, location: location));
+//      //day.forEach(print);
+//      expect(day.length, 16);
+//    });
   });
 }
 

@@ -15,6 +15,8 @@ enum JoinType { Left, Right, Inner, Outer }
 class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   List<IntervalTuple<K>> _data = [];
 
+  TimeSeries(): _data = [];
+
   /// Create a TimeSeries from an iterable of IntervalTuple
   TimeSeries.fromIterable(Iterable<IntervalTuple> x) {
     x.forEach((e) => add(e));
