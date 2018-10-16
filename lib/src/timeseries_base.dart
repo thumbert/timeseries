@@ -18,7 +18,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   TimeSeries(): _data = <IntervalTuple<K>>[];
 
   /// Create a TimeSeries from an iterable of IntervalTuple
-  factory TimeSeries.fromIterable(Iterable<IntervalTuple> x) {
+  factory TimeSeries.fromIterable(Iterable<IntervalTuple<K>> x) {
     var ts = TimeSeries<K>();
     x.forEach((e) => ts.add(e));
     return ts;
