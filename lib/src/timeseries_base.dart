@@ -228,7 +228,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// using the aggregation function [f].
   /// <p> This can be used as the first step of an aggregation, e.g. calculating
   /// an average monthly value from daily data.
-  TimeSeries<K> groupByIndex(Interval f(Interval interval)) {
+  TimeSeries<List<K>> groupByIndex(Interval f(Interval interval)) {
     var grp = <Interval, List<K>>{};
     int N = _data.length;
     for (int i = 0; i < N; i++) {
