@@ -243,7 +243,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// than [groupByIndex] which returns an aggregated timeseries.
   /// Function [f] should return a classification factor.
   Map<dynamic,TimeSeries> splitByIndex(dynamic f(Interval interval)) {
-    var grp = <dynamic,Timeseries>{};
+    var grp = <dynamic,TimeSeries>{};
     int N = _data.length;
     for (int i = 0; i < N; i++) {
       var group = f(_data[i].interval);
