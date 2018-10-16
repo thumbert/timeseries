@@ -123,10 +123,10 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// f = (x,y) => x + y.
   /// Or, you can use it to fill an irregular timeseries with
   /// (x,y) => y == null ? x : y;
-  TimeSeries merge(TimeSeries y, {dynamic Function(dynamic,dynamic) f,
+  TimeSeries<T> merge<T,S>(TimeSeries<S> y, {T Function(K,S) f,
     JoinType joinType: JoinType.Inner}) {
-    f ??= (x, y) => [x, y];
-    var res = <IntervalTuple>[];
+    //f ??= (x, y) => [x, y];
+    var res = <IntervalTuple<T>>[];
     switch (joinType) {
       case JoinType.Inner:
         int j = 0;
