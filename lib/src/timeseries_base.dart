@@ -13,13 +13,15 @@ enum JoinType { Left, Right, Inner, Outer }
 /// <p>Mixed intervals are permitted in the timeseries as long as they don't
 /// overlap.
 class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
-  List<IntervalTuple<K>> _data = [];
+  var _data = <IntervalTuple<K>>[];
 
-  TimeSeries(): _data = [];
+  TimeSeries(): _data = <IntervalTuple<K>>[];
 
   /// Create a TimeSeries from an iterable of IntervalTuple
-  TimeSeries.fromIterable(Iterable<IntervalTuple> x) {
-    x.forEach((e) => add(e));
+  factory TimeSeries.fromIterable(Iterable<IntervalTuple> x) {
+    var ts = TimeSeries<K>();
+    x.forEach((e) => ts.add(e));
+    return ts;
   }
 
   ///Create a TimeSeries from components. The resulting timeseries will have
@@ -241,7 +243,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// than [groupByIndex] which returns an aggregated timeseries.
   /// Function [f] should return a classification factor.
   Map<dynamic,TimeSeries> splitByIndex(dynamic f(Interval interval)) {
-    Map grp = {};
+    var grp = <dynamic,Timeseries>{};
     int N = _data.length;
     for (int i = 0; i < N; i++) {
       var group = f(_data[i].interval);
