@@ -13,13 +13,15 @@ enum JoinType { Left, Right, Inner, Outer }
 /// <p>Mixed intervals are permitted in the timeseries as long as they don't
 /// overlap.
 class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
-  List<IntervalTuple<K>> _data = [];
+  var _data = <IntervalTuple<K>>[];
 
-  TimeSeries(): _data = [];
+  TimeSeries(): _data = <IntervalTuple<K>>[];
 
   /// Create a TimeSeries from an iterable of IntervalTuple
-  TimeSeries.fromIterable(Iterable<IntervalTuple> x) {
-    x.forEach((e) => add(e));
+  factory TimeSeries.fromIterable(Iterable<IntervalTuple<K>> x) {
+    var ts = TimeSeries<K>();
+    x.forEach((e) => ts.add(e));
+    return ts;
   }
 
   ///Create a TimeSeries from components. The resulting timeseries will have
@@ -121,10 +123,10 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// f = (x,y) => x + y.
   /// Or, you can use it to fill an irregular timeseries with
   /// (x,y) => y == null ? x : y;
-  TimeSeries merge(TimeSeries y, {dynamic Function(dynamic,dynamic) f,
+  TimeSeries<T> merge<T,S>(TimeSeries<S> y, {T Function(K,S) f,
     JoinType joinType: JoinType.Inner}) {
-    f ??= (x, y) => [x, y];
-    var res = <IntervalTuple>[];
+    //f ??= (x, y) => [x, y];
+    var res = <IntervalTuple<T>>[];
     switch (joinType) {
       case JoinType.Inner:
         int j = 0;
@@ -226,12 +228,12 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// using the aggregation function [f].
   /// <p> This can be used as the first step of an aggregation, e.g. calculating
   /// an average monthly value from daily data.
-  TimeSeries groupByIndex(Interval f(Interval interval)) {
-    Map<Interval, List> grp = {};
+  TimeSeries<List<K>> groupByIndex(Interval f(Interval interval)) {
+    var grp = <Interval, List<K>>{};
     int N = _data.length;
     for (int i = 0; i < N; i++) {
       Interval group = f(_data[i].interval);
-      grp.putIfAbsent(group, () => []).add(_data[i].value);
+      grp.putIfAbsent(group, () => <K>[]).add(_data[i].value);
     }
     return new TimeSeries.from(grp.keys, grp.values);
   }
@@ -241,7 +243,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// than [groupByIndex] which returns an aggregated timeseries.
   /// Function [f] should return a classification factor.
   Map<dynamic,TimeSeries> splitByIndex(dynamic f(Interval interval)) {
-    Map grp = {};
+    var grp = <dynamic,TimeSeries>{};
     int N = _data.length;
     for (int i = 0; i < N; i++) {
       var group = f(_data[i].interval);
