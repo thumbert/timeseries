@@ -250,7 +250,7 @@ timeseriesTests() {
         new IntervalTuple(new Date(2017, 1, 7), 27),
         new IntervalTuple(new Date(2017, 1, 8), 28),
       ]);
-      var res1 = x.merge(y, joinType: JoinType.Inner);
+      var res1 = x.merge(y, joinType: JoinType.Inner, f: (x,y) => [x,y]);
       expect(res1.length, 3);
       expect(res1.values.toList(), [
         [11, 21],
@@ -258,7 +258,7 @@ timeseriesTests() {
         [17, 27]
       ]);
 
-      var res2 = x.merge(y, joinType: JoinType.Left);
+      var res2 = x.merge(y, joinType: JoinType.Left, f: (x,y) => [x,y]);
       expect(res2.length, 7);
       expect(res2.values.toList(), [
         [11, 21],
@@ -270,7 +270,7 @@ timeseriesTests() {
         [17, 27]
       ]);
 
-      var res3 = x.merge(y, joinType: JoinType.Right);
+      var res3 = x.merge(y, joinType: JoinType.Right, f: (x,y) => [x,y]);
       expect(res3.length, 6);
       expect(res3.values.toList(), [
         [null, 30],
@@ -281,7 +281,7 @@ timeseriesTests() {
         [null, 28],
       ]);
 
-      var res4 = y.merge(x, joinType: JoinType.Left);
+      var res4 = y.merge(x, joinType: JoinType.Left, f: (x,y) => [x,y]);
       expect(res4.length, 6);
       expect(res4.values.toList(), [
         [30, null],
@@ -477,23 +477,6 @@ timeseriesTests() {
     test('Unpack it', () {
       var z = new TimeseriesPacker().unpack(out);
       expect(z, x);
-    });
-  });
-
-  group('NumericTimeSeries test:', () {
-    var x = new NumericTimeSeries.fromIterable([
-      new IntervalTuple(new Date(2017, 1, 1), 11),
-      new IntervalTuple(new Date(2017, 1, 2), 12),
-      new IntervalTuple(new Date(2017, 1, 3), 13),
-      new IntervalTuple(new Date(2017, 1, 4), 14),
-    ]);
-//    test('add a value -- BROKEN in Dart 2', () {
-//      var y = x + 2.0;
-//      expect(y.values, [13, 14, 15, 16]);
-//    });
-    test('multiply by a value', () {
-      var y = x * 2.0;
-      expect(y.values, [22, 24, 26, 28]);
     });
   });
 
