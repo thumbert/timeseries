@@ -270,7 +270,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     if (interval.end.isBefore(_data.last.item1.end))
       iE = _rightFirstSearch(interval.end, min: iS, max: iE);
     if (iE < iS) return new TimeSeries.fromIterable([]);
-    return _data.sublist(iS, iE);
+    return sublist(iS, iE);
   }
 
 
