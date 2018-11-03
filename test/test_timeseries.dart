@@ -98,6 +98,17 @@ windowTest() {
   });
 }
 
+intervalTupleTests() {
+  group('IntervalTuple tests', (){
+    test('equality for IntervalTuple', (){
+      var i1 = IntervalTuple(Date(2018,1,1), 1);
+      var i2 = IntervalTuple(Date(2018,1,1), 1);
+      expect(i1 == i2, true);
+    });
+  });
+}
+
+
 timeseriesTests() {
   Location location = getLocation('US/Eastern');
 
@@ -501,6 +512,7 @@ main() async {
       '/.pub-cache/hosted/pub.dartlang.org/timezone-0.4.3/lib/data/2015b.tzf';
   await initializeTimeZone(tzdb);
 
+  intervalTupleTests();
   timeseriesTests();
   windowTest();
 }
