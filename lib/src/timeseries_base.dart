@@ -217,9 +217,19 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Get the observation at this interval.  Performs a binary search.
   /// Throws an error if the interval is not found in the domain of the
   /// timeseries.
-  IntervalTuple observationAt(Interval interval) {
+  IntervalTuple<K> observationAt(Interval interval) {
     int i = _comparableBinarySearch(interval);
     return _data[i];
+  }
+
+  /// Get the observation containing this interval.  Performs a binary search.
+  /// Throws an error if the interval is not found in the domain of the
+  /// timeseries.
+  IntervalTuple<K> observationContains(Interval interval) {
+    int iL = _leftEqFirstSearch(interval.start);
+    if (_data[iL].interval.end.isBefore(interval.end))
+      throw 'Input interval is not overlapping';
+    return _data[iL];
   }
 
   toString() => _data.join("\n");
@@ -294,6 +304,29 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return -1;
   }
 
+  /// Find the index of the observation with an interval start <= key.
+  int _leftEqFirstSearch(DateTime key, {int min, int max}) {
+    min ??= 0;
+    max ??= _data.length;
+    while (min < max) {
+      int mid = min + ((max - min) >> 1);
+      var element = _data[mid].item1.start;
+      int comp = element.compareTo(key);
+      if (comp == 0) return mid;  // aligns with interval.start
+      if (_data[mid].item1.start.isBefore(key)) {
+        if (mid+1 == _data.length) return mid;
+        if (_data[mid+1].item1.start.isAfter(key)) return mid;
+      }
+      if (comp < 0) {
+        min = mid + 1;
+      } else {
+        max = mid;
+      }
+    }
+    return -1;
+  } 
+  
+  
  /// Find the index of the last observeration with the interval end <= key.
   int _rightFirstSearch(DateTime key, {int min, int max}) {
     min ??= 0;
