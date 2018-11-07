@@ -157,6 +157,23 @@ timeseriesTests() {
           expect(() => ts.observationAt(new Month(2015, 1)), throwsRangeError);
         });
 
+    test('observationContains', () {
+    var ts = TimeSeries<num>()..addAll([
+      IntervalTuple(Month(2019, 1), 1),
+      IntervalTuple(Month(2019, 2), 2),
+      IntervalTuple(Month(2019, 3), 3),
+    ]);
+    expect(ts.observationContains(Date(2019, 1, 1)).value, 1);
+    expect(ts.observationContains(Date(2019, 1, 10)).value, 1);
+    expect(ts.observationContains(Date(2019, 1, 31)).value, 1);
+    expect(ts.observationContains(Date(2019, 2,  1)).value, 2);
+    expect(ts.observationContains(Date(2019, 2, 15)).value, 2);
+    expect(ts.observationContains(Date(2019, 3,  1)).value, 3);
+    expect(ts.observationContains(Date(2019, 3, 31)).value, 3);
+    //expect(ts.observationContains(Interval(TZDateTime.utc(2019,1,3), TZDateTime.utc(2019,2,10))).value, 3);
+  });
+
+    
     test('calculate the number of hours in a month using groupByIndex', () {
       var ts = new TimeSeries.fill(hours, 1);
       var aux = ts.groupByIndex((hour) =>
