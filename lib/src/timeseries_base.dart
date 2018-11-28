@@ -127,6 +127,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     JoinType joinType: JoinType.Inner}) {
     //f ??= (x, y) => [x, y];
     var res = <IntervalTuple<T>>[];
+    if (this.isEmpty || y.isEmpty) return TimeSeries<T>();
     switch (joinType) {
       case JoinType.Inner:
         int j = 0;
