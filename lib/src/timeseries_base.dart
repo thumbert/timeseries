@@ -1,6 +1,7 @@
 library timeseries_base;
 
 import 'dart:collection';
+import 'package:timezone/timezone.dart';
 import 'package:date/date.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
@@ -80,6 +81,29 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Get the values in this timeseries
   Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
 
+  /// Collapse consecutive interval tuples with identical values into the union
+  /// interval with the same value.  This allows for efficient serialization.
+  TimeSeries<K> pack() {
+    if (this.length <= 1) return this;
+    var out = TimeSeries<K>();
+    var previous = _data.first;
+    var current = previous;
+    for (int i=1; i<_data.length; i++) {
+      current = _data[i];
+      if (previous.interval.end == current.interval.start
+          && previous.value == current.value) {
+        previous = IntervalTuple(Interval(previous.interval.start, current.interval.end), current.value);
+      } else {
+        out.add(previous);
+        previous = current;
+      }
+    }
+    if (previous != current) out.add(previous);
+
+    return out;
+  }
+
+
   /// Return the time series as a [Tuple2] in column format, first tuple value
   /// of the intervals, the second tuple value the time series values.
   Tuple2<List<Interval>, List<K>> toColumns() {
@@ -92,17 +116,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return new Tuple2(i, v);
   }
 
-  /// Expand each observation of this timeseries using a function f.
-  /// For example, can be used to expand a monthly timeseries to a daily series.
-  /// Return a new time series.
-  /// FIXME: broken in Dart 2.0
-//  Iterable<T> expand<T>(Iterable<T> f(IntervalTuple<K> element)) {
-//    var ts = new TimeSeries.fromIterable(<IntervalTuple>[]);
-//    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
-//    return ts;
-//  }
-//  Iterable<IntervalTuple<T>> expand2(Iterable<IntervalTuple<T>> f(IntervalTuple<K> e)) {
-//    var ts = new TimeSeries.fromIterable([]);
+
+//  TimeSeries<T> expand2<T>(Iterable<IntervalTuple<T>> f(IntervalTuple<K> e)) {
+//    var ts = TimeSeries<T>();
 //    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
 //    return ts;
 //  }

@@ -19,6 +19,12 @@ class IntervalTuple<K> extends Tuple2<Interval,K> {
   }
 
   int get hashCode => super.hashCode;
+
+  Map<String,dynamic> toMap() => <String,dynamic>{
+    'start': item1.start,
+    'end': item1.end,
+    'value': item2,
+  };
 }
 
 
