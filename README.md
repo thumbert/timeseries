@@ -19,14 +19,14 @@ represented by an interval tuple.
 
 There are several ways to construct a timeseries.  
 ```dart
-TimeSeries x =  new TimeSeries.fromIterable([
-        new IntervalTuple(new Date(2017, 1, 1), 11),
-        new IntervalTuple(new Date(2017, 1, 2), 12),
-        new IntervalTuple(new Date(2017, 1, 3), 13),
-        new IntervalTuple(new Date(2017, 1, 4), 14),
-        new IntervalTuple(new Date(2017, 1, 5), 15),
-        new IntervalTuple(new Date(2017, 1, 6), 16),
-        new IntervalTuple(new Date(2017, 1, 7), 17),
+TimeSeries x = TimeSeries.fromIterable([
+        IntervalTuple(Date(2017, 1, 1), 11),
+        IntervalTuple(Date(2017, 1, 2), 12),
+        IntervalTuple(Date(2017, 1, 3), 13),
+        IntervalTuple(Date(2017, 1, 4), 14),
+        IntervalTuple(Date(2017, 1, 5), 15),
+        IntervalTuple(Date(2017, 1, 6), 16),
+        IntervalTuple(Date(2017, 1, 7), 17),
       ]); 
 ```
 You can construct a timeseries with observations of different duration, for example 
@@ -40,26 +40,57 @@ are available.
 Because a time series is time ordered, looking for the value associated with a given 
 Interval is done using binary search.
 ```dart
-x.observationAt(new Date(2017,1,5));
+x.observationAt(Date(2017, 1, 5));
 ```
+
+To subset a timeseries use the ```window``` method.  This operation also uses binary 
+search and is efficient compared with the ListBase method ```where``` which 
+performs a linear scan.
+
 ## Examples
 
-One of the most useful methods on a timeseries is merge.  Allows you to join 
-(in an SQL sense) two timeseries.  Here is an example of how to add (by index) several 
-timeseries.
+### Aggregation
+Common aggregation function ```toDaily``` and ```toMonthly``` are provided, to 
+calculate basic statistics. 
+
+Another helpful method for aggregation is ```groupByIndex``` which groups observations 
+according to their interval. 
+
+### Splitting
+To go from a lower frequency timeseries to a higher frecquency one (e.g. from monthly 
+to hourly) data, you can use method ```interpolate```. 
+
+```dart
+var monthlyTs = TimeSeries().add( IntervalTuple(Month(2018,1), 1) );
+var hourlyTs = monthlyTs.interpolate( Duration(hours: 1) ); 
+```
+
+To split a timeseries into several non-overlapping timeseries use the method 
+```splitByIndex```.  
+
+### Combining several timeseries
+Use method ```merge``` to join (in an SQL sense) two timeseries.  Here is an example 
+of how to add (by index) several timeseries.
 
 ```dart
   var days = [
-    new Date(2018, 1, 1),
-    new Date(2018, 1, 2),
-    new Date(2018, 1, 3),
+    Date(2018, 1, 1),
+    Date(2018, 1, 2),
+    Date(2018, 1, 3),
   ];
-  var ts1 = new TimeSeries.from(days, [1, 1, 1]);
-  var ts2 = new TimeSeries.from(days, [2, 2, 2]);
-  var ts3 = new TimeSeries.from(days, [3, 3, 3]);
+  var ts1 = TimeSeries.from(days, [1, 1, 1]);
+  var ts2 = TimeSeries.from(days, [2, 2, 2]);
+  var ts3 = TimeSeries.from(days, [3, 3, 3]);
 
   /// add all timeseries together
-  var out = [ts1, ts2, ts3].reduce((TimeSeries a, TimeSeries b) {
+  var out = [ts1, ts2, ts3].reduce((a,b) {
     return a.merge(b, f: (x,y) => x + y);
   });
+  /// out.values = [6, 6, 6];
 ```
+
+You can also use ```merge``` to fill in missing intervals of one timeseries with 
+say, a default value.  First you create a complete timeseries with the default 
+values and you merge it with the original one.  See the examples in the test 
+directory. 
+

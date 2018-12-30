@@ -459,16 +459,21 @@ timeseriesTests() {
     });
   });
 
-  group('Aggregations/Expansion:', () {
+  group('Expansion/Interpolation:', () {
     test('expand a monthly timeseries to a daily timeseries', () {
-      var ts =
-          new TimeSeries.from([new Month(2016, 1), new Month(2016, 2)], [1, 2]);
+      var ts = TimeSeries.from([Month(2016, 1), Month(2016, 2)], [1, 2]);
       var tsDaily = ts.expand((obs) {
         Month month = obs.interval;
         return month.days().map((day) => new IntervalTuple(day, obs.value));
       });
       expect(tsDaily.length, 60);
     });
+    test('interpolate a monthly series to an hourly series', (){
+      var ts = TimeSeries.from([Month(2016, 1), Month(2016, 2)], [1, 2]);
+      var tsHourly = ts.interpolate(Duration(hours: 1));
+      expect(tsHourly.length, 1440);
+    });
+
   });
 
   group('Pack/Unpack a timeseries:', () {
@@ -551,4 +556,6 @@ main() async {
   intervalTupleTests();
   timeseriesTests();
   windowTest();
+
+
 }

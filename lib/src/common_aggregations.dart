@@ -33,6 +33,9 @@ TimeSeries<T> toMonthly<K,T>(TimeSeries<K> x, T Function(List<K>) f) {
 }
 
 
+
+
+
 //  var aux =
 //      x.groupByIndex((Interval idx) => new Month.fromTZDateTime(idx.start));
 //  return new TimeSeries.fromIterable(

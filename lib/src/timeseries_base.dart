@@ -19,10 +19,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   TimeSeries() : _data = <IntervalTuple<K>>[];
 
   /// Create a TimeSeries from an iterable of IntervalTuple
-  factory TimeSeries.fromIterable(Iterable<IntervalTuple<K>> x) {
-    var ts = TimeSeries<K>();
-    x.forEach((e) => ts.add(e));
-    return ts;
+  TimeSeries.fromIterable(Iterable<IntervalTuple<K>> x) {
+    addAll(x);
   }
 
   ///Create a TimeSeries from components. The resulting timeseries will have
@@ -103,35 +101,25 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Get the values in this timeseries
   Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
 
-  /// Return the time series as a [Tuple2] in column format, first tuple value
-  /// of the intervals, the second tuple value the time series values.
-  Tuple2<List<Interval>, List<K>> toColumns() {
-    var i = <Interval>[];
-    var v = <K>[];
-    forEach((e) {
-      i.add(e.interval);
-      v.add(e.value);
-    });
-    return new Tuple2(i, v);
+  /// Interpolate this timeseries by splitting up each interval into
+  /// subintervals of a given [duration] with each subinterval having the
+  /// same value as the original interval.
+  ///
+  /// This method is useful for example
+  /// to go from a monthly timeseries to a daily timeseries, etc., in general
+  /// from a lower frequency to a high frequency timeseries.
+  ///
+  TimeSeries<K> interpolate(Duration duration) {
+    return TimeSeries.fromIterable(expand((e) => e.interval
+        .splitLeft((dt) => Interval(dt, dt.add(duration)))
+        .map((interval) => IntervalTuple(interval, e.value))));
   }
-
-//  TimeSeries<T> expand2<T>(Iterable<IntervalTuple<T>> f(IntervalTuple<K> e)) {
-//    var ts = TimeSeries<T>();
-//    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
-//    return ts;
-//  }
-
-//  Iterable<dynamic> expand(Iterable<IntervalTuple> f(IntervalTuple e)) {
-//    TimeSeries ts = new TimeSeries.fromIterable([]);
-//    _data.forEach((IntervalTuple obs) => ts.addAll(f(obs)));
-//    return ts;
-//  }
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time intervals.  This method should only be applied if time
   /// intervals are of similar type.  The default value of [f] is to concatenate
   /// the two values: f = (x,y) => [x,y].
-  /// <p>
+  ///
   /// Another common example for function f is (x,y) => {'x': x, 'y': y}.
   /// This method can be used to add two numerical timeseries with
   /// f = (x,y) => x + y.
@@ -217,8 +205,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Append observations from timeseries [y] to [this].
   /// [y] observations that are before the first observation of
   /// [this] are ignored.
-  TimeSeries append(TimeSeries y) {
-    var res = new TimeSeries.fromIterable(this._data);
+  TimeSeries<K> append(TimeSeries<K> y) {
+    var res = TimeSeries.fromIterable(this._data);
     var last = _data.last.interval.end;
     y
         .where((IntervalTuple e) =>
@@ -226,6 +214,19 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
             e.interval.start.isAtSameMomentAs(last))
         .forEach((IntervalTuple e) => res.add(e));
     return res;
+  }
+
+  /// Partition this timeseries given a predicate [f].
+  /// The first element of the returned tuple is the [true] branch, the
+  /// second element is the [false] branch.
+  Tuple2<TimeSeries<K>, TimeSeries<K>> partition(
+      bool Function(IntervalTuple<K>) f) {
+    var left = TimeSeries<K>();
+    var right = TimeSeries<K>();
+    _data.forEach((x) {
+      f(x) == true ? left.add(x) : right.add(x);
+    });
+    return Tuple2(left, right);
   }
 
   /// Get the observation at this interval.  Performs a binary search.
@@ -248,21 +249,23 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   toString() => _data.join("\n");
 
-  /// Create a new TimeSeries by grouping the index of the current timeseries
-  /// using the aggregation function [f].
-  /// <p> This can be used as the first step of an aggregation, e.g. calculating
-  /// an average monthly value from daily data.
+  /// Create a new TimeSeries by grouping the values of observations
+  /// with the index falling in the same "bucket".  The "bucket" grouping
+  /// is defined by the function [f].
+  /// <p> This can be used as the first step of an aggregation.  For example,
+  /// to group all observations that fall in the same month, use
+  /// f = (Interval dt) => Month(dt.start.year, dt.start.day)
   TimeSeries<List<K>> groupByIndex(Interval f(Interval interval)) {
     var grp = <Interval, List<K>>{};
     int N = _data.length;
     for (int i = 0; i < N; i++) {
-      Interval group = f(_data[i].interval);
+      var group = f(_data[i].interval);
       grp.putIfAbsent(group, () => <K>[]).add(_data[i].value);
     }
-    return new TimeSeries.from(grp.keys, grp.values);
+    return TimeSeries.from(grp.keys, grp.values);
   }
 
-  /// Split a timeseries into subseries according to a function.
+  /// Split a timeseries into non-overlapping subseries according to a function.
   /// This is similar, but slighly different
   /// than [groupByIndex] which returns an aggregated timeseries.
   /// Function [f] should return a classification factor.
@@ -278,13 +281,27 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return grp;
   }
 
-  /// Extract the subset of this timeseries corresponding to a time interval.
-  /// If there is no overlap, return an empty TimeSeries.
-  /// <p> Attention needs to be paid so the [interval] matches the same TZ info
-  /// as the original timeseries.
-  /// <p> The implementation uses binary search so it is efficient for slicing
-  /// into large timeseries.
+  /// Return the time series as a [Tuple2] in column format, first tuple value
+  /// of the intervals, the second tuple value the time series values.
+  Tuple2<List<Interval>, List<K>> toColumns() {
+    var i = <Interval>[];
+    var v = <K>[];
+    forEach((e) {
+      i.add(e.interval);
+      v.add(e.value);
+    });
+    return new Tuple2(i, v);
+  }
+
+  /// Extract the subset of observations with intervals that are *entirely*
+  /// included in the given [interval]. If there is no overlap, return
+  /// an empty TimeSeries.
   ///
+  /// Attention needs to be paid so the [interval] matches the same TZ info
+  /// as the original timeseries, as this creates interval boundary mismatching.
+  ///
+  /// The implementation uses binary search so it is efficient for slicing
+  /// into large timeseries.
   List<IntervalTuple<K>> window(Interval interval) {
     if (interval.start.isAfter(_data.last.item1.start) ||
         interval.end.isBefore(_data.first.item1.end)) {
