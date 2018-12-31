@@ -62,7 +62,7 @@ TimeSeries<T> toYearly<K,T>(TimeSeries<K> x, T Function(List<K>) f) {
     var start = x[i].interval.start;
     var year = Interval(TZDateTime(start.location, start.year), 
                         TZDateTime(start.location, start.year+1));
-    grp.putIfAbsent(month, () => <K>[]).add(x[i].value);
+    grp.putIfAbsent(year, () => <K>[]).add(x[i].value);
   }
   return new TimeSeries.from(grp.keys, grp.values.map((xs) => f(xs)));
 }
