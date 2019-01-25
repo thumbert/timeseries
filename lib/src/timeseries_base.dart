@@ -46,6 +46,35 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     new List.generate(length, generator).forEach((IntervalTuple e) => add(e));
   }
 
+  
+  /// Create a TimeSeries by combining all the contiguous intervals into the
+  /// union interval. The value for the resulting interval is calculated by 
+  /// applying the function [f] to the list of value of the corresponding 
+  /// original intervals.  The default [f] is the identity. 
+  ///
+  /// For example, this is useful to calculate the length of contiguous 
+  /// observations in a time series with interval gaps.  Or to calculate 
+  /// some running statistic on the contiguous chunks.   
+//   TimeSeries.contiguous(Iterable<IntervalTuple<T>> xs,
+//       K Function<K,T>(List<T>) f) {
+//     var previous = xs.first.interval;
+//     var vs = <K>[xs.first.value];
+//     xs.skip(1).forEach((x) {
+//       if (previous.end == x.interval.start) {
+//         previous = Interval(previous.start, x.interval.end);
+//         vs.add(x.value);
+//       } else {
+//         add(IntervalTuple(previous, f(vs)));
+//         previous = x.interval;
+//         vs = [x.value];
+//       }
+//     });
+//     add(IntervalTuple(previous, f(vs)));
+//   }
+
+  
+  
+  
   /// Construct a timeseries by packing an interable of interval tuples.
   /// Collapse consecutive interval tuples with identical values into the union
   /// interval with the same value.  This allows for efficient serialization.
