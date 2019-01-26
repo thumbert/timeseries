@@ -1,13 +1,11 @@
 library test_timeseries;
 
-import 'dart:io';
 import 'package:test/test.dart';
 import 'package:date/date.dart';
 import 'package:timeseries/src/timeseries_packer.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:timezone/standalone.dart';
 import 'package:tuple/tuple.dart';
-import 'package:timeseries/src/numeric_timeseries.dart';
 
 windowTest() {
   group('TimeSeries window tests: ', () {
@@ -65,7 +63,6 @@ windowTest() {
       var interval = new Interval(new TZDateTime(location, 2018, 1, 2, 5),
           new TZDateTime(location, 2018, 1, 5, 1));
       var aux = ts.window(interval);
-      //print(aux);
       expect(aux.first.item1.start, new TZDateTime(location, 2018, 1, 3));
       expect(aux.length, 2);
     });
@@ -84,17 +81,6 @@ windowTest() {
       var aux = ts.window(interval);
       expect(aux.length, 0);
     });
-
-//    test('irregular timeseries, window borders in timeseries gap', (){
-//      Month month = new Month(2018, 1, location: location);
-//      var hours = month.splitLeft((dt) => new Hour.beginning(dt));
-//      var ts = new TimeSeries.fill(hours, 1);
-//      var aux = splitByBucket(ts.toList(), [IsoNewEngland.bucketPeak, IsoNewEngland.bucketOffpeak]);
-//      var peak = new TimeSeries.fromIterable(aux[IsoNewEngland.bucketPeak]);
-//      var day = peak.window(new Date(2018, 1, 2, location: location));
-//      //day.forEach(print);
-//      expect(day.length, 16);
-//    });
   });
 }
 
@@ -119,6 +105,23 @@ timeseriesTests() {
     test('create hourly timeseries using fill', () {
       var ts = TimeSeries.fill(hours, 1);
       expect(ts.length, 8784); // year 2016 it's a leap year
+    });
+
+    test('contiguous static method', (){
+      var xs = [
+        IntervalTuple(Date(2018,1,1), 1),
+        IntervalTuple(Date(2018,1,2), 2),
+        IntervalTuple(Date(2018,1,3), 3),
+        IntervalTuple(Date(2018,1,6), 6),
+        IntervalTuple(Date(2018,1,9), 9),
+        IntervalTuple(Date(2018,1,10), 10),
+        IntervalTuple(Date(2018,1,11), 11),
+        IntervalTuple(Date(2018,1,15), 15),
+      ];
+      var ts = TimeSeries.contiguous(xs, (List<int> y) => y);
+      expect(ts.length, 4);
+      expect(ts.first.value.length, 3);
+
     });
 
     test(

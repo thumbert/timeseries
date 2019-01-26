@@ -1,7 +1,6 @@
 library timeseries_base;
 
 import 'dart:collection';
-import 'package:timezone/timezone.dart';
 import 'package:date/date.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
@@ -46,38 +45,39 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     new List.generate(length, generator).forEach((IntervalTuple e) => add(e));
   }
 
-  
-  /// Create a TimeSeries by combining all the contiguous intervals into the
-  /// union interval. The value for the resulting interval is calculated by 
-  /// applying the function [f] to the list of value of the corresponding 
-  /// original intervals.  The default [f] is the identity. 
+  /// Create a TimeSeries by combining contiguous [IntervalTuple]s into an
+  /// [IntervalTuple] with the union interval. The value for the resulting
+  /// union interval is calculated by applying the function [f] to the list
+  /// of value of the corresponding original intervals.
   ///
-  /// For example, this is useful to calculate the length of contiguous 
-  /// observations in a time series with interval gaps.  Or to calculate 
-  /// some running statistic on the contiguous chunks.   
-//   TimeSeries.contiguous(Iterable<IntervalTuple<T>> xs,
-//       K Function<K,T>(List<T>) f) {
-//     var previous = xs.first.interval;
-//     var vs = <K>[xs.first.value];
-//     xs.skip(1).forEach((x) {
-//       if (previous.end == x.interval.start) {
-//         previous = Interval(previous.start, x.interval.end);
-//         vs.add(x.value);
-//       } else {
-//         add(IntervalTuple(previous, f(vs)));
-//         previous = x.interval;
-//         vs = [x.value];
-//       }
-//     });
-//     add(IntervalTuple(previous, f(vs)));
-//   }
+  /// For example, this is useful to calculate the length of contiguous
+  /// observations in a time series with interval gaps.  Or to calculate
+  /// some running statistic on the contiguous interval chunks.
+  static TimeSeries<T> contiguous<S, T>(
+      Iterable<IntervalTuple<S>> xs, T Function(List<S>) f) {
+    // had to use a static method instead of a named constructor because
+    // types are not allowed in constructors ?!
+    var previous = xs.first.interval;
+    var vs = <S>[xs.first.value];
+    var out = TimeSeries<T>();
+    xs.skip(1).forEach((x) {
+      if (previous.end == x.interval.start) {
+        previous = Interval(previous.start, x.interval.end);
+        vs.add(x.value);
+      } else {
+        out.add(IntervalTuple(previous, f(vs)));
+        previous = x.interval;
+        vs = [x.value];
+      }
+    });
+    out.add(IntervalTuple(previous, f(vs)));
+    return out;
+  }
 
-  
-  
-  
-  /// Construct a timeseries by packing an interable of interval tuples.
-  /// Collapse consecutive interval tuples with identical values into the union
-  /// interval with the same value.  This allows for efficient serialization.
+  /// Construct a timeseries by packing an iterable of interval tuples.
+  /// This is done by collapsing contiguous interval tuples with identical
+  /// values into the union interval with the same value.  This allows for
+  /// efficient serialization.
   TimeSeries.pack(Iterable<IntervalTuple<K>> xs) {
     if (xs.length == 1) add(xs.first);
     var previous = xs.first;
@@ -154,8 +154,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// f = (x,y) => x + y.
   /// Or, you can use it to fill an irregular timeseries with
   /// (x,y) => y == null ? x : y;
-  TimeSeries<T> merge<T, S>(TimeSeries<S> y,
-      {T Function(K, S) f, JoinType joinType: JoinType.Inner}) {
+  TimeSeries<T> merge<T,S>(TimeSeries<S> y,
+      {T Function(K,S) f, JoinType joinType: JoinType.Inner}) {
     //f ??= (x, y) => [x, y];
     var res = <IntervalTuple<T>>[];
     if (this.isEmpty || y.isEmpty) return TimeSeries<T>();
