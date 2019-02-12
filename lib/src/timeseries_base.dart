@@ -294,6 +294,37 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return TimeSeries.from(grp.keys, grp.values);
   }
 
+  /// Return the running groups satisfying a given condition on the values 
+  /// of the timeseries.
+  /// Returns a Map of run length and observation groups.
+  Map<int,List<List<K>>> runningGroups(bool Function(K) condition) {
+    var out = <int,List<List<K>>>{};
+    bool flag = false;
+    var run = <K>[];
+    for (var obs in this) {
+      if (condition(obs.value)) {
+        run.add(obs);
+        flag = true;
+      } else {
+        if (flag) {
+          // a run has ended, add it to the output
+          if (!out.containsKey(run.length)) out[run.length] = [];
+          out[run.length].add(run);
+          flag = false;
+          run = <K>[];
+        }
+      }
+    }
+    // at the end, pick up the last run
+    if (flag) {
+      if (!out.containsKey(run.length)) out[run.length] = [];
+      out[run.length].add(run);
+    }
+
+    return out;
+  }
+  
+  
   /// Split a timeseries into non-overlapping subseries according to a function.
   /// This is similar, but slighly different
   /// than [groupByIndex] which returns an aggregated timeseries.
