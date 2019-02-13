@@ -94,6 +94,34 @@ intervalTupleTests() {
   });
 }
 
+runningGroupTests() {
+  group('Running groups:', (){
+    test('test 1', (){
+      var ts = TimeSeries.fromIterable([
+        IntervalTuple(Date(2018,1,1), 1),
+        IntervalTuple(Date(2018,1,2), 2),
+        IntervalTuple(Date(2018,1,3), 10),
+        IntervalTuple(Date(2018,1,4), 10),
+        IntervalTuple(Date(2018,1,5), 3),
+        IntervalTuple(Date(2018,1,6), 6),
+        IntervalTuple(Date(2018,1,7), 6),
+        IntervalTuple(Date(2018,1,8), 10),
+        IntervalTuple(Date(2018,1,9), 9),
+        IntervalTuple(Date(2018,1,10), 10),
+        IntervalTuple(Date(2018,1,11), 11),
+      ]);
+      var grp = ts.runningGroups((e) => e.value >= 10);
+      expect(grp.keys.length, 2);
+      // one group of length 1
+      expect(grp[1].length, 1);
+      // two groups of length 2
+      expect(grp[2].length, 2);
+    });
+  });
+
+
+}
+
 timeseriesTests() {
   Location location = getLocation('US/Eastern');
 
@@ -558,6 +586,7 @@ main() async {
 
   intervalTupleTests();
   timeseriesTests();
+  runningGroupTests();
   windowTest();
 
 

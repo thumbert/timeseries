@@ -297,21 +297,21 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Return the running groups satisfying a given condition on the values 
   /// of the timeseries.
   /// Returns a Map of run length and observation groups.
-  Map<int,List<List<K>>> runningGroups(bool Function(K) condition) {
-    var out = <int,List<List<K>>>{};
+  Map<int,List<List<IntervalTuple<K>>>> runningGroups(bool Function(IntervalTuple<K>) condition) {
+    var out = <int,List<List<IntervalTuple<K>>>>{};
     bool flag = false;
-    var run = <K>[];
+    var run = <IntervalTuple<K>>[];
     for (var obs in this) {
-      if (condition(obs.value)) {
+      if (condition(obs)) {
         run.add(obs);
         flag = true;
       } else {
         if (flag) {
           // a run has ended, add it to the output
-          if (!out.containsKey(run.length)) out[run.length] = [];
+          if (!out.containsKey(run.length)) out[run.length] = <List<IntervalTuple<K>>>[];
           out[run.length].add(run);
           flag = false;
-          run = <K>[];
+          run = <IntervalTuple<K>>[];
         }
       }
     }
@@ -335,7 +335,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     for (int i = 0; i < N; i++) {
       var group = f(_data[i].interval);
       grp
-          .putIfAbsent(group, () => new TimeSeries<K>.fromIterable([]))
+          .putIfAbsent(group, () => TimeSeries<K>.fromIterable([]))
           .add(new IntervalTuple(_data[i].interval, _data[i].value));
     }
     return grp;
