@@ -123,11 +123,11 @@ runningGroupTests() {
 }
 
 timeseriesTests() {
-  Location location = getLocation('US/Eastern');
+  var location = getLocation('US/Eastern');
 
-  Hour firstHour = Hour.beginning(new TZDateTime(location, 2016));
-  Hour lastHour = Hour.ending(new TZDateTime(location, 2017));
-  var hours = TimeIterable(firstHour, lastHour).toList();
+  var hours = Interval(TZDateTime(location, 2016), TZDateTime(location, 2017))
+      .splitLeft((dt) => Hour.beginning(dt))
+      .toList();
 
   group('TimeSeries tests:', () {
     test('create hourly timeseries using fill', () {
@@ -229,25 +229,28 @@ timeseriesTests() {
           .splitLeft((dt) => new Month(dt.year, dt.month, location: location));
       var ts = new TimeSeries.fill(months, 1);
 
-      List<IntervalTuple> res = ts.window(new Interval(
-          new TZDateTime(location, 2014, 3),
-          new TZDateTime(location, 2014, 7)));
+      List<IntervalTuple> res = ts.window(Interval(
+          TZDateTime(location, 2014, 3),
+          TZDateTime(location, 2014, 7)));
       expect(res.length, 4);
       expect(res.join(", "), 'Mar14 -> 1, Apr14 -> 1, May14 -> 1, Jun14 -> 1');
     });
 
     test('add one observation at the end', () {
-      var start = new Month(2015, 1);
-      var end = new Month(2015, 12);
-      var months = new TimeIterable(start, end);
-      var ts = new TimeSeries.from(months, new List.generate(12, (i) => i + 1));
-      ts.add(new IntervalTuple(new Month(2016, 1), 1));
+      var months = Interval(TZDateTime(location, 2015),
+          TZDateTime(location, 2016))
+          .splitLeft((dt) => Month.fromTZDateTime(dt))
+          .toList();
+      var ts = TimeSeries.from(months, List.generate(12, (i) => i + 1));
+      ts.add(IntervalTuple(Month(2016, 1, location: location), 1));
       expect(ts.length, 13);
     });
 
     test('adding to the middle of the time series throws', () {
-      var months =
-          new TimeIterable(new Month(2014, 1), new Month(2014, 12)).toList();
+      var months = Interval(TZDateTime(location, 2014),
+          TZDateTime(location, 2015))
+          .splitLeft((dt) => Month.fromTZDateTime(dt))
+          .toList();
       var ts =
           new TimeSeries.generate(12, (i) => new IntervalTuple(months[i], i));
       expect(() => ts.add(new IntervalTuple(new Date(2014, 4, 1), 4)),
@@ -255,35 +258,38 @@ timeseriesTests() {
     });
 
     test('add a bunch of days at once with addAll()', () {
-      var start = new Date(2016, 1, 1);
-      var end = new Date(2016, 1, 31);
-      var days = new TimeIterable(start, end).toList();
+      var days = Interval(TZDateTime(location, 2016, 1, 1),
+          TZDateTime(location, 2016, 2))
+          .splitLeft((dt) => Date.fromTZDateTime(dt))
+          .toList();
       var ts = new TimeSeries.from([days.first], [1]);
       ts.addAll(days.skip(1).map((day) => new IntervalTuple(day, 1)));
       expect(ts.length, 31);
     });
 
     test('timeseries to columns', () {
-      var start = new Date(2016, 1, 1);
-      var end = new Date(2016, 1, 31);
-      var days = new TimeIterable(start, end).toList();
-      var ts = new TimeSeries.fill(days, 1);
+      var days = Interval(TZDateTime(location, 2016, 1),
+          TZDateTime(location, 2016, 2))
+          .splitLeft((dt) => Date.fromTZDateTime(dt))
+          .toList();
+      var ts = TimeSeries.fill(days, 1);
       var aux = ts.toColumns();
       expect(aux is Tuple2, true);
       expect(aux.item1.length, aux.item2.length);
     });
 
     test('filter observations', () {
-      var months =
-          new TimeIterable(new Month(2014, 1), new Month(2014, 7)).toList();
-      var ts =
-          new TimeSeries.generate(6, (i) => new IntervalTuple(months[i], i));
+      var months = Interval(TZDateTime(location, 2014),
+          TZDateTime(location, 2014, 7))
+          .splitLeft((dt) => Month.fromTZDateTime(dt))
+          .toList();
+      var ts = TimeSeries.generate(6, (i) => IntervalTuple(months[i], i));
       ts.retainWhere((obs) => obs.value > 2);
       expect(ts.values.first, 3);
       expect(ts.length, 3);
 
       var ts2 =
-          new TimeSeries.generate(6, (i) => new IntervalTuple(months[i], i));
+          TimeSeries.generate(6, (i) => IntervalTuple(months[i], i));
       ts2.removeWhere((e) => e.value > 2);
       expect(ts2.length, 3);
     });
@@ -432,11 +438,13 @@ timeseriesTests() {
     });
 
     test('fill missing values using merge', () {
-      var days =
-          new TimeIterable(new Date(2017, 1, 1), new Date(2017, 1, 8)).toList();
-      var zeros = new TimeSeries.fill(days, 0);
+      var days = Interval(TZDateTime(location, 2017),
+          TZDateTime(location, 2017, 1, 9))
+          .splitLeft((dt) => Date.fromTZDateTime(dt))
+          .toList();
+      var zeros = TimeSeries.fill(days, 0);
       var fewDays = [0, 1, 3, 4, 7].map((i) => days[i]);
-      var ts = new TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
+      var ts = TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
       Function fill = (x, y) => y == null ? x : y;
       var tsExt = zeros.merge(ts, f: fill, joinType: JoinType.Left);
       expect(tsExt.length, 8);
@@ -588,6 +596,5 @@ main() async {
   timeseriesTests();
   runningGroupTests();
   windowTest();
-
 
 }
