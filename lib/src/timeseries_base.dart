@@ -99,6 +99,10 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   int get length => _data.length;
 
+  /// domain of the timeseries
+  Interval get domain =>
+      Interval(_data.first.interval.start, _data.last.interval.end);
+  
   /// need this for the ListBase
   void set length(int i) {
     _data.length = i;
