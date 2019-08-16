@@ -1,7 +1,7 @@
 library utils;
 
-import 'timeseries_base.dart';
-
+import 'package:date/date.dart';
+import 'package:timeseries/timeseries.dart';
 
 /// Calculate the weighted mean of two timeseries over a given interval.
 /// The [x] timeseries and the [weights] timeseries need to have matching
