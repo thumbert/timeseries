@@ -95,20 +95,20 @@ intervalTupleTests() {
 }
 
 runningGroupTests() {
-  group('Running groups:', (){
-    test('test 1', (){
+  group('Running groups:', () {
+    test('test 1', () {
       var ts = TimeSeries.fromIterable([
-        IntervalTuple(Date(2018,1,1), 1),
-        IntervalTuple(Date(2018,1,2), 2),
-        IntervalTuple(Date(2018,1,3), 10),
-        IntervalTuple(Date(2018,1,4), 10),
-        IntervalTuple(Date(2018,1,5), 3),
-        IntervalTuple(Date(2018,1,6), 6),
-        IntervalTuple(Date(2018,1,7), 6),
-        IntervalTuple(Date(2018,1,8), 10),
-        IntervalTuple(Date(2018,1,9), 9),
-        IntervalTuple(Date(2018,1,10), 10),
-        IntervalTuple(Date(2018,1,11), 11),
+        IntervalTuple(Date(2018, 1, 1), 1),
+        IntervalTuple(Date(2018, 1, 2), 2),
+        IntervalTuple(Date(2018, 1, 3), 10),
+        IntervalTuple(Date(2018, 1, 4), 10),
+        IntervalTuple(Date(2018, 1, 5), 3),
+        IntervalTuple(Date(2018, 1, 6), 6),
+        IntervalTuple(Date(2018, 1, 7), 6),
+        IntervalTuple(Date(2018, 1, 8), 10),
+        IntervalTuple(Date(2018, 1, 9), 9),
+        IntervalTuple(Date(2018, 1, 10), 10),
+        IntervalTuple(Date(2018, 1, 11), 11),
       ]);
       var grp = ts.runningGroups((e) => e.value >= 10);
       expect(grp.keys.length, 2);
@@ -118,8 +118,6 @@ runningGroupTests() {
       expect(grp[2].length, 2);
     });
   });
-
-
 }
 
 timeseriesTests() {
@@ -135,21 +133,20 @@ timeseriesTests() {
       expect(ts.length, 8784); // year 2016 it's a leap year
     });
 
-    test('contiguous static method', (){
+    test('contiguous static method', () {
       var xs = [
-        IntervalTuple(Date(2018,1,1), 1),
-        IntervalTuple(Date(2018,1,2), 2),
-        IntervalTuple(Date(2018,1,3), 3),
-        IntervalTuple(Date(2018,1,6), 6),
-        IntervalTuple(Date(2018,1,9), 9),
-        IntervalTuple(Date(2018,1,10), 10),
-        IntervalTuple(Date(2018,1,11), 11),
-        IntervalTuple(Date(2018,1,15), 15),
+        IntervalTuple(Date(2018, 1, 1), 1),
+        IntervalTuple(Date(2018, 1, 2), 2),
+        IntervalTuple(Date(2018, 1, 3), 3),
+        IntervalTuple(Date(2018, 1, 6), 6),
+        IntervalTuple(Date(2018, 1, 9), 9),
+        IntervalTuple(Date(2018, 1, 10), 10),
+        IntervalTuple(Date(2018, 1, 11), 11),
+        IntervalTuple(Date(2018, 1, 15), 15),
       ];
       var ts = TimeSeries.contiguous(xs, (List<int> y) => y);
       expect(ts.length, 4);
       expect(ts.first.value.length, 3);
-
     });
 
     test(
@@ -230,27 +227,26 @@ timeseriesTests() {
       var ts = new TimeSeries.fill(months, 1);
 
       List<IntervalTuple> res = ts.window(Interval(
-          TZDateTime(location, 2014, 3),
-          TZDateTime(location, 2014, 7)));
+          TZDateTime(location, 2014, 3), TZDateTime(location, 2014, 7)));
       expect(res.length, 4);
       expect(res.join(", "), 'Mar14 -> 1, Apr14 -> 1, May14 -> 1, Jun14 -> 1');
     });
 
     test('add one observation at the end', () {
-      var months = Interval(TZDateTime(location, 2015),
-          TZDateTime(location, 2016))
-          .splitLeft((dt) => Month.fromTZDateTime(dt))
-          .toList();
+      var months =
+          Interval(TZDateTime(location, 2015), TZDateTime(location, 2016))
+              .splitLeft((dt) => Month.fromTZDateTime(dt))
+              .toList();
       var ts = TimeSeries.from(months, List.generate(12, (i) => i + 1));
       ts.add(IntervalTuple(Month(2016, 1, location: location), 1));
       expect(ts.length, 13);
     });
 
     test('adding to the middle of the time series throws', () {
-      var months = Interval(TZDateTime(location, 2014),
-          TZDateTime(location, 2015))
-          .splitLeft((dt) => Month.fromTZDateTime(dt))
-          .toList();
+      var months =
+          Interval(TZDateTime(location, 2014), TZDateTime(location, 2015))
+              .splitLeft((dt) => Month.fromTZDateTime(dt))
+              .toList();
       var ts =
           new TimeSeries.generate(12, (i) => new IntervalTuple(months[i], i));
       expect(() => ts.add(new IntervalTuple(new Date(2014, 4, 1), 4)),
@@ -258,8 +254,8 @@ timeseriesTests() {
     });
 
     test('add a bunch of days at once with addAll()', () {
-      var days = Interval(TZDateTime(location, 2016, 1, 1),
-          TZDateTime(location, 2016, 2))
+      var days = Interval(
+              TZDateTime(location, 2016, 1, 1), TZDateTime(location, 2016, 2))
           .splitLeft((dt) => Date.fromTZDateTime(dt))
           .toList();
       var ts = new TimeSeries.from([days.first], [1]);
@@ -268,10 +264,10 @@ timeseriesTests() {
     });
 
     test('timeseries to columns', () {
-      var days = Interval(TZDateTime(location, 2016, 1),
-          TZDateTime(location, 2016, 2))
-          .splitLeft((dt) => Date.fromTZDateTime(dt))
-          .toList();
+      var days =
+          Interval(TZDateTime(location, 2016, 1), TZDateTime(location, 2016, 2))
+              .splitLeft((dt) => Date.fromTZDateTime(dt))
+              .toList();
       var ts = TimeSeries.fill(days, 1);
       var aux = ts.toColumns();
       expect(aux is Tuple2, true);
@@ -279,17 +275,16 @@ timeseriesTests() {
     });
 
     test('filter observations', () {
-      var months = Interval(TZDateTime(location, 2014),
-          TZDateTime(location, 2014, 7))
-          .splitLeft((dt) => Month.fromTZDateTime(dt))
-          .toList();
+      var months =
+          Interval(TZDateTime(location, 2014), TZDateTime(location, 2014, 7))
+              .splitLeft((dt) => Month.fromTZDateTime(dt))
+              .toList();
       var ts = TimeSeries.generate(6, (i) => IntervalTuple(months[i], i));
       ts.retainWhere((obs) => obs.value > 2);
       expect(ts.values.first, 3);
       expect(ts.length, 3);
 
-      var ts2 =
-          TimeSeries.generate(6, (i) => IntervalTuple(months[i], i));
+      var ts2 = TimeSeries.generate(6, (i) => IntervalTuple(months[i], i));
       ts2.removeWhere((e) => e.value > 2);
       expect(ts2.length, 3);
     });
@@ -438,10 +433,10 @@ timeseriesTests() {
     });
 
     test('fill missing values using merge', () {
-      var days = Interval(TZDateTime(location, 2017),
-          TZDateTime(location, 2017, 1, 9))
-          .splitLeft((dt) => Date.fromTZDateTime(dt))
-          .toList();
+      var days =
+          Interval(TZDateTime(location, 2017), TZDateTime(location, 2017, 1, 9))
+              .splitLeft((dt) => Date.fromTZDateTime(dt))
+              .toList();
       var zeros = TimeSeries.fill(days, 0);
       var fewDays = [0, 1, 3, 4, 7].map((i) => days[i]);
       var ts = TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
@@ -507,12 +502,11 @@ timeseriesTests() {
       });
       expect(tsDaily.length, 60);
     });
-    test('interpolate a monthly series to an hourly series', (){
+    test('interpolate a monthly series to an hourly series', () {
       var ts = TimeSeries.from([Month(2016, 1), Month(2016, 2)], [1, 2]);
       var tsHourly = ts.interpolate(Duration(hours: 1));
       expect(tsHourly.length, 1440);
     });
-
   });
 
   group('Pack/Unpack a timeseries:', () {
@@ -577,11 +571,11 @@ timeseriesTests() {
 
   group('Time aggregation tests: ', () {
     test('Calculate number of days in a month', () {
-      var days = new Interval(
-              new TZDateTime(location, 2018), new TZDateTime(location, 2019))
-          .splitLeft(
-              (dt) => new Date(dt.year, dt.month, dt.day, location: location));
-      var ts = new TimeSeries.fill(days, 1);
+      var days =
+          Interval(TZDateTime(location, 2018), TZDateTime(location, 2019))
+              .splitLeft(
+                  (dt) => Date(dt.year, dt.month, dt.day, location: location));
+      var ts = TimeSeries.fill(days, 1);
       var daysInMonth = toMonthly(ts, (x) => x.length);
       expect(daysInMonth.length, 12);
       expect(daysInMonth.values.take(3).toList(), [31, 28, 31]);
@@ -596,5 +590,4 @@ main() async {
   timeseriesTests();
   runningGroupTests();
   windowTest();
-
 }

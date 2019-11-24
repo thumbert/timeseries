@@ -42,7 +42,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// 0..length-1 in increasing order.
   /// The [generator] function needs to return IntervalTuple
   TimeSeries.generate(int length, IntervalTuple generator(int)) {
-    new List.generate(length, generator).forEach((IntervalTuple e) => add(e));
+    List.generate(length, generator).forEach((IntervalTuple e) => add(e));
   }
 
   /// Create a TimeSeries by combining contiguous [IntervalTuple]s into an
@@ -147,6 +147,10 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
         .splitLeft((dt) => Interval(dt, dt.add(duration)))
         .map((interval) => IntervalTuple(interval, e.value))));
   }
+
+  /// Pacxsk a timeseries.  Wraps the static method for convenience.
+  TimeSeries<K> pack() => TimeSeries.pack(_data);
+
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time intervals.  This method should only be applied if time
