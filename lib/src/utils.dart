@@ -13,8 +13,9 @@ import 'package:timeseries/timeseries.dart';
 ///
 IntervalTuple<num> weightedMean(
     TimeSeries<num> x, TimeSeries<num> weights, Interval interval) {
-  if (!weights.domain.containsInterval(x.domain))
+  if (!weights.domain.containsInterval(x.domain)) {
     throw ArgumentError('Weights domain doesn\'t cover the domain of x');
+  }
 
   if (x.domain != interval) x = TimeSeries.fromIterable(x.window(interval));
   
@@ -24,8 +25,9 @@ IntervalTuple<num> weightedMean(
 
   /// calculate the weighted timeseries, no nulls allowed
   var xw = x.merge(weights, f: (x, y) => x * y);
-  if (xw.length != weights.length)
+  if (xw.length != weights.length) {
     throw StateError('Calculating the weighted series is incorrect');
+  }
 
   return IntervalTuple(interval, _sum(xw.values) / _sum(weights.values));
 }
