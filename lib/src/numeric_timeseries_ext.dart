@@ -10,7 +10,7 @@ extension NumericTimeseriesExt on TimeSeries<num> {
         map((e) => IntervalTuple(e.interval, f(e.value))));
   }
 
-  /// Add two timeseries
+  /// Add two timeseries element wise
   TimeSeries<num> operator +(TimeSeries<num> other) {
     var out = TimeSeries<num>();
     for (var i = 0; i < length; i++) {
@@ -22,7 +22,19 @@ extension NumericTimeseriesExt on TimeSeries<num> {
     return out;
   }
 
-  /// Multiply two timeseries
+  /// Subtract two timeseries element wise
+  TimeSeries<num> operator -(TimeSeries<num> other) {
+    var out = TimeSeries<num>();
+    for (var i = 0; i < length; i++) {
+      if (this[i].interval != other[i].interval) {
+        throw ArgumentError('The two timeseries don\'t line up.');
+      }
+      out.add(IntervalTuple(this[i].interval, this[i].value - other[i].value));
+    }
+    return out;
+  }
+
+  /// Multiply two timeseries element wise
   TimeSeries<num> operator *(TimeSeries<num> other) {
     var out = TimeSeries<num>();
     for (var i = 0; i < length; i++) {
@@ -33,4 +45,17 @@ extension NumericTimeseriesExt on TimeSeries<num> {
     }
     return out;
   }
+
+  /// Multiply two timeseries element wise
+  TimeSeries<num> operator /(TimeSeries<num> other) {
+    var out = TimeSeries<num>();
+    for (var i = 0; i < length; i++) {
+      if (this[i].interval != other[i].interval) {
+        throw ArgumentError('The two timeseries don\'t line up.');
+      }
+      out.add(IntervalTuple(this[i].interval, this[i].value / other[i].value));
+    }
+    return out;
+  }
+
 }
