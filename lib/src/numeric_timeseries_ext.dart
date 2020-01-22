@@ -10,52 +10,36 @@ extension NumericTimeseriesExt on TimeSeries<num> {
         map((e) => IntervalTuple(e.interval, f(e.value))));
   }
 
-  /// Add two timeseries element wise
+  /// Add two timeseries element wise.  The addition is only performed on the
+  /// intervals that match.
   TimeSeries<num> operator +(TimeSeries<num> other) {
-    var out = TimeSeries<num>();
-    for (var i = 0; i < length; i++) {
-      if (this[i].interval != other[i].interval) {
-        throw ArgumentError('The two timeseries don\'t line up.');
-      }
-      out.add(IntervalTuple(this[i].interval, this[i].value + other[i].value));
-    }
-    return out;
+    var _aux = merge(other, f: (x,y) => [x, y]);
+    return TimeSeries.fromIterable(
+        _aux.map((e) => IntervalTuple(e.interval, e.value[0] + e.value[1])));
   }
 
-  /// Subtract two timeseries element wise
+  /// Subtract two timeseries element wise. The subtraction is only performed
+  /// on the intervals that match.
   TimeSeries<num> operator -(TimeSeries<num> other) {
-    var out = TimeSeries<num>();
-    for (var i = 0; i < length; i++) {
-      if (this[i].interval != other[i].interval) {
-        throw ArgumentError('The two timeseries don\'t line up.');
-      }
-      out.add(IntervalTuple(this[i].interval, this[i].value - other[i].value));
-    }
-    return out;
+    var _aux = merge(other, f: (x,y) => [x, y]);
+    return TimeSeries.fromIterable(
+        _aux.map((e) => IntervalTuple(e.interval, e.value[0] - e.value[1])));
   }
 
-  /// Multiply two timeseries element wise
+  /// Multiply two timeseries element wise.  The multiplication is only
+  /// performed on the intervals that match.
   TimeSeries<num> operator *(TimeSeries<num> other) {
-    var out = TimeSeries<num>();
-    for (var i = 0; i < length; i++) {
-      if (this[i].interval != other[i].interval) {
-        throw ArgumentError('The two timeseries don\'t line up.');
-      }
-      out.add(IntervalTuple(this[i].interval, this[i].value * other[i].value));
-    }
-    return out;
+    var _aux = merge(other, f: (x,y) => [x, y]);
+    return TimeSeries.fromIterable(
+        _aux.map((e) => IntervalTuple(e.interval, e.value[0] * e.value[1])));
   }
 
-  /// Multiply two timeseries element wise
+  /// Multiply two timeseries element wise. The division is only
+  /// performed on the intervals that match.
   TimeSeries<num> operator /(TimeSeries<num> other) {
-    var out = TimeSeries<num>();
-    for (var i = 0; i < length; i++) {
-      if (this[i].interval != other[i].interval) {
-        throw ArgumentError('The two timeseries don\'t line up.');
-      }
-      out.add(IntervalTuple(this[i].interval, this[i].value / other[i].value));
-    }
-    return out;
+    var _aux = merge(other, f: (x,y) => [x, y]);
+    return TimeSeries.fromIterable(
+        _aux.map((e) => IntervalTuple(e.interval, e.value[0] / e.value[1])));
   }
 
 }
