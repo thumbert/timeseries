@@ -1,10 +1,12 @@
 library test_timeseries;
 
+import 'package:dama/dama.dart';
 import 'package:test/test.dart';
 import 'package:date/date.dart';
 import 'package:timeseries/src/timeseries_packer.dart';
 import 'package:timeseries/timeseries.dart';
-import 'package:timezone/standalone.dart';
+import 'package:timezone/data/latest.dart';
+import 'package:timezone/timezone.dart';
 import 'package:tuple/tuple.dart';
 
 void windowTest() {
@@ -580,11 +582,21 @@ void timeseriesTests() {
       expect(daysInMonth.length, 12);
       expect(daysInMonth.values.take(3).toList(), [31, 28, 31]);
     });
+    test('toWeekly()', (){
+      var w1 = Week(2020, 1, UTC);
+      var w52 = Week(2020, 52, UTC);
+      var term = Interval(w1.start, w52.end);
+      var hours = term.splitLeft((dt) => Hour.beginning(dt));
+      var ts = TimeSeries<Hour>.from(hours, hours);
+      var wTs = toWeekly(ts, (List xs) => xs.length);
+      expect(wTs.length, 52);
+      expect(wTs.values.toSet(), {168});
+    });
   });
 }
 
 void main() async {
-  await initializeTimeZone();
+  await initializeTimeZones();
 
   intervalTupleTests();
   timeseriesTests();
