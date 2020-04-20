@@ -493,6 +493,17 @@ void timeseriesTests() {
       expect(res.length, 9);
       expect(res.values.toList(), [11, 12, 13, 14, 15, 16, 17, 28, 29]);
     });
+
+    test('timeseries head/tail', () {
+      var days = parseTerm('Jan20').splitLeft((dt) => Date.fromTZDateTime(dt));
+      var ts = TimeSeries.fill(days, 1);
+      var head = ts.head();
+      expect(head.length, 6);
+      expect(head.last.interval, Date(2020,1,6));
+      var tail = ts.tail();
+      expect(tail.length, 6);
+      expect(tail.first.interval, Date(2020,1,26));
+    });
   });
 
   group('Expansion/Interpolation:', () {

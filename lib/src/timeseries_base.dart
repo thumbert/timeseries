@@ -258,6 +258,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return res;
   }
 
+  /// Return the first few elements of this timeseries.
+  TimeSeries<K> head({int n = 6}) {
+    return TimeSeries.fromIterable(sublist(0, n));
+  }
+
+
+  /// Return the last few elements of this timeseries.
+  TimeSeries<K> tail({int n = 6}) {
+    return TimeSeries.fromIterable(sublist(length - n));
+  }
+
   /// Partition this timeseries given a predicate [f].
   /// The first element of the returned tuple is the [true] branch, the
   /// second element is the [false] branch.
