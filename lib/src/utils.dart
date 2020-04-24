@@ -9,8 +9,6 @@ import 'package:timeseries/timeseries.dart';
 ///
 /// This allows you to aggregate a monthly timeseries by year or quarters, etc.
 ///
-///
-///
 IntervalTuple<num> weightedMean(
     TimeSeries<num> x, TimeSeries<num> weights, Interval interval) {
   if (!weights.domain.containsInterval(x.domain)) {

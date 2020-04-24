@@ -593,7 +593,17 @@ void timeseriesTests() {
       expect(daysInMonth.length, 12);
       expect(daysInMonth.values.take(3).toList(), [31, 28, 31]);
     });
-    test('toWeekly()', (){
+    test('toWeekly() 2016', () {
+      var w1 = Week(2016, 1, UTC);
+      var w52 = Week(2016, 52, UTC);
+      var term = Interval(w1.start, w52.end);
+      var hours = term.splitLeft((dt) => Hour.beginning(dt));
+      var ts = TimeSeries<Hour>.from(hours, hours);
+      var wTs = toWeekly(ts, (List xs) => xs.length);
+      expect(wTs.length, 52);
+      expect(wTs.values.toSet(), {168});
+    });
+    test('toWeekly() 2020', (){
       var w1 = Week(2020, 1, UTC);
       var w52 = Week(2020, 52, UTC);
       var term = Interval(w1.start, w52.end);
