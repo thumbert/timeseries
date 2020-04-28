@@ -141,17 +141,31 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   /// Interpolate this timeseries by splitting up each interval into
   /// subintervals of a given [duration] with each subinterval having the
-  /// same value as the original interval.
+  /// same value as the original interval.  With the intent of eliminating
+  /// surprises, if Duration is 1 hour, the returning time series will contain
+  /// [Hour] as the interval.  Also, if Duration is 1 day, the returning time series
+  /// will contain [Date] as the interval.
   ///
   /// This method is useful for example
   /// to go from a monthly timeseries to a daily timeseries, etc., in general
   /// from a lower frequency to a high frequency timeseries.
-  /// Note that the timeseries will not contain intervals of type [Date], but
-  /// the generic [Interval].
+  ///
   TimeSeries<K> interpolate(Duration duration) {
-    return TimeSeries.fromIterable(expand((e) => e.interval
-        .splitLeft((dt) => Interval(dt, dt.add(duration)))
-        .map((interval) => IntervalTuple(interval, e.value))));
+    if (duration == Duration(hours: 1)) {
+      return TimeSeries.fromIterable(expand((e) => e.interval
+          .splitLeft((dt) => Hour.beginning(dt))
+          .map((interval) => IntervalTuple(interval, e.value))));
+
+    } else if (duration == Duration(days: 1)) {
+      return TimeSeries.fromIterable(expand((e) => e.interval
+          .splitLeft((dt) => Date.fromTZDateTime(dt))
+          .map((interval) => IntervalTuple(interval, e.value))));
+
+    } else {
+      return TimeSeries.fromIterable(expand((e) => e.interval
+          .splitLeft((dt) => Interval(dt, dt.add(duration)))
+          .map((interval) => IntervalTuple(interval, e.value))));
+    }
   }
 
   /// Packs a timeseries.  Wraps the static method for convenience.
