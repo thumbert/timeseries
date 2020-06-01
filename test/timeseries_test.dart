@@ -1,6 +1,6 @@
 library test_timeseries;
 
-import 'package:dama/dama.dart';
+
 import 'package:test/test.dart';
 import 'package:date/date.dart';
 import 'package:timeseries/src/timeseries_packer.dart';

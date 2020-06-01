@@ -45,6 +45,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     List.generate(length, generator).forEach((IntervalTuple e) => add(e));
   }
 
+
   /// Create a TimeSeries by combining contiguous [IntervalTuple]s into an
   /// [IntervalTuple] with the union interval. The value for the resulting
   /// union interval is calculated by applying the function [f] to the list
