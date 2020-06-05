@@ -2,6 +2,7 @@ library timeseries_base;
 
 import 'dart:collection';
 import 'package:date/date.dart';
+import 'package:timeseries/timeseries.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
 
@@ -115,6 +116,18 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   @override
   operator []=(int i, IntervalTuple obs) => _data[i] = obs;
+
+  @override
+  TimeSeries<K> operator +(covariant TimeSeries<K> other) {
+    if (K == num) {
+      /// Add two numeric timeseries element wise.  The addition is only
+      /// performed on the intervals that match.
+      var _aux = merge(other, f: (x,y) => [x, y]);
+      return TimeSeries.fromIterable(
+          _aux.map((e) => IntervalTuple(e.interval, e.value[0] + e.value[1])));
+    }
+    return this..addAll(other);
+  }
 
   /// Only add at the end of a timeseries a non-overlapping interval.
   @override

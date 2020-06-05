@@ -7,13 +7,6 @@ import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
 
 void tests() {
-  group('Extensions on numeric', () {
-    test('multiply a time series by scalar', () {
-      var index = Term.parse('1Jan19-4Jan19', UTC).days();
-      var ts = TimeSeries.from(index, <num>[1, 2, 3]);
-      expect(2.times(ts) , TimeSeries.from(index, <num>[2, 4, 6]));
-    });
-  });
 
   group('Numeric TimeSeries extensions tests', () {
     test('sum', () {
@@ -31,13 +24,13 @@ void tests() {
 
     test('add two time series', () {
       var index1 = Term.parse('1Jan19-4Jan19', UTC).days();
-      var ts1 = TimeSeries.from(index1, [1, 2, 3]);
+      var ts1 = TimeSeries<num>.from(index1, [1, 2, 3]);
       var index2 = Term.parse('2Jan19-5Jan19', UTC).days();
-      var ts2 = TimeSeries.from(index2, [2, 2, 2]);
+      var ts2 = TimeSeries<num>.from(index2, [2, 2, 2]);
       var ts3 = ts1.plus(ts2);
       var ts4 = ts1 + ts2;
       expect(ts3 is TimeSeries, true);
-//      expect(ts4 is TimeSeries, true); // false!  it is List<IntervalTuple>
+      expect(ts4 is TimeSeries, true); // false!  it is List<IntervalTuple>
       expect(ts3.values.toList(), [4, 5]);
     });
 
@@ -72,6 +65,8 @@ void tests() {
     });
   });
 }
+
+
 
 void main() async {
   await initializeTimeZones();
