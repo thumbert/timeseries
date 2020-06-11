@@ -362,8 +362,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       } else {
         if (flag) {
           // a run has ended, add it to the output
-          if (!out.containsKey(run.length))
+          if (!out.containsKey(run.length)) {
             out[run.length] = <List<IntervalTuple<K>>>[];
+          }
           out[run.length].add(run);
           flag = false;
           run = <IntervalTuple<K>>[];

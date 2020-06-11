@@ -14,6 +14,11 @@ void tests() {
       var ts = TimeSeries.from(index, [1, 2, 3]);
       expect(ts.sum(), 6);
     });
+    test('cumsum', () {
+      var index = Term.parse('1Jan19-4Jan19', UTC).days();
+      var ts = TimeSeries.from(index, [1, 2, 3]);
+      expect(ts.cumsum(), TimeSeries<num>.from(index, [1, 3, 6]));
+    });
     test('apply', () {
       var index = Term.parse('1Jan19-4Jan19', UTC).days();
       var ts = TimeSeries.from(index, [1, 2, 3]);

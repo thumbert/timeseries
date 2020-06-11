@@ -17,6 +17,16 @@ import 'timeseries_base.dart';
 extension NumericTimeseriesExt on TimeSeries<num> {
   num sum() => fold(0, (previousValue, e) => previousValue + e.value);
 
+  /// Calculate the cumulative sum
+  TimeSeries<num> cumsum() {
+    if (isEmpty) return TimeSeries<num>();
+    num partial = 0;
+    return TimeSeries.fromIterable(map((e) {
+      partial += e.value;
+      return IntervalTuple(e.interval, partial);
+    }));
+  }
+
   /// Apply a function to each element.
   TimeSeries<num> apply(num Function(num) f) {
     return TimeSeries.fromIterable(
