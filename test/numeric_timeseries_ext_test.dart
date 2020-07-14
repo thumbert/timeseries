@@ -19,6 +19,11 @@ void tests() {
       var ts = TimeSeries.from(index, [1, 2, 3]);
       expect(ts.cumsum(), TimeSeries<num>.from(index, [1, 3, 6]));
     });
+    test('mean', () {
+      var index = Term.parse('1Jan19-4Jan19', UTC).days();
+      var ts = TimeSeries.from(index, [1, 2, 3]);
+      expect(ts.mean(), 2.0);
+    });
     test('apply', () {
       var index = Term.parse('1Jan19-4Jan19', UTC).days();
       var ts = TimeSeries.from(index, [1, 2, 3]);
@@ -32,11 +37,9 @@ void tests() {
       var ts1 = TimeSeries<num>.from(index1, [1, 2, 3]);
       var index2 = Term.parse('2Jan19-5Jan19', UTC).days();
       var ts2 = TimeSeries<num>.from(index2, [2, 2, 2]);
-      var ts3 = ts1.plus(ts2);
       var ts4 = ts1 + ts2;
-      expect(ts3 is TimeSeries, true);
-      expect(ts4 is TimeSeries, true); // false!  it is List<IntervalTuple>
-      expect(ts3.values.toList(), [4, 5]);
+      expect(ts4 is TimeSeries, true);
+      expect(ts4.values.toList(), [4, 5]);
     });
 
     test('multiply two time series', () {
