@@ -255,6 +255,36 @@ void timeseriesTests() {
           throwsStateError);
     });
 
+    test('insert an observation', () {
+      var months = Term.parse('Jan20-Dec20', location).interval
+          .splitLeft((dt) => Month.fromTZDateTime(dt));
+      var ts = TimeSeries.fill(months, 1);
+      ts.removeAt(3); // remove Apr20
+      ts.removeAt(3); // remove May20
+      expect(ts.length, 10);
+      // does nothing, as you shouldn't insert
+      ts.insert(3, IntervalTuple(Month(2020,3, location: location), 2));
+      // insert a missing observation in the middle
+      ts.insertObservation(IntervalTuple(Month(2020, 4, location: location), 2));
+      expect(ts.length, 11);
+      // insert at the head
+      ts.insertObservation(IntervalTuple(Month(2019, 7, location: location), 2));
+      expect(ts.length, 12);
+      // insert at the tail
+      ts.insertObservation(IntervalTuple(Month(2021, 3, location: location), 2));
+      expect(ts.length, 13);
+      // can't insert an existing month
+      expect(() => ts.insertObservation(IntervalTuple(Month(2020, 1, location: location), 2)),
+          throwsArgumentError);
+      // can't insert an overlapping term
+      expect(() => ts.insertObservation(
+          IntervalTuple(Term.parse('Jan20-Mar20', location).interval, 2)),
+          throwsArgumentError);
+      // but can insert a date that is missing
+      ts.insertObservation(IntervalTuple(Date(2020, 5, 5, location: location), 2));
+      expect(ts.length, 14);
+    });
+
     test('add a bunch of days at once with addAll()', () {
       var days = Interval(
               TZDateTime(location, 2016, 1, 1), TZDateTime(location, 2016, 2))

@@ -140,6 +140,30 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   @override
+  @Deprecated('Not appropriate for TimeSeries.  Use insertObservation instead.')
+  void insert(int i, IntervalTuple<K> obs) {}
+
+  /// Insert an observation in the timeseries if the observation 'fits'.
+  void insertObservation(IntervalTuple<K> obs) {
+    if (obs.interval.end.isBefore(_data.first.interval.start) ||
+      obs.interval.end.isAtSameMomentAs(_data.first.interval.start)) {
+      _data.insert(0, obs);
+    } else {
+      var iS = _leftFirstSearch(obs.interval.end);
+      if (iS > 0) {
+        // check that it fits before inserting
+        if (obs.interval.start.isBefore(_data[iS-1].interval.end)) {
+          throw ArgumentError('Can\'t insert $obs.  It does\'t fit.');
+        }
+        _data.insert(iS, obs);
+      } else {
+        _data.add(obs);
+      }
+    }
+  }
+
+
+  @override
   void addAll(Iterable<IntervalTuple<K>> x) => x.forEach((obs) {
         add(obs);
       });
@@ -435,6 +459,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Find the index of the first observation with an interval start > key.
+  /// If no such index is found, return -1.
   int _leftFirstSearch(DateTime key, {int min, int max}) {
     min ??= 0;
     max ??= _data.length;
@@ -476,7 +501,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return -1;
   }
 
-  /// Find the index of the last observeration with the interval end <= key.
+  /// Find the index of the last observation with the interval end <= key.
   int _rightFirstSearch(DateTime key, {int min, int max}) {
     min ??= 0;
     max ??= _data.length;
