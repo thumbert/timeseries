@@ -122,9 +122,26 @@ calculate basic statistics.
 
 
 ### Combining several timeseries
-Use method ```merge``` to join (in an SQL sense) two timeseries.  Here is an example 
-of how to add (by index) several timeseries.
+Use method ```merge``` to join (in an SQL sense) two timeseries.  
 
+Here is an example how to join several timeseries.
+```dart
+  var x1 = TimeSeries.from(Term.parse('1Jan20-3Jan20', location).days(), [1, 1, 1]);
+  var x2 = TimeSeries.from(Term.parse('2Jan20-4Jan20', location).days(), [2, 2, 2]);
+  var x3 = TimeSeries.from(Term.parse('1Jan20-5Jan20', location).days(), [3, 3, 3, 3, 3]);
+  var out = mergeAll({'A': x1, 'B': x2, 'C': x3});
+``` 
+the resulting timeseries is
+```dart
+2020-01-01 -> {A: 1, C: 3}
+2020-01-02 -> {A: 1, B: 2, C: 3}
+2020-01-03 -> {A: 1, B: 2, C: 3}
+2020-01-04 -> {B: 2, C: 3}
+2020-01-05 -> {C: 3}
+```
+
+
+Here is an example of how to add (by index) several timeseries.
 ```dart
   var days = [
     Date(2018, 1, 1),

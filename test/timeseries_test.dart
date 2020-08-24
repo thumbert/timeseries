@@ -1,6 +1,5 @@
 library test_timeseries;
 
-
 import 'package:test/test.dart';
 import 'package:date/date.dart';
 import 'package:timeseries/src/timeseries_packer.dart';
@@ -12,10 +11,9 @@ import 'package:tuple/tuple.dart';
 void windowTest() {
   group('TimeSeries window tests: ', () {
     var location = getLocation('US/Eastern');
-    var days = Interval(TZDateTime(location, 2018, 1, 1),
-            TZDateTime(location, 2018, 1, 10))
-        .splitLeft(
-            (dt) => Date(dt.year, dt.month, dt.day, location: location));
+    var days = Interval(
+            TZDateTime(location, 2018, 1, 1), TZDateTime(location, 2018, 1, 10))
+        .splitLeft((dt) => Date(dt.year, dt.month, dt.day, location: location));
     var ts = TimeSeries.fill(days, 1);
 
     test('window inside interval', () {
@@ -24,8 +22,7 @@ void windowTest() {
       var ts = TimeSeries.fill(days, 1);
 
       List<IntervalTuple> res = ts.window(Interval(
-          TZDateTime(location, 2018, 1, 3),
-          TZDateTime(location, 2018, 1, 7)));
+          TZDateTime(location, 2018, 1, 3), TZDateTime(location, 2018, 1, 7)));
       expect(res.length, 4);
     });
 
@@ -34,8 +31,7 @@ void windowTest() {
           (dt) => Date(dt.year, dt.month, dt.day, location: location));
       var ts = TimeSeries.fill(days, 1);
       List<IntervalTuple> res = ts.window(Interval(
-          TZDateTime(location, 2018, 1, 4),
-          TZDateTime(location, 2018, 2, 7)));
+          TZDateTime(location, 2018, 1, 4), TZDateTime(location, 2018, 2, 7)));
       expect(res.length, 28);
     });
 
@@ -172,18 +168,16 @@ void timeseriesTests() {
     });
 
     test('observationAt works for matching interval', () {
-      var months =
-          Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
-              .splitLeft((dt) => Month(dt.year, dt.month));
+      var months = Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
+          .splitLeft((dt) => Month(dt.year, dt.month));
       var ts = TimeSeries.fill(months, 1);
       expect(ts.observationAt(Month(2014, 3)).interval, Month(2014, 3));
     });
 
     test('observationAt throws if interval is outside the timeseries domain',
         () {
-      var months =
-          Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
-              .splitLeft((dt) => Month(dt.year, dt.month));
+      var months = Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
+          .splitLeft((dt) => Month(dt.year, dt.month));
       var ts = TimeSeries.fill(months, 1);
       expect(() => ts.observationAt(Month(2015, 1)), throwsRangeError);
     });
@@ -215,17 +209,17 @@ void timeseriesTests() {
 
     test('calculate the number of hours in a month using aggregateValues', () {
       var ts = TimeSeries.fill(hours, 1);
-      var months = Interval(
-              TZDateTime(location, 2016), TZDateTime(location, 2017))
-          .splitLeft((dt) => Month(dt.year, dt.month, location: location));
+      var months =
+          Interval(TZDateTime(location, 2016), TZDateTime(location, 2017))
+              .splitLeft((dt) => Month(dt.year, dt.month, location: location));
       var hrs = months.map((month) => ts.window(month).length).toList();
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
     });
 
     test('slice the timeseries according to an interval (window)', () {
-      var months = Interval(
-              TZDateTime(location, 2014), TZDateTime(location, 2015))
-          .splitLeft((dt) => Month(dt.year, dt.month, location: location));
+      var months =
+          Interval(TZDateTime(location, 2014), TZDateTime(location, 2015))
+              .splitLeft((dt) => Month(dt.year, dt.month, location: location));
       var ts = TimeSeries.fill(months, 1);
 
       List<IntervalTuple> res = ts.window(Interval(
@@ -249,39 +243,46 @@ void timeseriesTests() {
           Interval(TZDateTime(location, 2014), TZDateTime(location, 2015))
               .splitLeft((dt) => Month.fromTZDateTime(dt))
               .toList();
-      var ts =
-          TimeSeries.generate(12, (i) => IntervalTuple(months[i], i));
-      expect(() => ts.add(IntervalTuple(Date(2014, 4, 1), 4)),
-          throwsStateError);
+      var ts = TimeSeries.generate(12, (i) => IntervalTuple(months[i], i));
+      expect(
+          () => ts.add(IntervalTuple(Date(2014, 4, 1), 4)), throwsStateError);
     });
 
     test('insert an observation', () {
-      var months = Term.parse('Jan20-Dec20', location).interval
+      var months = Term.parse('Jan20-Dec20', location)
+          .interval
           .splitLeft((dt) => Month.fromTZDateTime(dt));
       var ts = TimeSeries.fill(months, 1);
       ts.removeAt(3); // remove Apr20
       ts.removeAt(3); // remove May20
       expect(ts.length, 10);
       // does nothing, as you shouldn't insert
-      ts.insert(3, IntervalTuple(Month(2020,3, location: location), 2));
+      ts.insert(3, IntervalTuple(Month(2020, 3, location: location), 2));
       // insert a missing observation in the middle
-      ts.insertObservation(IntervalTuple(Month(2020, 4, location: location), 2));
+      ts.insertObservation(
+          IntervalTuple(Month(2020, 4, location: location), 2));
       expect(ts.length, 11);
       // insert at the head
-      ts.insertObservation(IntervalTuple(Month(2019, 7, location: location), 2));
+      ts.insertObservation(
+          IntervalTuple(Month(2019, 7, location: location), 2));
       expect(ts.length, 12);
       // insert at the tail
-      ts.insertObservation(IntervalTuple(Month(2021, 3, location: location), 2));
+      ts.insertObservation(
+          IntervalTuple(Month(2021, 3, location: location), 2));
       expect(ts.length, 13);
       // can't insert an existing month
-      expect(() => ts.insertObservation(IntervalTuple(Month(2020, 1, location: location), 2)),
+      expect(
+          () => ts.insertObservation(
+              IntervalTuple(Month(2020, 1, location: location), 2)),
           throwsArgumentError);
       // can't insert an overlapping term
-      expect(() => ts.insertObservation(
-          IntervalTuple(Term.parse('Jan20-Mar20', location).interval, 2)),
+      expect(
+          () => ts.insertObservation(
+              IntervalTuple(Term.parse('Jan20-Mar20', location).interval, 2)),
           throwsArgumentError);
       // but can insert a date that is missing
-      ts.insertObservation(IntervalTuple(Date(2020, 5, 5, location: location), 2));
+      ts.insertObservation(
+          IntervalTuple(Date(2020, 5, 5, location: location), 2));
       expect(ts.length, 14);
     });
 
@@ -420,16 +421,12 @@ void timeseriesTests() {
 
     test('merge two hourly timeseries JoinType.Outer', () {
       var ts1 = TimeSeries.fromIterable([
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 100),
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 101),
+        IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 100),
+        IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 101),
       ]);
       var ts2 = TimeSeries.fromIterable([
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 1),
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 2),
+        IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 1),
+        IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 2),
       ]);
       var out = ts1.merge(ts2, joinType: JoinType.Outer, f: (x, y) {
         x ??= 0;
@@ -438,6 +435,23 @@ void timeseriesTests() {
       });
       expect(out.length, 2);
       expect(out.values.toList(), [101, 103]);
+    });
+
+    test('merge several timeseries', () {
+      var x1 = TimeSeries.from(
+          Term.parse('1Jan20-3Jan20', location).days(), [1, 1, 1]);
+      var x2 = TimeSeries.from(
+          Term.parse('2Jan20-4Jan20', location).days(), [2, 2, 2]);
+      var x3 = TimeSeries.from(
+          Term.parse('1Jan20-5Jan20', location).days(), [3, 3, 3, 3, 3]);
+      var out = mergeAll({'A': x1, 'B': x2, 'C': x3});
+      expect(out.length, 5);
+      var vs = out.values.toList();
+      expect(vs[0], {'A': 1, 'C': 3});
+      expect(vs[1], {'A': 1, 'B': 2, 'C': 3});
+      expect(vs[2], {'A': 1, 'B': 2, 'C': 3});
+      expect(vs[3], {'B': 2, 'C': 3});
+      expect(vs[4], {'C': 3});
     });
 
     test('reduce three timeseries JoinType.Outer', () {
@@ -472,7 +486,7 @@ void timeseriesTests() {
       var zeros = TimeSeries.fill(days, 0);
       var fewDays = [0, 1, 3, 4, 7].map((i) => days[i]);
       var ts = TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
-      var fill = (x,y) => y ??= x;
+      var fill = (x, y) => y ??= x;
       var tsExt = zeros.merge(ts, f: fill, joinType: JoinType.Left);
       expect(tsExt.length, 8);
       expect(tsExt.values, [1, 2, 0, 4, 5, 0, 0, 8]);
@@ -529,10 +543,10 @@ void timeseriesTests() {
       var ts = TimeSeries.fill(days, 1);
       var head = ts.head();
       expect(head.length, 6);
-      expect(head.last.interval, Date(2020,1,6));
+      expect(head.last.interval, Date(2020, 1, 6));
       var tail = ts.tail();
       expect(tail.length, 6);
-      expect(tail.first.interval, Date(2020,1,26));
+      expect(tail.first.interval, Date(2020, 1, 26));
     });
   });
 
@@ -633,7 +647,7 @@ void timeseriesTests() {
       expect(wTs.length, 52);
       expect(wTs.values.toSet(), {168});
     });
-    test('toWeekly() 2020', (){
+    test('toWeekly() 2020', () {
       var w1 = Week(2020, 1, UTC);
       var w52 = Week(2020, 52, UTC);
       var term = Interval(w1.start, w52.end);
@@ -645,7 +659,6 @@ void timeseriesTests() {
     });
   });
 }
-
 
 void main() async {
   await initializeTimeZones();
