@@ -2,7 +2,7 @@ library timeseries_base;
 
 import 'dart:collection';
 import 'package:date/date.dart';
-import 'package:timezone/timezone.dart';
+import 'package:timeseries/timeseries.dart';
 import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
 
@@ -56,6 +56,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   TimeSeries.generate(int length, IntervalTuple Function(int) generator) {
     List.generate(length, generator).forEach((IntervalTuple e) => add(e));
   }
+
 
   /// Create a TimeSeries by combining contiguous [IntervalTuple]s into an
   /// [IntervalTuple] with the union interval. The value for the resulting
@@ -115,7 +116,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// domain of the timeseries
   Interval get domain =>
       Interval(_data.first.interval.start, _data.last.interval.end);
-  
+
   @override
   set length(int i) {
     _data.length = i;
@@ -127,6 +128,18 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   @override
   operator []=(int i, IntervalTuple obs) => _data[i] = obs;
 
+  @override
+  TimeSeries<K> operator +(covariant TimeSeries<K> other) {
+    if (K == num) {
+      /// Add two numeric timeseries element wise.  The addition is only
+      /// performed on the intervals that match.
+      var _aux = merge(other, f: (x,y) => [x, y]);
+      return TimeSeries.fromIterable(
+          _aux.map((e) => IntervalTuple(e.interval, e.value[0] + e.value[1])));
+    }
+    return this..addAll(other);
+  }
+
   /// Only add at the end of a timeseries a non-overlapping interval.
   @override
   void add(IntervalTuple<K> obs) {
@@ -136,6 +149,30 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     }
     _data.add(obs);
   }
+
+  @override
+  @Deprecated('Not appropriate for TimeSeries.  Use insertObservation instead.')
+  void insert(int i, IntervalTuple<K> obs) {}
+
+  /// Insert an observation in the timeseries if the observation 'fits'.
+  void insertObservation(IntervalTuple<K> obs) {
+    if (obs.interval.end.isBefore(_data.first.interval.start) ||
+      obs.interval.end.isAtSameMomentAs(_data.first.interval.start)) {
+      _data.insert(0, obs);
+    } else {
+      var iS = _leftFirstSearch(obs.interval.end);
+      if (iS > 0) {
+        // check that it fits before inserting
+        if (obs.interval.start.isBefore(_data[iS-1].interval.end)) {
+          throw ArgumentError('Can\'t insert $obs.  It does\'t fit.');
+        }
+        _data.insert(iS, obs);
+      } else {
+        _data.add(obs);
+      }
+    }
+  }
+
 
   @override
   void addAll(Iterable<IntervalTuple<K>> x) => x.forEach((obs) {
@@ -153,21 +190,35 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   /// Interpolate this timeseries by splitting up each interval into
   /// subintervals of a given [duration] with each subinterval having the
-  /// same value as the original interval.
+  /// same value as the original interval.  With the intent of eliminating
+  /// surprises, if Duration is 1 hour, the returning time series will contain
+  /// [Hour] as the interval.  Also, if Duration is 1 day, the returning time series
+  /// will contain [Date] as the interval.
   ///
   /// This method is useful for example
   /// to go from a monthly timeseries to a daily timeseries, etc., in general
   /// from a lower frequency to a high frequency timeseries.
   ///
   TimeSeries<K> interpolate(Duration duration) {
-    return TimeSeries.fromIterable(expand((e) => e.interval
-        .splitLeft((dt) => Interval(dt, dt.add(duration)))
-        .map((interval) => IntervalTuple(interval, e.value))));
+    if (duration == Duration(hours: 1)) {
+      return TimeSeries.fromIterable(expand((e) => e.interval
+          .splitLeft((dt) => Hour.beginning(dt))
+          .map((interval) => IntervalTuple(interval, e.value))));
+
+    } else if (duration == Duration(days: 1)) {
+      return TimeSeries.fromIterable(expand((e) => e.interval
+          .splitLeft((dt) => Date.fromTZDateTime(dt))
+          .map((interval) => IntervalTuple(interval, e.value))));
+
+    } else {
+      return TimeSeries.fromIterable(expand((e) => e.interval
+          .splitLeft((dt) => Interval(dt, dt.add(duration)))
+          .map((interval) => IntervalTuple(interval, e.value))));
+    }
   }
 
   /// Packs a timeseries.  Wraps the static method for convenience.
   TimeSeries<K> pack() => TimeSeries.pack(_data);
-
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time intervals.  This method should only be applied if time
@@ -179,8 +230,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// f = (x,y) => x + y.
   /// Or, you can use it to fill an irregular timeseries with
   /// (x,y) => y == null ? x : y;
-  TimeSeries<T> merge<T,S>(TimeSeries<S> y,
-      {T Function(K,S) f, JoinType joinType = JoinType.Inner}) {
+  TimeSeries<T> merge<T, S>(TimeSeries<S> y,
+      {T Function(K, S) f, JoinType joinType = JoinType.Inner}) {
     //f ??= (x, y) => [x, y];
     var res = <IntervalTuple<T>>[];
     if (isEmpty || y.isEmpty) return TimeSeries<T>();
@@ -193,8 +244,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
             ++j;
           }
           if (_data[i].item1 == y[j].item1) {
-            res.add(IntervalTuple(
-                _data[i].item1, f(_data[i].item2, y[j].item2)));
+            res.add(
+                IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
           }
         }
         break;
@@ -207,8 +258,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
             ++j;
           }
           if (_data[i].item1 == y[j].item1) {
-            res.add(IntervalTuple(
-                _data[i].item1, f(_data[i].item2, y[j].item2)));
+            res.add(
+                IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
           } else {
             res.add(IntervalTuple(_data[i].item1, f(_data[i].item2, null)));
           }
@@ -223,8 +274,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
             ++i;
           }
           if (_data[i].item1 == y[j].item1) {
-            res.add(IntervalTuple(
-                _data[i].item1, f(_data[i].item2, y[j].item2)));
+            res.add(
+                IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
           } else {
             res.add(IntervalTuple(y[j].item1, f(null, y[j].item2)));
           }
@@ -237,8 +288,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
         var n = length + y.length;
         while (i + j < n) {
           if (i < length && j < y.length && _data[i].item1 == y[j].item1) {
-            res.add(IntervalTuple(
-                _data[i].item1, f(_data[i].item2, y[j].item2)));
+            res.add(
+                IntervalTuple(_data[i].item1, f(_data[i].item2, y[j].item2)));
             i++;
             j++;
           } else if (i < length &&
@@ -268,6 +319,16 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
             e.interval.start.isAtSameMomentAs(last))
         .forEach((IntervalTuple e) => res.add(e));
     return res;
+  }
+
+  /// Return the first few elements of this timeseries.
+  TimeSeries<K> head({int n = 6}) {
+    return TimeSeries.fromIterable(sublist(0, n));
+  }
+
+  /// Return the last few elements of this timeseries.
+  TimeSeries<K> tail({int n = 6}) {
+    return TimeSeries.fromIterable(sublist(length - n));
   }
 
   /// Partition this timeseries given a predicate [f].
@@ -321,11 +382,12 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return TimeSeries.from(grp.keys, grp.values);
   }
 
-  /// Return the running groups satisfying a given condition on the values 
+  /// Return the running groups satisfying a given condition on the values
   /// of the timeseries.
   /// Returns a Map of run length and observation groups.
-  Map<int,List<List<IntervalTuple<K>>>> runningGroups(bool Function(IntervalTuple<K>) condition) {
-    var out = <int,List<List<IntervalTuple<K>>>>{};
+  Map<int, List<List<IntervalTuple<K>>>> runningGroups(
+      bool Function(IntervalTuple<K>) condition) {
+    var out = <int, List<List<IntervalTuple<K>>>>{};
     var flag = false;
     var run = <IntervalTuple<K>>[];
     for (var obs in this) {
@@ -335,7 +397,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       } else {
         if (flag) {
           // a run has ended, add it to the output
-          if (!out.containsKey(run.length)) out[run.length] = <List<IntervalTuple<K>>>[];
+          if (!out.containsKey(run.length)) {
+            out[run.length] = <List<IntervalTuple<K>>>[];
+          }
           out[run.length].add(run);
           flag = false;
           run = <IntervalTuple<K>>[];
@@ -350,8 +414,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
     return out;
   }
-  
-  
+
   /// Split a timeseries into non-overlapping subseries according to a function.
   /// This is similar, but slighly different
   /// than [groupByIndex] which returns an aggregated timeseries.
@@ -408,6 +471,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Find the index of the first observation with an interval start > key.
+  /// If no such index is found, return -1.
   int _leftFirstSearch(DateTime key, {int min, int max}) {
     min ??= 0;
     max ??= _data.length;
@@ -449,7 +513,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return -1;
   }
 
-  /// Find the index of the last observeration with the interval end <= key.
+  /// Find the index of the last observation with the interval end <= key.
   int _rightFirstSearch(DateTime key, {int min, int max}) {
     min ??= 0;
     max ??= _data.length;
@@ -486,7 +550,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     }
     return -1;
   }
-
 }
 
 int _compareNonoverlappingIntervals(Interval i1, Interval i2) {

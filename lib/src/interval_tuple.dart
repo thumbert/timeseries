@@ -10,14 +10,17 @@ class IntervalTuple<K> extends Tuple2<Interval,K> {
   Interval get interval => item1;
   K get value => item2;
 
+  @override
   String toString() => '$interval -> ${item2}';
 
+  @override
   bool operator ==(dynamic other) {
     if (other is! IntervalTuple) return false;
     var it = other as IntervalTuple<K>;
     return it.interval == interval && it.value == value;
   }
 
+  @override
   int get hashCode => super.hashCode;
 
   Map<String,dynamic> toMap() => <String,dynamic>{
