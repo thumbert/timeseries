@@ -11,16 +11,9 @@ import 'package:tuple/tuple.dart';
 void windowTest() {
   group('TimeSeries window tests: ', () {
     var location = getLocation('US/Eastern');
-<<<<<<< HEAD:test/test_timeseries.dart
-    var days = Interval(TZDateTime(location, 2018, 1, 1),
-            TZDateTime(location, 2018, 1, 10))
-        .splitLeft(
-            (dt) => Date(dt.year, dt.month, dt.day, location: location));
-=======
     var days = Interval(
             TZDateTime(location, 2018, 1, 1), TZDateTime(location, 2018, 1, 10))
         .splitLeft((dt) => Date(dt.year, dt.month, dt.day, location: location));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
     var ts = TimeSeries.fill(days, 1);
 
     test('window inside interval', () {
@@ -29,12 +22,7 @@ void windowTest() {
       var ts = TimeSeries.fill(days, 1);
 
       List<IntervalTuple> res = ts.window(Interval(
-<<<<<<< HEAD:test/test_timeseries.dart
-          TZDateTime(location, 2018, 1, 3),
-          TZDateTime(location, 2018, 1, 7)));
-=======
           TZDateTime(location, 2018, 1, 3), TZDateTime(location, 2018, 1, 7)));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       expect(res.length, 4);
     });
 
@@ -43,12 +31,7 @@ void windowTest() {
           (dt) => Date(dt.year, dt.month, dt.day, location: location));
       var ts = TimeSeries.fill(days, 1);
       List<IntervalTuple> res = ts.window(Interval(
-<<<<<<< HEAD:test/test_timeseries.dart
-          TZDateTime(location, 2018, 1, 4),
-          TZDateTime(location, 2018, 2, 7)));
-=======
           TZDateTime(location, 2018, 1, 4), TZDateTime(location, 2018, 2, 7)));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       expect(res.length, 28);
     });
 
@@ -185,28 +168,16 @@ void timeseriesTests() {
     });
 
     test('observationAt works for matching interval', () {
-<<<<<<< HEAD:test/test_timeseries.dart
-      var months =
-          Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
-              .splitLeft((dt) => Month(dt.year, dt.month));
-=======
       var months = Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
           .splitLeft((dt) => Month(dt.year, dt.month));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       var ts = TimeSeries.fill(months, 1);
       expect(ts.observationAt(Month(2014, 3)).interval, Month(2014, 3));
     });
 
     test('observationAt throws if interval is outside the timeseries domain',
         () {
-<<<<<<< HEAD:test/test_timeseries.dart
-      var months =
-          Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
-              .splitLeft((dt) => Month(dt.year, dt.month));
-=======
       var months = Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
           .splitLeft((dt) => Month(dt.year, dt.month));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       var ts = TimeSeries.fill(months, 1);
       expect(() => ts.observationAt(Month(2015, 1)), throwsRangeError);
     });
@@ -238,29 +209,17 @@ void timeseriesTests() {
 
     test('calculate the number of hours in a month using aggregateValues', () {
       var ts = TimeSeries.fill(hours, 1);
-<<<<<<< HEAD:test/test_timeseries.dart
-      var months = Interval(
-              TZDateTime(location, 2016), TZDateTime(location, 2017))
-          .splitLeft((dt) => Month(dt.year, dt.month, location: location));
-=======
       var months =
           Interval(TZDateTime(location, 2016), TZDateTime(location, 2017))
               .splitLeft((dt) => Month(dt.year, dt.month, location: location));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       var hrs = months.map((month) => ts.window(month).length).toList();
       expect(hrs, [744, 696, 743, 720, 744, 720, 744, 744, 720, 744, 721, 744]);
     });
 
     test('slice the timeseries according to an interval (window)', () {
-<<<<<<< HEAD:test/test_timeseries.dart
-      var months = Interval(
-              TZDateTime(location, 2014), TZDateTime(location, 2015))
-          .splitLeft((dt) => Month(dt.year, dt.month, location: location));
-=======
       var months =
           Interval(TZDateTime(location, 2014), TZDateTime(location, 2015))
               .splitLeft((dt) => Month(dt.year, dt.month, location: location));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       var ts = TimeSeries.fill(months, 1);
 
       List<IntervalTuple> res = ts.window(Interval(
@@ -284,12 +243,6 @@ void timeseriesTests() {
           Interval(TZDateTime(location, 2014), TZDateTime(location, 2015))
               .splitLeft((dt) => Month.fromTZDateTime(dt))
               .toList();
-<<<<<<< HEAD:test/test_timeseries.dart
-      var ts =
-          TimeSeries.generate(12, (i) => IntervalTuple(months[i], i));
-      expect(() => ts.add(IntervalTuple(Date(2014, 4, 1), 4)),
-          throwsStateError);
-=======
       var ts = TimeSeries.generate(12, (i) => IntervalTuple(months[i], i));
       expect(
           () => ts.add(IntervalTuple(Date(2014, 4, 1), 4)), throwsStateError);
@@ -331,7 +284,6 @@ void timeseriesTests() {
       ts.insertObservation(
           IntervalTuple(Date(2020, 5, 5, location: location), 2));
       expect(ts.length, 14);
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
     });
 
     test('add a bunch of days at once with addAll()', () {
@@ -469,25 +421,12 @@ void timeseriesTests() {
 
     test('merge two hourly timeseries JoinType.Outer', () {
       var ts1 = TimeSeries.fromIterable([
-<<<<<<< HEAD:test/test_timeseries.dart
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 100),
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 101),
-      ]);
-      var ts2 = TimeSeries.fromIterable([
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 1),
-        IntervalTuple(
-            Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 2),
-=======
         IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 100),
         IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 101),
       ]);
       var ts2 = TimeSeries.fromIterable([
         IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 0)), 1),
         IntervalTuple(Hour.beginning(TZDateTime(location, 2018, 1, 1, 1)), 2),
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       ]);
       var out = ts1.merge(ts2, joinType: JoinType.Outer, f: (x, y) {
         x ??= 0;
@@ -547,11 +486,7 @@ void timeseriesTests() {
       var zeros = TimeSeries.fill(days, 0);
       var fewDays = [0, 1, 3, 4, 7].map((i) => days[i]);
       var ts = TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
-<<<<<<< HEAD:test/test_timeseries.dart
-      Function fill = (x, y) => y ?? x;
-=======
       var fill = (x, y) => y ??= x;
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
       var tsExt = zeros.merge(ts, f: fill, joinType: JoinType.Left);
       expect(tsExt.length, 8);
       expect(tsExt.values, [1, 2, 0, 4, 5, 0, 0, 8]);
@@ -603,7 +538,6 @@ void timeseriesTests() {
       expect(res.values.toList(), [11, 12, 13, 14, 15, 16, 17, 28, 29]);
     });
 
-<<<<<<< HEAD:test/test_timeseries.dart
     test('numeric timeseries toJson', () {
       var x = TimeSeries.fromIterable([
         IntervalTuple(Date(2017, 1, 1), 11),
@@ -619,7 +553,7 @@ void timeseriesTests() {
         'end': '2017-01-02T00:00:00.000Z',
         'value': 11,
       });
-=======
+    });
     test('timeseries head/tail', () {
       var days = parseTerm('Jan20').splitLeft((dt) => Date.fromTZDateTime(dt));
       var ts = TimeSeries.fill(days, 1);
@@ -629,7 +563,6 @@ void timeseriesTests() {
       var tail = ts.tail();
       expect(tail.length, 6);
       expect(tail.first.interval, Date(2020, 1, 26));
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
     });
   });
 
@@ -744,11 +677,7 @@ void timeseriesTests() {
 }
 
 void main() async {
-<<<<<<< HEAD:test/test_timeseries.dart
-  await initializeTimeZone();
-=======
   await initializeTimeZones();
->>>>>>> 89c17ef42758a53e028c59c2cce0241a357ffa82:test/timeseries_test.dart
 
   intervalTupleTests();
   timeseriesTests();
