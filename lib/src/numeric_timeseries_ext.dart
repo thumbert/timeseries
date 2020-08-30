@@ -1,6 +1,8 @@
 library numeric_timeseries_ext;
 
+import 'package:date/date.dart';
 import 'package:timeseries/src/interval_tuple.dart';
+import 'package:timezone/timezone.dart';
 
 import 'timeseries_base.dart';
 
@@ -41,5 +43,22 @@ extension NumericTimeseriesExt on TimeSeries<num> {
     return TimeSeries.fromIterable(
         _aux.map((e) => IntervalTuple(e.interval, e.value[0] / e.value[1])));
   }
+
+  /// Provide a Json serialization
+  Map<String,dynamic> toJson() {
+    var obs = <Map<String,dynamic>>[];
+    for (var x in this) {
+      obs.add({
+        'start': x.interval.start.toIso8601String(),
+        'end': x.interval.end.toIso8601String(),
+        'value': x.value,
+      });
+    }
+    return <String,dynamic>{
+      'timezone': first.interval.start.timeZoneName,
+      'observations': obs,
+    };
+  }
+
 
 }
