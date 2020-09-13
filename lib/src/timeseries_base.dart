@@ -540,6 +540,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 }
 
+/// Return 0 if intervals are the same,
+/// Return -1, if i1 is before i2,
+/// Return 1, if i2 is before i1,
 int _compareNonoverlappingIntervals(Interval i1, Interval i2) {
   /// don't need to check if the intervals overlap, because they shouldn't by
   /// construction

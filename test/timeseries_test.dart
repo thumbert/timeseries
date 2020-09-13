@@ -167,12 +167,28 @@ void timeseriesTests() {
       expect(x1.value, 1);
     });
 
+    test('observationAt not finding interval when originating from term', () {
+      var term = Month.parse('Mar19', location: location);
+      // var term = Term.parse('Mar19', location: location);  // fails b/c not a month
+      var ts = TimeSeries.fromIterable([
+        IntervalTuple(Month(2019, 1, location: location), 1),
+        IntervalTuple(Month(2019, 2, location: location), 2),
+        IntervalTuple(Month(2019, 3, location: location), 3),
+        IntervalTuple(Month(2019, 4, location: location), 4),
+        IntervalTuple(Month(2019, 5, location: location), 5),
+      ]);
+      var march = ts.observationAt(term);
+      expect(march.value, 3);
+    });
+
+
     test('observationAt works for matching interval', () {
       var months = Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
           .splitLeft((dt) => Month(dt.year, dt.month));
       var ts = TimeSeries.fill(months, 1);
       expect(ts.observationAt(Month(2014, 3)).interval, Month(2014, 3));
     });
+
 
     test('observationAt throws if interval is outside the timeseries domain',
         () {
