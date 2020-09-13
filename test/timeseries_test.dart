@@ -554,6 +554,22 @@ void timeseriesTests() {
       expect(res.values.toList(), [11, 12, 13, 14, 15, 16, 17, 28, 29]);
     });
 
+    test('numeric timeseries toJson', () {
+      var x = TimeSeries.fromIterable([
+        IntervalTuple(Date(2017, 1, 1), 11),
+        IntervalTuple(Date(2017, 1, 2), 12),
+        IntervalTuple(Date(2017, 1, 3), 13),
+        IntervalTuple(Date(2017, 1, 4), 14),
+        IntervalTuple(Date(2017, 1, 5), 15),
+      ]);
+      var out = x.toJson();
+      expect(out.keys.toSet(), {'timezone', 'observations'});
+      expect((out['observations'] as List).first, {
+        'start': '2017-01-01T00:00:00.000Z',
+        'end': '2017-01-02T00:00:00.000Z',
+        'value': 11,
+      });
+    });
     test('timeseries head/tail', () {
       var days = parseTerm('Jan20').splitLeft((dt) => Date.fromTZDateTime(dt));
       var ts = TimeSeries.fill(days, 1);

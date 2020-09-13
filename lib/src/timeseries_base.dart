@@ -33,6 +33,17 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     }
   }
 
+//  TimeSeries.fromJson(Map<String,dynamic> xs) {
+//    var location = getLocation(xs['timezone']);
+//    addAll((xs['observations'] as List)
+//        .map((e) {
+//          var interval = Interval(TZDateTime.parse(location, e['start']),
+//            TZDateTime.parse(location, e['end']));
+//          return IntervalTuple(interval, e['value']);
+//    }));
+//  }
+
+
   /// Create a TimeSeries with a constant value
   TimeSeries.fill(Iterable<Interval> index, K value) {
     index.forEach((Interval i) => add(IntervalTuple(i, value)));
@@ -431,6 +442,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     });
     return Tuple2(i, v);
   }
+
 
   /// Extract the subset of observations with intervals that are *entirely*
   /// included in the given [interval]. If there is no overlap, return
