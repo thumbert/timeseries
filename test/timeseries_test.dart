@@ -181,14 +181,12 @@ void timeseriesTests() {
       expect(march.value, 3);
     });
 
-
     test('observationAt works for matching interval', () {
       var months = Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
           .splitLeft((dt) => Month(dt.year, dt.month));
       var ts = TimeSeries.fill(months, 1);
       expect(ts.observationAt(Month(2014, 3)).interval, Month(2014, 3));
     });
-
 
     test('observationAt throws if interval is outside the timeseries domain',
         () {
@@ -242,6 +240,11 @@ void timeseriesTests() {
           TZDateTime(location, 2014, 3), TZDateTime(location, 2014, 7)));
       expect(res.length, 4);
       expect(res.join(', '), 'Mar14 -> 1, Apr14 -> 1, May14 -> 1, Jun14 -> 1');
+    });
+
+    test('window of an empty timeseries is empty', () {
+      var ts = TimeSeries<num>();
+      expect(ts.window(Month(2020, 3)).isEmpty, true);
     });
 
     test('add one observation at the end', () {
