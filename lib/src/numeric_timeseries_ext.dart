@@ -15,7 +15,7 @@ extension NumericTimeseriesExt on TimeSeries<num> {
       res += x;
       i++;
     }
-    return res/i;
+    return res / i;
   }
 
   /// Calculate the cumulative sum
@@ -28,6 +28,17 @@ extension NumericTimeseriesExt on TimeSeries<num> {
     }));
   }
 
+  /// Calculate the 1st order difference between successive observations.
+  /// Return a timeseries that is one element shorter than the original.
+  TimeSeries<num> diff() {
+    if (isEmpty || length == 1) return TimeSeries<num>();
+    var out = TimeSeries<num>();
+    for (var i = 1; i < length; i++) {
+      out.add(
+          IntervalTuple(this[i].interval, this[i].value - this[i - 1].value));
+    }
+    return out;
+  }
 
   /// Apply a function to each element.
   TimeSeries<num> apply(num Function(num) f) {
@@ -38,7 +49,7 @@ extension NumericTimeseriesExt on TimeSeries<num> {
   /// Subtract two timeseries element wise. The subtraction is only performed
   /// on the intervals that match.
   TimeSeries<num> operator -(TimeSeries<num> other) {
-    var _aux = merge(other, f: (x,y) => [x, y]);
+    var _aux = merge(other, f: (x, y) => [x, y]);
     return TimeSeries.fromIterable(
         _aux.map((e) => IntervalTuple(e.interval, e.value[0] - e.value[1])));
   }
@@ -46,7 +57,7 @@ extension NumericTimeseriesExt on TimeSeries<num> {
   /// Multiply two timeseries element wise.  The multiplication is only
   /// performed on the intervals that match.
   TimeSeries<num> operator *(TimeSeries<num> other) {
-    var _aux = merge(other, f: (x,y) => [x, y]);
+    var _aux = merge(other, f: (x, y) => [x, y]);
     return TimeSeries.fromIterable(
         _aux.map((e) => IntervalTuple(e.interval, e.value[0] * e.value[1])));
   }
@@ -54,14 +65,14 @@ extension NumericTimeseriesExt on TimeSeries<num> {
   /// Multiply two timeseries element wise. The division is only
   /// performed on the intervals that match.
   TimeSeries<num> operator /(TimeSeries<num> other) {
-    var _aux = merge(other, f: (x,y) => [x, y]);
+    var _aux = merge(other, f: (x, y) => [x, y]);
     return TimeSeries.fromIterable(
         _aux.map((e) => IntervalTuple(e.interval, e.value[0] / e.value[1])));
   }
 
   /// Provide a Json serialization
-  Map<String,dynamic> toJson() {
-    var obs = <Map<String,dynamic>>[];
+  Map<String, dynamic> toJson() {
+    var obs = <Map<String, dynamic>>[];
     for (var x in this) {
       obs.add({
         'start': x.interval.start.toIso8601String(),
@@ -69,11 +80,9 @@ extension NumericTimeseriesExt on TimeSeries<num> {
         'value': x.value,
       });
     }
-    return <String,dynamic>{
+    return <String, dynamic>{
       'timezone': first.interval.start.timeZoneName,
       'observations': obs,
     };
   }
-
-
 }
