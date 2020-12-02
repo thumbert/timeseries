@@ -461,7 +461,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     if (interval.end.isBefore(_data.last.item1.end)) {
       iE = _rightFirstSearch(interval.end, min: iS, max: iE);
     }
-    if (iE < iS) return TimeSeries<K>.fromIterable([]);
+    if (iE < iS) {
+      return TimeSeries<K>.fromIterable([]);
+    } else if (iE == iS) iE++;
     return sublist(iS, iE);
   }
 
@@ -516,8 +518,10 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       var mid = min + ((max - min) >> 1);
       var element = _data[mid].item1.end;
       var comp = element.compareTo(key);
-      if (_data[mid - 1].item1.end.isBefore(key) &&
-          _data[mid].item1.end.isAfter(key)) return mid;
+      if (mid == 0) return mid;
+      if (_data[mid - 1].item1.end.isBefore(key)) {
+        if (_data[mid].item1.end.isAfter(key)) return mid;
+      }
       if (comp == 0) return mid + 1;
       if (comp < 0) {
         min = mid + 1;

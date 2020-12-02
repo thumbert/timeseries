@@ -16,6 +16,18 @@ void windowTest() {
         .splitLeft((dt) => Date(dt.year, dt.month, dt.day, location: location));
     var ts = TimeSeries.fill(days, 1);
 
+    test('one interval', () {
+      var days = Month(2018, 1, location: location).splitLeft(
+          (dt) => Date(dt.year, dt.month, dt.day, location: location));
+      var ts = TimeSeries.from(days, List.generate(31, (i) => i + 1));
+      expect(
+          ts.window(Date(2018, 1, 1, location: location)).toList()[0].value, 1);
+      expect(ts.window(Date(2018, 1, 10, location: location)).toList()[0].value,
+          10);
+      expect(ts.window(Date(2018, 1, 31, location: location)).toList()[0].value,
+          31);
+    });
+
     test('window inside interval', () {
       var days = Month(2018, 1, location: location).splitLeft(
           (dt) => Date(dt.year, dt.month, dt.day, location: location));
@@ -698,8 +710,8 @@ void timeseriesTests() {
 void main() async {
   await initializeTimeZones();
 
+  windowTest();
   intervalTupleTests();
   timeseriesTests();
   runningGroupTests();
-  windowTest();
 }
