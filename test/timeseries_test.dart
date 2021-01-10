@@ -597,6 +597,15 @@ void timeseriesTests() {
     });
   });
 
+  group('TimeSeries extensions', () {
+    test('toTimeSeries()', () {
+      var days = parseTerm('Jan20').splitLeft((dt) => Date.fromTZDateTime(dt));
+      var xs = TimeSeries.fill(days, 1).toList();
+      var ts = xs.toTimeSeries();
+      expect(ts is TimeSeries<int>, true);
+    });
+  });
+
   group('Expansion/Interpolation:', () {
     test('expand a monthly timeseries to a daily timeseries', () {
       var ts = TimeSeries.from([Month(2016, 1), Month(2016, 2)], [1, 2]);
