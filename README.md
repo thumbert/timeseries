@@ -5,6 +5,11 @@ list of observations.  Each observation(measurement) is a tuple, with the
 first item of the tuple a time interval, and the second element the 
 timeseries value. 
 
+Another important decision was how to deal with missing observations.  Missing 
+observations are not represented as *null*, they are simply not allowed in the 
+timeseries.  This has changed since version 3.0.0.  Before null safety, *null*
+was allowed as a valid value.  It is no longer the case.
+
 The time interval class is from repository [date].  The choice to use 
 time intervals vs. time instants in this class is based on the belief that 
 time instants are not appropriate for representing reality.  If the 
@@ -20,13 +25,13 @@ represented by an interval tuple.
 There are several ways to construct a timeseries.  
 ```dart
 var x = TimeSeries<num>.fromIterable([
-        IntervalTuple(Date(2017, 1, 1), 11),
-        IntervalTuple(Date(2017, 1, 2), 12),
-        IntervalTuple(Date(2017, 1, 3), 13),
-        IntervalTuple(Date(2017, 1, 4), 14),
-        IntervalTuple(Date(2017, 1, 5), 15),
-        IntervalTuple(Date(2017, 1, 6), 16),
-        IntervalTuple(Date(2017, 1, 7), 17),
+        IntervalTuple(Date.utc(2017, 1, 1), 11),
+        IntervalTuple(Date.utc(2017, 1, 2), 12),
+        IntervalTuple(Date.utc(2017, 1, 3), 13),
+        IntervalTuple(Date.utc(2017, 1, 4), 14),
+        IntervalTuple(Date.utc(2017, 1, 5), 15),
+        IntervalTuple(Date.utc(2017, 1, 6), 16),
+        IntervalTuple(Date.utc(2017, 1, 7), 17),
       ]); 
 ```
 You can construct a timeseries with observations of different duration, for example 
@@ -40,7 +45,7 @@ are available.
 Because a time series is time ordered, looking for a value associated with a given 
 Interval is done using binary search.
 ```dart
-x.observationAt(Date(2017, 1, 5)); // returns 15
+x.observationAt(Date.utc(2017, 1, 5)); // returns 15
 x.observationContains(Hour.beginning(TZDateTime.utc(2017,1,5,16))); // returns 15
 ```
 
@@ -53,7 +58,7 @@ performs a linear scan.
 
 Inspired by the existing generators from Dart's `List`
 ```dart
-var months = [Month(2019,1), Month(2019,2), Month(2019,2)];
+var months = [Month.utc(2019,1), Month.utc(2019,2), Month.utc(2019,2)];
 var ts1 = TimeSeries.fill(months, 1.0);
 
 // using a generator

@@ -1,17 +1,16 @@
 library interval_tuple;
 
-import 'package:tuple/tuple.dart';
 import 'package:date/date.dart';
+import 'package:more/hash.dart';
 
-class IntervalTuple<K> extends Tuple2<Interval,K> {
+class IntervalTuple<K> {
+  IntervalTuple(this.interval, this.value);
 
-  IntervalTuple(Interval interval, K value) : super(interval, value) {}
-
-  Interval get interval => item1;
-  K get value => item2;
+  Interval interval;
+  K value;
 
   @override
-  String toString() => '$interval -> ${item2}';
+  String toString() => '$interval -> $value';
 
   @override
   bool operator ==(dynamic other) {
@@ -21,13 +20,11 @@ class IntervalTuple<K> extends Tuple2<Interval,K> {
   }
 
   @override
-  int get hashCode => super.hashCode;
+  int get hashCode => hash2(interval, value);
 
-  Map<String,dynamic> toMap() => <String,dynamic>{
-    'start': item1.start,
-    'end': item1.end,
-    'value': item2,
-  };
+  Map<String, dynamic> toMap() => <String, dynamic>{
+        'start': interval.start,
+        'end': interval.end,
+        'value': value,
+      };
 }
-
-
