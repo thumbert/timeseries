@@ -1,5 +1,5 @@
 name: timeseries
-version: 3.0.0
+version: 3.0.1
 author: Tony Humbert
 description: timeseries functionality for Dart
 environment:
@@ -10,8 +10,8 @@ dependencies:
         url: git://github.com/thumbert/date.git
   intl: ^0.17.0
   more: ^3.0.1
-  timezone: ^0.7.0-nullsafety.0
-  tuple: ^2.0.0-nullsafety.0
+  timezone: ^0.7.0
+  tuple: ^2.0.0
 
 dev_dependencies:
   dama:

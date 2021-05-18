@@ -450,7 +450,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   ///
   /// The implementation uses binary search so it is efficient for slicing
   /// into large timeseries.
-  List<IntervalTuple<K?>> window(Interval interval) {
+  List<IntervalTuple<K>> window(Interval interval) {
     if (isEmpty) return this;
     if (interval.start.isAfter(_data.last.interval.start) ||
         interval.end.isBefore(_data.first.interval.end)) {

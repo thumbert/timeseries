@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.1 (released 2021-05-18)
+- minor null safety issues 
+
 ## 3.0.0 (released 2021-03-07)
 - Moved to null safety.  
 - Removed dependency on Tuple2 in interval tuple.  Should make everything more light weight.
