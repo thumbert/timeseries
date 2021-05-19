@@ -120,7 +120,7 @@ void runningGroupTests() {
         IntervalTuple(Date(2018, 1, 10, location: UTC), 10),
         IntervalTuple(Date(2018, 1, 11, location: UTC), 11),
       ]);
-      var grp = ts.runningGroups((e) => e.value! >= 10);
+      var grp = ts.runningGroups((e) => e.value >= 10);
       expect(grp.keys.length, 2);
       // one group of length 1
       expect(grp[1]!.length, 1);

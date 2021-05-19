@@ -150,7 +150,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   @override
   @Deprecated('Not appropriate for TimeSeries.  Use insertObservation instead.')
-  void insert(int i, IntervalTuple<K?> obs) {}
+  void insert(int i, IntervalTuple<K> obs) {}
 
   /// Insert an observation in the timeseries if the observation 'fits'.
   void insertObservation(IntervalTuple<K> obs) {
@@ -176,14 +176,14 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
         add(obs);
       });
 
-  List<IntervalTuple<K?>> get observations => _data;
+  List<IntervalTuple<K>> get observations => _data;
 
   /// Get the time intervals
   Iterable<Interval> get intervals =>
       _data.map((IntervalTuple obs) => obs.interval);
 
   /// Get the values in this timeseries
-  Iterable<K?> get values => _data.map((IntervalTuple obs) => obs.value);
+  Iterable<K> get values => _data.map((IntervalTuple obs) => obs.value);
 
   /// Interpolate this timeseries by splitting up each interval into
   /// subintervals of a given [duration] with each subinterval having the
@@ -196,7 +196,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// to go from a monthly timeseries to a daily timeseries, etc., in general
   /// from a lower frequency to a high frequency timeseries.
   ///
-  TimeSeries<K?> interpolate(Duration duration) {
+  TimeSeries<K> interpolate(Duration duration) {
     if (duration == Duration(hours: 1)) {
       return TimeSeries.fromIterable(expand((e) => e.interval
           .splitLeft((dt) => Hour.beginning(dt))
@@ -213,7 +213,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Packs a timeseries.  Wraps the static method for convenience.
-  TimeSeries<K?> pack() => TimeSeries.pack(_data);
+  TimeSeries<K> pack() => TimeSeries.pack(_data);
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time intervals.  This method should only be applied if time
@@ -319,12 +319,12 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Return the first few elements of this timeseries.
-  TimeSeries<K?> head({int n = 6}) {
+  TimeSeries<K> head({int n = 6}) {
     return TimeSeries.fromIterable(sublist(0, n));
   }
 
   /// Return the last few elements of this timeseries.
-  TimeSeries<K?> tail({int n = 6}) {
+  TimeSeries<K> tail({int n = 6}) {
     return TimeSeries.fromIterable(sublist(length - n));
   }
 
@@ -344,7 +344,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Get the observation at this interval.  Performs a binary search.
   /// Throws an error if the interval is not found in the domain of the
   /// timeseries.
-  IntervalTuple<K?> observationAt(Interval interval) {
+  IntervalTuple<K> observationAt(Interval interval) {
     var i = _comparableBinarySearch(interval);
     return _data[i];
   }
@@ -352,7 +352,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Get the observation containing this interval.  Performs a binary search.
   /// Throws an error if the interval is not found in the domain of the
   /// timeseries.
-  IntervalTuple<K?> observationContains(Interval interval) {
+  IntervalTuple<K> observationContains(Interval interval) {
     var iL = _leftEqFirstSearch(interval.start);
     if (_data[iL].interval.end.isBefore(interval.end)) {
       throw 'Input interval is not overlapping';
@@ -369,12 +369,12 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// <p> This can be used as the first step of an aggregation.  For example,
   /// to group all observations that fall in the same month, use
   /// f = (Interval dt) => Month(dt.start.year, dt.start.day)
-  TimeSeries<List<K?>> groupByIndex(Interval Function(Interval interval) f) {
-    var grp = <Interval, List<K?>>{};
+  TimeSeries<List<K>> groupByIndex(Interval Function(Interval interval) f) {
+    var grp = <Interval, List<K>>{};
     var N = _data.length;
     for (var i = 0; i < N; i++) {
       var group = f(_data[i].interval);
-      grp.putIfAbsent(group, () => <K?>[]).add(_data[i].value);
+      grp.putIfAbsent(group, () => <K>[]).add(_data[i].value);
     }
     return TimeSeries.from(grp.keys, grp.values);
   }
@@ -382,12 +382,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Return the running groups satisfying a given condition on the values
   /// of the timeseries.
   /// Returns a Map of run length and observation groups.
-  Map<int, List<List<IntervalTuple<K?>>>> runningGroups(
-      bool Function(IntervalTuple<K?>) condition) {
-    Map<int, List<List<IntervalTuple<K?>>>> out =
-        <int, List<List<IntervalTuple<K>>>>{};
+  Map<int, List<List<IntervalTuple<K>>>> runningGroups(
+      bool Function(IntervalTuple<K>) condition) {
+    var out = <int, List<List<IntervalTuple<K>>>>{};
     var flag = false;
-    List<IntervalTuple<K?>> run = <IntervalTuple<K>>[];
+    var run = <IntervalTuple<K>>[];
     for (var obs in this) {
       if (condition(obs)) {
         run.add(obs);

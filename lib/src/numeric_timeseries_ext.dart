@@ -6,13 +6,14 @@ import 'timeseries_base.dart';
 extension NumericTimeseriesExt on TimeSeries<num> {
   num sum() => fold(0, (previousValue, e) => previousValue + e.value);
 
-  /// Calculate the mean value for this timeseries
+  /// Calculate the mean value for this timeseries.
+  /// Return [double.nan] for empty timeseries.
   num mean() {
     if (isEmpty) return double.nan;
     var i = 0;
     var res = 0.0;
     for (var x in values) {
-      res += x!;
+      res += x;
       i++;
     }
     return res / i;
