@@ -8,7 +8,7 @@ dependencies:
   date:
     git:
       url: git://github.com/thumbert/date.git
-      ref: 2.5.0
+      ref: with-null
   intl: '>=0.14.0 <1.0.0'
   timezone: ^0.5.0-dev-3
   tuple: '>=1.0.0 <2.0.0'
