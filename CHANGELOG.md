@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.2 (released 2021-06-02)
+- minor null safety issues cleanup.  Remove some ? from the migration results.
+
 ## 3.0.1 (released 2021-05-18)
 - minor null safety issues cleanup.  Remove some ? from the migration results. 
 

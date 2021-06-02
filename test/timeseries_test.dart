@@ -289,8 +289,6 @@ void timeseriesTests() {
       ts.removeAt(3); // remove Apr20
       ts.removeAt(3); // remove May20
       expect(ts.length, 10);
-      // does nothing, as you shouldn't insert
-      ts.insert(3, IntervalTuple(Month(2020, 3, location: location), 2));
       // insert a missing observation in the middle
       ts.insertObservation(
           IntervalTuple(Month(2020, 4, location: location), 2));

@@ -4,10 +4,10 @@ import 'package:date/date.dart';
 import 'package:timeseries/timeseries.dart';
 
 /// Merge a map of timeseries.  Only values that exist are kept.
-TimeSeries<Map<K, T?>> mergeAll<K, T>(Map<K, TimeSeries<T>> xs) {
+TimeSeries<Map<K, T>> mergeAll<K, T>(Map<K, TimeSeries<T>> xs) {
   if (xs.isEmpty) return TimeSeries();
   var keys = xs.keys.toList();
-  var out = TimeSeries<Map<K, T?>>();
+  var out = TimeSeries<Map<K, T>>();
   for (var k = 0; k < keys.length; k++) {
     if (k == 0) {
       var x0 = xs[keys[k]]!;

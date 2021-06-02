@@ -20,7 +20,7 @@ class IntervalTuple<K> {
   }
 
   @override
-  int get hashCode => hash2(interval, value);
+  int get hashCode => hash2(interval, value as Object);
 
   Map<String, dynamic> toMap() => <String, dynamic>{
         'start': interval.start,
