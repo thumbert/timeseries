@@ -12,11 +12,8 @@ timeseries value.
 **[Examples](#examples)**
 
 ***[Operations on timeseries](#operations-on-timeseries)***
-
 ***[Partition and split](#partition-and-split)***
-
 ***[Grouping and aggregation](#grouping-and-aggregation)***
-
 ***[Combining several timeseries](#combining-several-timeseries)***
 
 
