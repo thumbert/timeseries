@@ -5,7 +5,22 @@ list of observations.  Each observation(measurement) is a tuple, with the
 first item of the tuple a time interval, and the second element the 
 timeseries value. 
 
-Another important decision was how to deal with missing observations.  Missing 
+## Table of Contents
+
+**[Constructors](#constructors)**
+
+**[Examples](#examples)**
+
+***[Operations on timeseries](#operations-on-timeseries)***
+
+***[Partition and split](#partition-and-split)***
+
+***[Grouping and aggregation](#grouping-and-aggregation)***
+
+***[Combining several timeseries](#combining-several-timeseries)***
+
+
+An important decision was how to deal with missing observations.  Missing 
 observations are not represented as *null*, they are simply not allowed in the 
 timeseries.  This has changed since version 3.0.0.  Before null safety, *null*
 was allowed as a valid value.  It is no longer the case.
@@ -20,7 +35,7 @@ represented by an interval tuple.
 
 [date]: https://github.com/thumbert/date
 
-## Usage
+## Constructors
 
 There are several ways to construct a timeseries.  
 ```dart
@@ -91,6 +106,33 @@ var monthlyTs = TimeSeries().add( IntervalTuple(Month(2018,1), 1) );
 var hourlyTs = monthlyTs.interpolate( Duration(hours: 1) ); 
 ```
 View interpolation as the opposite of packing.  
+
+#### Fill in missing values
+
+Use the Last Observation Carried Forward rule to fill in missing values in a timeseries.
+```dart
+ var ts = TimeSeries.fromIterable([
+  IntervalTuple(Date.utc(2002, 1, 2), 12),
+  IntervalTuple(Date.utc(2002, 1, 3), 13),
+  IntervalTuple(Date.utc(2002, 1, 6), 16),
+  IntervalTuple(Date.utc(2002, 1, 8), 18),
+]);
+// if days are all the days from 1Jan02 to 10Jan02
+var tsExtended = ts.locf(days);
+// is TimeSeries.fromIterable([
+//   IntervalTuple(Date.utc(2002, 1, 2), 12),
+//   IntervalTuple(Date.utc(2002, 1, 3), 13),
+//   IntervalTuple(Date.utc(2002, 1, 4), 13),
+//   IntervalTuple(Date.utc(2002, 1, 5), 13),
+//   IntervalTuple(Date.utc(2002, 1, 6), 16),
+//   IntervalTuple(Date.utc(2002, 1, 7), 16),
+//   IntervalTuple(Date.utc(2002, 1, 8), 18),
+//   IntervalTuple(Date.utc(2002, 1, 9), 18),
+//   IntervalTuple(Date.utc(2002, 1, 10), 18),
+// ]);
+```
+
+
 
 ### Partition and Split
 Partition a timeseries according into two groups according to a predicate 

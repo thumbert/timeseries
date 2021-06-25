@@ -1,6 +1,7 @@
 library timeseries_base;
 
 import 'dart:collection';
+import 'dart:math';
 import 'package:date/date.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:tuple/tuple.dart';
@@ -32,16 +33,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       add(IntervalTuple(iI.current, iV.current));
     }
   }
-
-//  TimeSeries.fromJson(Map<String,dynamic> xs) {
-//    var location = getLocation(xs['timezone']);
-//    addAll((xs['observations'] as List)
-//        .map((e) {
-//          var interval = Interval(TZDateTime.parse(location, e['start']),
-//            TZDateTime.parse(location, e['end']));
-//          return IntervalTuple(interval, e['value']);
-//    }));
-//  }
 
   /// Create a TimeSeries with a constant value
   TimeSeries.fill(Iterable<Interval> index, K value) {
@@ -146,6 +137,41 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       throw StateError('You can only add at the end of the TimeSeries');
     }
     _data.add(obs);
+  }
+
+  /// Create a new timeseries using the Last Observation Carried Forward filling
+  /// rule.  The input [intervals] are assumed sorted and should be a superset
+  /// of [this.intervals].  Intervals that are before the first interval of the
+  /// original series are ignored (there is nothing to carry forward.)
+  ///
+  TimeSeries<K> locf(Iterable<Interval> intervals) {
+    var ts = TimeSeries<K>();
+    var i = 0;
+    var n = observations.length;
+    // remove all intervals that are before the first observation
+    intervals = intervals
+        .where((e) => !e.start.isBefore(observations.first.interval.start));
+    var iterator = intervals.iterator;
+    while (iterator.moveNext()) {
+      if (i < n - 1) {
+        if (iterator.current.start
+            .isBefore(observations[i + 1].interval.start)) {
+          if (observations[i].interval == iterator.current) {
+            ts.add(observations[i]);
+            continue;
+          }
+          ts.add(IntervalTuple(iterator.current, observations[i].value));
+        } else {
+          i++;
+          if (observations[i].interval == iterator.current) {
+            ts.add(observations[i]);
+          }
+        }
+      } else {
+        ts.add(IntervalTuple(iterator.current, observations[i].value));
+      }
+    }
+    return ts;
   }
 
   @override

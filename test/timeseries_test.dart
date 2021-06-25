@@ -610,7 +610,7 @@ void timeseriesTests() {
     });
   });
 
-  group('Expansion/Interpolation:', () {
+  group('Expansion, Interpolation, Fill:', () {
     test('expand a monthly timeseries to a daily timeseries', () {
       var ts = TimeSeries.from(
           [Month(2016, 1, location: UTC), Month(2016, 2, location: UTC)],
@@ -627,6 +627,51 @@ void timeseriesTests() {
           [1, 2]);
       var tsHourly = ts.interpolate(Duration(hours: 1));
       expect(tsHourly.length, 1440);
+    });
+    test('fill missing observations with locf rule', () {
+      var ts = TimeSeries.fromIterable([
+        IntervalTuple(Date.utc(2002, 1, 2), 12),
+        IntervalTuple(Date.utc(2002, 1, 3), 13),
+        IntervalTuple(Date.utc(2002, 1, 6), 16),
+        IntervalTuple(Date.utc(2002, 1, 8), 18),
+      ]);
+      var days = Term.parse('1Jan02-10Jan02', UTC)
+          .interval
+          .splitLeft((e) => Date.fromTZDateTime(e));
+      var tsFilled = ts.locf(days);
+      expect(
+          tsFilled,
+          TimeSeries.fromIterable([
+            IntervalTuple(Date.utc(2002, 1, 2), 12),
+            IntervalTuple(Date.utc(2002, 1, 3), 13),
+            IntervalTuple(Date.utc(2002, 1, 4), 13),
+            IntervalTuple(Date.utc(2002, 1, 5), 13),
+            IntervalTuple(Date.utc(2002, 1, 6), 16),
+            IntervalTuple(Date.utc(2002, 1, 7), 16),
+            IntervalTuple(Date.utc(2002, 1, 8), 18),
+            IntervalTuple(Date.utc(2002, 1, 9), 18),
+            IntervalTuple(Date.utc(2002, 1, 10), 18),
+          ]));
+    });
+    test('fill missing observations with locf rule', () {
+      var ts = TimeSeries.fromIterable([
+        IntervalTuple(Date.utc(2002, 1, 2), 12),
+        IntervalTuple(Date.utc(2002, 1, 3), 13),
+        IntervalTuple(Date.utc(2002, 1, 6), 16),
+      ]);
+      var days = Term.parse('1Jan02-6Jan02', UTC)
+          .interval
+          .splitLeft((e) => Date.fromTZDateTime(e));
+      var tsFilled = ts.locf(days);
+      expect(
+          tsFilled,
+          TimeSeries.fromIterable([
+            IntervalTuple(Date.utc(2002, 1, 2), 12),
+            IntervalTuple(Date.utc(2002, 1, 3), 13),
+            IntervalTuple(Date.utc(2002, 1, 4), 13),
+            IntervalTuple(Date.utc(2002, 1, 5), 13),
+            IntervalTuple(Date.utc(2002, 1, 6), 16),
+          ]));
     });
   });
 
