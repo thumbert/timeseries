@@ -8,13 +8,11 @@ timeseries value.
 ## Table of Contents
 
 **[Constructors](#constructors)**
-
 **[Examples](#examples)**
-
-***[Operations on timeseries](#operations-on-timeseries)***
-***[Partition and split](#partition-and-split)***
-***[Grouping and aggregation](#grouping-and-aggregation)***
-***[Combining several timeseries](#combining-several-timeseries)***
+**[Operations on timeseries](#operations-on-timeseries)**
+**[Partition and split](#partition-and-split)**
+**[Grouping and aggregation](#grouping-and-aggregation)**
+**[Combining several timeseries](#combining-several-timeseries)**
 
 
 An important decision was how to deal with missing observations.  Missing 
