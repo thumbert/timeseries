@@ -1,7 +1,6 @@
 library timeseries_base;
 
 import 'dart:collection';
-import 'dart:math';
 import 'package:date/date.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:tuple/tuple.dart';
@@ -491,7 +490,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     }
     if (iE < iS) {
       return TimeSeries<K>.fromIterable([]);
-    } else if (iE == iS) iE++;
+    } else if (iE == iS) {
+      iE++;
+    }
     return sublist(iS, iE);
   }
 

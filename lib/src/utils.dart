@@ -31,7 +31,7 @@ TimeSeries<Map<K, T>> mergeAll<K, T>(Map<K, TimeSeries<T>> xs) {
 /// This allows you to aggregate a monthly timeseries by year or quarters, etc.
 /// I should probably deprecate this 2020-08-24.
 IntervalTuple<num> weightedMean(
-    TimeSeries<num?> x, TimeSeries<num?> weights, Interval interval) {
+    TimeSeries<num> x, TimeSeries<num> weights, Interval interval) {
   if (!weights.domain.containsInterval(x.domain)) {
     throw ArgumentError('Weights domain doesn\'t cover the domain of x');
   }
@@ -48,8 +48,8 @@ IntervalTuple<num> weightedMean(
     throw StateError('Calculating the weighted series is incorrect');
   }
 
-  return IntervalTuple(interval, _sum(xw.values)! / _sum(weights.values)!);
+  return IntervalTuple(interval, _sum(xw.values) / _sum(weights.values));
 }
 
 /// Calculate the sum of an iterable.
-num? _sum(Iterable<num?> x) => x.reduce((a, b) => a! + b!);
+num _sum(Iterable<num> x) => x.reduce((a, b) => a + b);
