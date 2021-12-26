@@ -1,7 +1,7 @@
 library interval_tuple;
 
 import 'package:date/date.dart';
-import 'package:more/hash.dart';
+// import 'package:more/hash.dart';
 
 class IntervalTuple<K> {
   IntervalTuple(this.interval, this.value);
@@ -20,7 +20,7 @@ class IntervalTuple<K> {
   }
 
   @override
-  int get hashCode => hash2(interval, value as Object);
+  int get hashCode => Object.hash(interval, value);
 
   Map<String, dynamic> toMap() => <String, dynamic>{
         'start': interval.start,

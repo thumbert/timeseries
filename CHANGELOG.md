@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.2 (released 2021-12-26)
+- Require Dart 2.14, switch to lints
+
 ## 3.0.2 (released 2021-06-02)
 - minor null safety issues cleanup.  Remove some ? from the migration results.
 
