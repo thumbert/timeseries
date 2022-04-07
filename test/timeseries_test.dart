@@ -2,6 +2,7 @@ library test_timeseries;
 
 import 'package:test/test.dart';
 import 'package:date/date.dart';
+import 'package:timeseries/src/check_missing.dart';
 import 'package:timeseries/src/timeseries_packer.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:timezone/data/latest.dart';
@@ -765,6 +766,23 @@ void timeseriesTests() {
       var wTs = toWeekly(ts, (List xs) => xs.length);
       expect(wTs.length, 52);
       expect(wTs.values.toSet(), {168});
+    });
+  });
+
+  group('Check missing', () {
+    test('missing hours', () {
+      var ts = TimeSeries.fromIterable([
+        IntervalTuple(Hour.beginning(TZDateTime.utc(2022, 3, 1, 0)), 10),
+        IntervalTuple(Hour.beginning(TZDateTime.utc(2022, 3, 1, 1)), 10),
+        IntervalTuple(Hour.beginning(TZDateTime.utc(2022, 3, 1, 7)), 10),
+        IntervalTuple(Hour.beginning(TZDateTime.utc(2022, 3, 1, 8)), 10),
+        IntervalTuple(Hour.beginning(TZDateTime.utc(2022, 3, 1, 9)), 10),
+        IntervalTuple(Hour.beginning(TZDateTime.utc(2022, 3, 1, 11)), 10),
+      ]);
+      var missingHours = checkMissingHours(ts);
+      expect(missingHours.length, 6);
+      expect(missingHours.first, Hour.beginning(TZDateTime.utc(2022, 3, 1, 2)));
+      expect(missingHours.last, Hour.beginning(TZDateTime.utc(2022, 3, 1, 10)));
     });
   });
 }
