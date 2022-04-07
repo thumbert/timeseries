@@ -1,5 +1,6 @@
 library timeseries;
 
+export 'src/check_missing.dart';
 export 'src/common_aggregations.dart';
 export 'src/interval_tuple.dart';
 export 'src/time_tuple.dart';
