@@ -7,12 +7,12 @@ dependencies:
   date:
     git: https://github.com/thumbert/date.git
   intl: ^0.17.0
-  more: ^3.0.1
-  timezone: ^0.7.0
+  more: ^3.7.1
+  timezone: ^0.8.0
   tuple: ^2.0.0
 
 dev_dependencies:
   dama:
     git: https://github.com/thumbert/dama.git
-  lints: ^1.0.1
+  lints: ^2.0.0
   test: ^1.16.5
