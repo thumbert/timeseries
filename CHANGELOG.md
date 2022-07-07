@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.3 (released 2022-07-07)
+- Add a timezone check on TimeSeries<num> +,-,*,/ operations.  This can be a sneaky 
+way to have an error.  Better catch it as soon as possible.
+
 ## 3.0.2 (released 2021-12-26)
 - Require Dart 2.14, switch to lints
 

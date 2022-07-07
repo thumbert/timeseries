@@ -121,6 +121,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     if (K == num) {
       /// Add two numeric timeseries element wise.  The addition is only
       /// performed on the intervals that match.
+      if (other.first.interval.start.location != first.interval.start.location) {
+        throw StateError('Addition fails, non matching timezone locations.');
+      }
       var _aux = merge(other, f: (x, dynamic y) => [x, y]);
       return TimeSeries.fromIterable(
           _aux.map((e) => IntervalTuple(e.interval, e.value[0] + e.value[1])));

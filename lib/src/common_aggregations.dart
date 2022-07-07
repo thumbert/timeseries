@@ -1,6 +1,5 @@
 library common_aggregations;
 
-import 'timeseries_base.dart';
 import 'package:timezone/timezone.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:date/date.dart';

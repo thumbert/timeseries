@@ -2,12 +2,10 @@ library test_timeseries;
 
 import 'package:test/test.dart';
 import 'package:date/date.dart';
-import 'package:timeseries/src/check_missing.dart';
 import 'package:timeseries/src/timeseries_packer.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
-import 'package:tuple/tuple.dart';
 
 void windowTest() {
   group('TimeSeries window tests: ', () {
@@ -335,7 +333,6 @@ void timeseriesTests() {
               .toList();
       var ts = TimeSeries.fill(days, 1);
       var aux = ts.toColumns();
-      expect(aux is Tuple2, true);
       expect(aux.item1.length, aux.item2.length);
     });
 
@@ -607,7 +604,7 @@ void timeseriesTests() {
       var days = parseTerm('Jan20')!.splitLeft((dt) => Date.fromTZDateTime(dt));
       var xs = TimeSeries.fill(days, 1).toList();
       var ts = xs.toTimeSeries();
-      expect(ts is TimeSeries<int?>, true);
+      expect(ts.first.value, 1);
     });
   });
 

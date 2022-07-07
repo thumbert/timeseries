@@ -32,7 +32,6 @@ void tests() {
       var index = Term.parse('1Jan19-4Jan19', UTC).days();
       var ts = TimeSeries.from(index, [1, 2, 3]);
       var ts2 = ts.apply((e) => 2 * e!);
-      expect(ts2 is TimeSeries, true);
       expect(ts2.values.toList(), [2, 4, 6]);
     });
 
@@ -42,7 +41,6 @@ void tests() {
       var index2 = Term.parse('2Jan19-5Jan19', UTC).days();
       var ts2 = TimeSeries<num>.from(index2, [2, 2, 2]);
       var ts4 = ts1 + ts2;
-      expect(ts4 is TimeSeries, true);
       expect(ts4.values.toList(), [4, 5]);
     });
 
@@ -52,7 +50,6 @@ void tests() {
       var index2 = Term.parse('2Jan19-5Jan19', UTC).days();
       var ts2 = TimeSeries.from(index2, [2, 2, 2]);
       var ts3 = ts1 * ts2;
-      expect(ts3 is TimeSeries, true);
       expect(ts3.values.toList(), [4, 6]);
     });
 
@@ -62,7 +59,6 @@ void tests() {
       var index2 = Term.parse('2Jan19-5Jan19', UTC).days();
       var ts2 = TimeSeries.from(index2, [2, 2, 2]);
       var ts3 = ts1 - ts2;
-      expect(ts3 is TimeSeries, true);
       expect(ts3.values.toList(), [0, 1]);
     });
 
@@ -72,8 +68,15 @@ void tests() {
       var index2 = Term.parse('2Jan19-5Jan19', UTC).days();
       var ts2 = TimeSeries.from(index2, [2, 2, 2]);
       var ts3 = ts1 / ts2;
-      expect(ts3 is TimeSeries, true);
       expect(ts3.values.toList(), [1, 1.5]);
+    });
+
+    test('divide two time series, wrong timezone throws', () {
+      var index1 = Term.parse('1Jan19-4Jan19', UTC).days();
+      var ts1 = TimeSeries.from(index1, [1, 2, 3]);
+      var index2 = Term.parse('2Jan19-5Jan19', getLocation('America/New_York')).days();
+      var ts2 = TimeSeries.from(index2, [2, 2, 2]);
+      expect(() => ts1 / ts2, throwsStateError);
     });
   });
 }

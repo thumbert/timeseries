@@ -50,6 +50,9 @@ extension NumericTimeseriesExt on TimeSeries<num> {
   /// Subtract two timeseries element wise. The subtraction is only performed
   /// on the intervals that match.
   TimeSeries<num> operator -(TimeSeries<num> other) {
+    if (other.first.interval.start.location != first.interval.start.location) {
+      throw StateError('Subtraction fails, non matching timezone locations.');
+    }
     var _aux = merge(other, f: (x, dynamic y) => [x, y]);
     return TimeSeries.fromIterable(
         _aux.map((e) => IntervalTuple(e.interval, e.value[0] - e.value[1])));
@@ -58,6 +61,9 @@ extension NumericTimeseriesExt on TimeSeries<num> {
   /// Multiply two timeseries element wise.  The multiplication is only
   /// performed on the intervals that match.
   TimeSeries<num> operator *(TimeSeries<num> other) {
+    if (other.first.interval.start.location != first.interval.start.location) {
+      throw StateError('Multiplication fails, non matching timezone locations.');
+    }
     var _aux = merge(other, f: (x, dynamic y) => [x, y]);
     return TimeSeries.fromIterable(
         _aux.map((e) => IntervalTuple(e.interval, e.value[0] * e.value[1])));
@@ -66,6 +72,9 @@ extension NumericTimeseriesExt on TimeSeries<num> {
   /// Multiply two timeseries element wise. The division is only
   /// performed on the intervals that match.
   TimeSeries<num> operator /(TimeSeries<num> other) {
+    if (other.first.interval.start.location != first.interval.start.location) {
+      throw StateError('Division fails, non matching timezone locations.');
+    }
     var _aux = merge(other, f: (x, dynamic y) => [x, y]);
     return TimeSeries.fromIterable(
         _aux.map((e) => IntervalTuple(e.interval, e.value[0] / e.value[1])));
