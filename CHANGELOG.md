@@ -4,6 +4,9 @@
 - Added `ts.indexOfInterval(interval)` to find the position of an interval in the 
 timeseries.  You can then use the index to modify the observation associated with 
 it.
+- Add method `apply2` to apply a custom function to two different intervals.  This
+allows to you calculate the change in value between arbitrary intervals in the 
+timeseries.
 
 ## 3.0.3 (released 2022-07-07)
 - Add a timezone check on TimeSeries<num> +,-,*,/ operations.  This can be a sneaky 

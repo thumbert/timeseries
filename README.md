@@ -10,6 +10,7 @@ timeseries value.
 **[Constructors](#constructors)**  
 **[Examples](#examples)**  
 
+**[Extracting/setting values](#extractingsetting-values)**  
 **[Operations on timeseries (pack, interpolate, fill)](#operations-on-timeseries)**  
 **[Partition and split](#partition-and-split)**  
 **[Grouping and aggregation](#grouping-and-aggregation)**  
@@ -83,6 +84,7 @@ var ts3 = TimeSeries.from(months, values);
 
 
 ## Examples
+
 
 ### Extracting/setting values
 
