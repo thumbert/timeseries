@@ -141,12 +141,12 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     _data.add(obs);
   }
 
-  /// Apply a function to two different intervals, for example to calculate
-  /// the difference between a first and last observation in a month.
+  /// Apply function [f] to two different intervals, for example to calculate
+  /// the difference between the last and the first observation in a month.
   ///
   /// Note: this is not the fastest implementation, but it is convenient
   /// to have.
-  S apply2<S>(Interval i1, Interval i2, S Function(K obs1, K obs2) f) {
+  S apply2<S>(Interval i1, Interval i2, S Function(K value1, K value2) f) {
     var obs1 = observationAt(i1);
     var obs2 = observationAt(i2);
     return f(obs1.value, obs2.value);
