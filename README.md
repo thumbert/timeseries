@@ -171,21 +171,26 @@ Grouping is an important step before aggregation.  Use `groupByIndex` to group
 observations according to their interval.
 ```dart
 var x = TimeSeries<num>.fromIterable([
-        IntervalTuple(Date(2017, 1, 1), 11),
-        IntervalTuple(Date(2017, 1, 2), 12),
-        IntervalTuple(Date(2017, 1, 3), 13),
-        IntervalTuple(Date(2017, 2, 1), 14),
-        IntervalTuple(Date(2017, 2, 5), 15),
-        IntervalTuple(Date(2017, 3, 1), 16),
-        IntervalTuple(Date(2017, 3, 7), 17),
+        IntervalTuple(Date.utc(2017, 1, 1), 11),
+        IntervalTuple(Date.utc(2017, 1, 2), 12),
+        IntervalTuple(Date.utc(2017, 1, 3), 13),
+        IntervalTuple(Date.utc(2017, 2, 1), 14),
+        IntervalTuple(Date.utc(2017, 2, 5), 15),
+        IntervalTuple(Date.utc(2017, 3, 1), 16),
+        IntervalTuple(Date.utc(2017, 3, 7), 17),
       ]); 
 var ts = x.groupByIndex((date) => Month(date.year, date.month));
-// ts[0] == IntervalTuple(Month(2017,1), [11,12,13]);     
+// ts[0] == IntervalTuple(Month.utc(2017,1), [11,12,13]);     
 ``` 
 
-Common aggregation function `toDaily`, `toMonthly`, `toYearly` are provided, to 
-calculate basic statistics. 
-
+Common aggregation functions `toDaily`, `toMonthly`, `toYearly` are provided, to 
+calculate basic statistics.  For example, to calculate a monthly total using 
+the timeseries `x` from above
+```dart
+var aggTs = toMonthly(x, (List<num> es) => es.sum);
+// aggTs[0] == IntervalTuple(Month.utc(2017,1), 36); 
+```
+if you import the extension `sum` from `package:collection`.
 
 
 ### Combining several timeseries
@@ -211,9 +216,9 @@ the resulting timeseries is
 Here is an example of how to add (by index) several timeseries.
 ```dart
   var days = [
-    Date(2018, 1, 1),
-    Date(2018, 1, 2),
-    Date(2018, 1, 3),
+    Date.utc(2018, 1, 1),
+    Date.utc(2018, 1, 2),
+    Date.utc(2018, 1, 3),
   ];
   var ts1 = TimeSeries.from(days, [1, 1, 1]);
   var ts2 = TimeSeries.from(days, [2, 2, 2]);
