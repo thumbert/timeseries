@@ -377,6 +377,13 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return _data[i];
   }
 
+  /// Return the index of the observation with the given interval if it exists.
+  /// The [interval] needs to be an *exact* match.
+  /// If the interval is not found, return -1.
+  int indexOfInterval(Interval interval) {
+    return _comparableBinarySearch(interval);
+  }
+
   /// Get the observation containing this interval.  Performs a binary search.
   /// Throws an error if the interval is not found in the domain of the
   /// timeseries.
@@ -572,8 +579,9 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
       var mid = min + ((max - min) >> 1);
       var element = _data[mid].interval;
       var comp = _compareNonoverlappingIntervals(element, key);
+      if (comp == null) return -1;
       if (comp == 0) return mid;
-      if (comp! < 0) {
+      if (comp < 0) {
         min = mid + 1;
       } else {
         max = mid;

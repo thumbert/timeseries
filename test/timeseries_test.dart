@@ -226,6 +226,15 @@ void timeseriesTests() {
       //expect(ts.observationContains(Interval(TZDateTime.utc(2019,1,3), TZDateTime.utc(2019,2,10))).value, 3);
     });
 
+    test('indexOfInterval', () {
+      var months = Interval(TZDateTime.utc(2014), TZDateTime.utc(2015))
+          .splitLeft((dt) => Month(dt.year, dt.month, location: UTC));
+      var ts = TimeSeries.fill(months, 1);
+      expect(ts.indexOfInterval(Month.utc(2014, 3)), 2);
+      expect(ts.indexOfInterval(Date.utc(2014, 3, 13)), -1);
+      expect(ts.indexOfInterval(Interval(TZDateTime.utc(2014,3), TZDateTime.utc(2014,5))), -1);
+    });
+
     test('calculate the number of hours in a month using groupByIndex', () {
       var ts = TimeSeries.fill(hours, 1);
       var aux = ts.groupByIndex((hour) =>

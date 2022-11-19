@@ -18,8 +18,9 @@ timeseries value.
 
 An important decision was how to deal with missing observations.  Missing 
 observations are not represented as *null*, they are simply not allowed in the 
-timeseries.  This has changed since version 3.0.0.  Before null safety, *null*
-was allowed as a valid value.  It is no longer the case.
+timeseries and will have to be encoded with a different value.  This has 
+changed since version 3.0.0.  Before null safety, *null* was allowed as a 
+valid value.  It is no longer the case.
 
 The time interval class is from repository [date].  The choice to use 
 time intervals vs. time instants in this class is based on the belief that 
@@ -82,6 +83,29 @@ var ts3 = TimeSeries.from(months, values);
 
 
 ## Examples
+
+### Extracting/setting values
+
+To get the observation (the `IntervalTuple` for a given interval) do
+```dart
+var obs = ts.observationAt(interval);  // uses binary search 
+```
+
+To change the value of an observation, you first need to find the index associated 
+with that observation.  
+```dart
+var i = ts.indexOfInterval(interval);  // uses binary search
+ts[i] = IntervalTuple(interval, newValue);
+```
+
+If your timeseries has gaps, say a missing date and would like to insert that 
+missing observation use
+```dart
+ts.insertObservation(IntervalTuple(interval, value));
+```
+This will succeed only if the `interval` does not already exist, and throw 
+otherwise.
+
 
 ### Operations on timeseries
 

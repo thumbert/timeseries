@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.4 (released 2022-11-19)
+- Added `ts.indexOfInterval(interval)` to find the position of an interval in the 
+timeseries.  You can then use the index to modify the observation associated with 
+it.
+
 ## 3.0.3 (released 2022-07-07)
 - Add a timezone check on TimeSeries<num> +,-,*,/ operations.  This can be a sneaky 
 way to have an error.  Better catch it as soon as possible.
