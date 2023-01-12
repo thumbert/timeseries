@@ -189,7 +189,7 @@ Common aggregation functions `toDaily`, `toMonthly`, `toYearly` are provided, to
 calculate basic statistics.  For example, to calculate a monthly total using 
 the timeseries `x` from above
 ```dart
-var aggTs = toMonthly(x, (List<num> es) => es.sum);
+var aggTs = x.toMonthly((List<num> es) => es.sum);
 // aggTs[0] == IntervalTuple(Month.utc(2017,1), 36); 
 ```
 if you import the extension `sum` from `package:collection`.

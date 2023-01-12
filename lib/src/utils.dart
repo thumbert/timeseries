@@ -24,12 +24,61 @@ TimeSeries<Map<K, T>> mergeAll<K, T>(Map<K, TimeSeries<T>> xs) {
   return out;
 }
 
+
+/// Construct 'similar' intervals from previous years.
+/// Say, given the [endInterval] '[2023-01-01 -> 2023-01-10)', and `count = 30`,
+/// return the list of intervals:
+/// ```
+/// [
+///   [2023-01-01 -> 2023-01-10),
+///   [2023-01-01 -> 2023-01-10),
+///   ...
+///   [2023-01-01 -> 2023-01-10),
+/// ]
+/// ```
+/// The construction should wrap correctly for intervals that cross a New Year.
+///
+/// <br>
+/// Notes:
+///  * the [endInterval] can be in any timezone.  The returned intervals will
+///  maintain that timezone.
+///
+List<Interval> getSameIntervalFromPreviousYears(Interval endInterval,
+    {int count=30}) {
+  var yearEnd = endInterval.end.year;
+  var yearStart = yearEnd - count + 1;
+  var startMonth = endInterval.start.month;
+  var endMonth = endInterval.end.month;
+
+  var out = <Interval>[];
+  for (var year = yearStart; year <= yearEnd; year++) {
+    if (endMonth >= startMonth) {
+      // don't need to deal with New Year
+        var start = endInterval.start.copyWith(year: year);
+        var end = endInterval.end.copyWith(year: year);
+        out.add(Interval(start, end));
+    } else {
+      // term goes into next year
+      var start = endInterval.start.copyWith(year: year-1);
+      var end = endInterval.end.copyWith(year: year);
+      out.add(Interval(start, end));
+    }
+  }
+
+  return out;
+}
+
+
+
+
 /// Calculate the weighted mean of two timeseries over a given interval.
 /// The [x] timeseries and the [weights] timeseries need to have matching
 /// intervals, so that the calculation succeeds.
 ///
 /// This allows you to aggregate a monthly timeseries by year or quarters, etc.
 /// I should probably deprecate this 2020-08-24.
+/// Added Deprecated on 2023-01-12
+@Deprecated('Planned to remove in the future')
 IntervalTuple<num> weightedMean(
     TimeSeries<num> x, TimeSeries<num> weights, Interval interval) {
   if (!weights.domain.containsInterval(x.domain)) {

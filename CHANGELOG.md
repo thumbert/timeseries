@@ -1,5 +1,10 @@
 # Changelog
 
+## Release 2023-01-12
+- Add extension methods `toMonthly`, `toDaily`, `toHourly` to an `Iterable<IntervalTuple>`.
+- Add utility function `getSameIntervalFromPreviousYears`
+
+
 ## 3.0.4 (released 2022-11-19)
 - Added `ts.indexOfInterval(interval)` to find the position of an interval in the 
 timeseries.  You can then use the index to modify the observation associated with 

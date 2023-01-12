@@ -6,6 +6,7 @@ import 'package:timeseries/src/timeseries_packer.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
+import 'package:collection/collection.dart';
 
 void windowTest() {
   group('TimeSeries window tests: ', () {
@@ -753,6 +754,15 @@ void timeseriesTests() {
       expect(daysInMonth.length, 12);
       expect(daysInMonth.values.take(3).toList(), [31, 28, 31]);
     });
+    test('extension methods for toHourly, toDaily, toMonthly', () {
+      var hours = Term.parse('Jan22-Mar22', UTC).hours();
+      var ts = TimeSeries.fill(hours, 1.0);
+      var hoursCountByMonth = ts.toMonthly((List<num> xs) => xs.sum);
+      var hoursCountByDay = ts.toDaily((List<num> xs) => xs.sum);
+      expect(hoursCountByMonth.length, 3);
+      expect(hoursCountByDay.length, 90);
+    });
+
     test('toWeekly() 2016', () {
       var w1 = Week(2016, 1, UTC);
       var w52 = Week(2016, 52, UTC);
