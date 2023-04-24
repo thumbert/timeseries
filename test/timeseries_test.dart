@@ -616,6 +616,14 @@ void timeseriesTests() {
       var ts = xs.toTimeSeries();
       expect(ts.first.value, 1);
     });
+
+    test('toTimeSeries() from window', () {
+      var days = Term.parse('Jan20-Mar20', UTC).days();
+      var xs = TimeSeries.fill(days, 1);
+      var ts = xs.window(Month.utc(2020, 2).toInterval()).toTimeSeries();
+      expect(ts.first.interval, Date.utc(2020, 2, 1));
+    });
+
   });
 
   group('Expansion, Interpolation, Fill:', () {
