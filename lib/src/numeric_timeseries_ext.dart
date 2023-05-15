@@ -41,8 +41,8 @@ extension NumericTimeseriesExt on TimeSeries<num> {
     return out;
   }
 
-  /// Apply a function to each element.
-  TimeSeries<num> apply(num Function(num?) f) {
+  /// Apply a function to the value of each observation.
+  TimeSeries<num> apply(num Function(num) f) {
     return TimeSeries.fromIterable(
         map((e) => IntervalTuple(e.interval, f(e.value))));
   }

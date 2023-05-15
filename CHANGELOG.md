@@ -1,5 +1,10 @@
 # Changelog
 
+## Release 2023-05-14
+- Remove nulls from apply method of numeric timeseries extensions.  Was probably 
+  left as an artifact
+
+
 ## Release 2023-01-12
 - Add extension methods `toMonthly`, `toDaily`, `toHourly` to an `Iterable<IntervalTuple>`.
 - Add utility function `getSameIntervalFromPreviousYears`

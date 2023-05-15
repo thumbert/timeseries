@@ -31,7 +31,7 @@ void tests() {
     test('apply', () {
       var index = Term.parse('1Jan19-4Jan19', UTC).days();
       var ts = TimeSeries.from(index, [1, 2, 3]);
-      var ts2 = ts.apply((e) => 2 * e!);
+      var ts2 = ts.apply((e) => 2 * e);
       expect(ts2.values.toList(), [2, 4, 6]);
     });
 
