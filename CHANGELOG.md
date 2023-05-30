@@ -1,5 +1,8 @@
 # Changelog
 
+## Release 2023-05-29
+- Bump sdk upper limit to 4.0.0.
+
 ## Release 2023-05-14
 - Remove nulls from apply method of numeric timeseries extensions.  Was probably 
   left as an artifact
