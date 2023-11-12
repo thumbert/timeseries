@@ -233,7 +233,10 @@ void timeseriesTests() {
       var ts = TimeSeries.fill(months, 1);
       expect(ts.indexOfInterval(Month.utc(2014, 3)), 2);
       expect(ts.indexOfInterval(Date.utc(2014, 3, 13)), -1);
-      expect(ts.indexOfInterval(Interval(TZDateTime.utc(2014,3), TZDateTime.utc(2014,5))), -1);
+      expect(
+          ts.indexOfInterval(
+              Interval(TZDateTime.utc(2014, 3), TZDateTime.utc(2014, 5))),
+          -1);
     });
 
     test('calculate the number of hours in a month using groupByIndex', () {
@@ -273,7 +276,7 @@ void timeseriesTests() {
     test('add one observation at the end', () {
       var months =
           Interval(TZDateTime(location, 2015), TZDateTime(location, 2016))
-              .splitLeft((dt) => Month.fromTZDateTime(dt))
+              .splitLeft((dt) => Month.containing(dt))
               .toList();
       var ts = TimeSeries.from(months, List.generate(12, (i) => i + 1));
       ts.add(IntervalTuple(Month(2016, 1, location: location), 1));
@@ -283,7 +286,7 @@ void timeseriesTests() {
     test('adding to the middle of the time series throws', () {
       var months =
           Interval(TZDateTime(location, 2014), TZDateTime(location, 2015))
-              .splitLeft((dt) => Month.fromTZDateTime(dt))
+              .splitLeft((dt) => Month.containing(dt))
               .toList();
       var ts = TimeSeries.generate(12, (i) => IntervalTuple(months[i], i));
       expect(() => ts.add(IntervalTuple(Date(2014, 4, 1, location: UTC), 4)),
@@ -293,7 +296,7 @@ void timeseriesTests() {
     test('insert an observation', () {
       var months = Term.parse('Jan20-Dec20', location)
           .interval
-          .splitLeft((dt) => Month.fromTZDateTime(dt));
+          .splitLeft((dt) => Month.containing(dt));
       var ts = TimeSeries.fill(months, 1);
       ts.removeAt(3); // remove Apr20
       ts.removeAt(3); // remove May20
@@ -329,8 +332,7 @@ void timeseriesTests() {
     test('add a bunch of days at once with addAll()', () {
       var days = Interval(
               TZDateTime(location, 2016, 1, 1), TZDateTime(location, 2016, 2))
-          .splitLeft((dt) => Date.fromTZDateTime(dt))
-          .toList();
+          .splitLeft((dt) => Date.containing(dt));
       var ts = TimeSeries.from([days.first], [1]);
       ts.addAll(days.skip(1).map((day) => IntervalTuple(day, 1)));
       expect(ts.length, 31);
@@ -339,8 +341,7 @@ void timeseriesTests() {
     test('timeseries to columns', () {
       var days =
           Interval(TZDateTime(location, 2016, 1), TZDateTime(location, 2016, 2))
-              .splitLeft((dt) => Date.fromTZDateTime(dt))
-              .toList();
+              .splitLeft((dt) => Date.containing(dt));
       var ts = TimeSeries.fill(days, 1);
       var aux = ts.toColumns();
       expect(aux.item1.length, aux.item2.length);
@@ -349,8 +350,7 @@ void timeseriesTests() {
     test('filter observations', () {
       var months =
           Interval(TZDateTime(location, 2014), TZDateTime(location, 2014, 7))
-              .splitLeft((dt) => Month.fromTZDateTime(dt))
-              .toList();
+              .splitLeft((dt) => Month.containing(dt));
       var ts = TimeSeries.generate(6, (i) => IntervalTuple(months[i], i));
       ts.retainWhere((obs) => obs.value > 2);
       expect(ts.values.first, 3);
@@ -524,8 +524,7 @@ void timeseriesTests() {
     test('fill missing values using merge', () {
       var days =
           Interval(TZDateTime(location, 2017), TZDateTime(location, 2017, 1, 9))
-              .splitLeft((dt) => Date.fromTZDateTime(dt))
-              .toList();
+              .splitLeft((dt) => Date.containing(dt));
       var zeros = TimeSeries.fill(days, 0);
       var fewDays = [0, 1, 3, 4, 7].map((i) => days[i]);
       var ts = TimeSeries.from(fewDays, [1, 2, 4, 5, 8]);
@@ -598,7 +597,9 @@ void timeseriesTests() {
       });
     });
     test('timeseries head/tail', () {
-      var days = parseTerm('Jan20')!.splitLeft((dt) => Date.fromTZDateTime(dt));
+      var days = Term.parse('Jan20', UTC)
+          .interval
+          .splitLeft((dt) => Date.containing(dt));
       var ts = TimeSeries.fill(days, 1);
       var head = ts.head();
       expect(head.length, 6);
@@ -611,7 +612,7 @@ void timeseriesTests() {
 
   group('TimeSeries extensions', () {
     test('toTimeSeries()', () {
-      var days = parseTerm('Jan20')!.splitLeft((dt) => Date.fromTZDateTime(dt));
+      var days = parseTerm('Jan20')!.splitLeft((dt) => Date.containing(dt));
       var xs = TimeSeries.fill(days, 1).toList();
       var ts = xs.toTimeSeries();
       expect(ts.first.value, 1);
@@ -623,7 +624,6 @@ void timeseriesTests() {
       var ts = xs.window(Month.utc(2020, 2).toInterval()).toTimeSeries();
       expect(ts.first.interval, Date.utc(2020, 2, 1));
     });
-
   });
 
   group('Expansion, Interpolation, Fill:', () {
@@ -653,7 +653,7 @@ void timeseriesTests() {
       ]);
       var days = Term.parse('1Jan02-10Jan02', UTC)
           .interval
-          .splitLeft((e) => Date.fromTZDateTime(e));
+          .splitLeft((e) => Date.containing(e));
       var tsFilled = ts.locf(days);
       expect(
           tsFilled,
@@ -677,7 +677,7 @@ void timeseriesTests() {
       ]);
       var days = Term.parse('1Jan02-6Jan02', UTC)
           .interval
-          .splitLeft((e) => Date.fromTZDateTime(e));
+          .splitLeft((e) => Date.containing(e));
       var tsFilled = ts.locf(days);
       expect(
           tsFilled,

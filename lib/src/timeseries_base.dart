@@ -243,7 +243,7 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
           .map((interval) => IntervalTuple(interval, e.value))));
     } else if (duration == Duration(days: 1)) {
       return TimeSeries.fromIterable(expand((e) => e.interval
-          .splitLeft((dt) => Date.fromTZDateTime(dt))
+          .splitLeft((dt) => Date.containing(dt))
           .map((interval) => IntervalTuple(interval, e.value))));
     } else {
       return TimeSeries.fromIterable(expand((e) => e.interval

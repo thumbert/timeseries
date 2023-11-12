@@ -1,5 +1,8 @@
 # Changelog
 
+## Release 2023-11-12
+- Bump dependencies up
+
 ## Release 2023-05-31
 - Bump sdk lower limit to 3.0.2
 

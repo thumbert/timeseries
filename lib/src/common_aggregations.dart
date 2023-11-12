@@ -27,7 +27,7 @@ TimeSeries<T> toHourly<K,T>(Iterable<IntervalTuple<K>> xs, T Function(List<K>) f
 TimeSeries<T> toDaily<K,T>(Iterable<IntervalTuple<K>> xs, T Function(List<K>) f) {
   var grp = <Interval, List<K>>{};
   for (var x in xs) {
-    var date = Date.fromTZDateTime(x.interval.start);
+    var date = Date.containing(x.interval.start);
     grp.putIfAbsent(date, () => <K>[]).add(x.value);
   }
   return TimeSeries.from(grp.keys, grp.values.map((ys) => f(ys)));
@@ -53,7 +53,7 @@ TimeSeries<T> toWeekly<K,T>(Iterable<IntervalTuple<K>> xs, T Function(List<K>) f
 TimeSeries<T> toMonthly<K,T>(Iterable<IntervalTuple<K>> xs, T Function(List<K>) f) {
   var grp = <Interval, List<K>>{};
   for (var x in xs) {
-    var month = Month.fromTZDateTime(x.interval.start);
+    var month = Month.containing(x.interval.start);
     grp.putIfAbsent(month, () => <K>[]).add(x.value);
   }
   return TimeSeries.from(grp.keys, grp.values.map((ys) => f(ys)));

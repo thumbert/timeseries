@@ -9,12 +9,12 @@ dependencies:
   date:
     git: https://github.com/thumbert/date.git
   intl: ^0.18.1
-  more: ^3.7.1
+  more: ^4.0.1
   timezone: ^0.9.2
   tuple: ^2.0.0
 
 dev_dependencies:
   dama:
     git: https://github.com/thumbert/dama.git
-  lints: ^2.0.0
+  lints: ^3.0.0
   test: ^1.24.3
