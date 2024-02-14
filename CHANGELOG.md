@@ -1,5 +1,8 @@
 # Changelog
 
+## Release 2024-02-14
+- Added a test and example for `splitByIndex`.
+
 ## Release 2023-11-12
 - Bump dependencies up
 

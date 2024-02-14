@@ -580,6 +580,26 @@ void timeseriesTests() {
       expect(res.values.toList(), [11, 12, 13, 14, 15, 16, 17, 28, 29]);
     });
 
+    test('split a timeseries into other timeseries', () {
+      var days = Term.parse('Jun19-Apr24', UTC).days();
+      var ts = TimeSeries.fill(days, 1.0);
+
+      var res = ts.splitByIndex((interval) {
+        if (interval.start.month >= 11) {
+          return Interval(TZDateTime.utc(interval.start.year, 11),
+              TZDateTime.utc(interval.start.year + 1, 3));
+        } else if (interval.start.month <= 3) {
+          return Interval(TZDateTime.utc(interval.start.year - 1, 11),
+              TZDateTime.utc(interval.start.year, 3));
+        } else {
+          return null;
+        }
+      });
+      expect(res.length, 5);
+      expect(res.keys.first,
+          Interval(TZDateTime.utc(2019, 11), TZDateTime.utc(2020, 4)));
+    });
+
     test('numeric timeseries toJson', () {
       var x = TimeSeries.fromIterable([
         IntervalTuple(Date(2017, 1, 1, location: UTC), 11),
@@ -596,6 +616,7 @@ void timeseriesTests() {
         'value': 11,
       });
     });
+
     test('timeseries head/tail', () {
       var days = Term.parse('Jan20', UTC)
           .interval

@@ -121,7 +121,8 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     if (K == num) {
       /// Add two numeric timeseries element wise.  The addition is only
       /// performed on the intervals that match.
-      if (other.first.interval.start.location != first.interval.start.location) {
+      if (other.first.interval.start.location !=
+          first.interval.start.location) {
         throw StateError('Addition fails, non matching timezone locations.');
       }
       var _aux = merge(other, f: (x, dynamic y) => [x, y]);
@@ -151,7 +152,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     var obs2 = observationAt(i2);
     return f(obs1.value, obs2.value);
   }
-
 
   /// Create a new timeseries using the Last Observation Carried Forward filling
   /// rule.  The input [intervals] are assumed sorted and should be a superset
@@ -254,6 +254,16 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   /// Packs a timeseries.  Wraps the static method for convenience.
   TimeSeries<K> pack() => TimeSeries.pack(_data);
+  //
+  // /// Apply a function to adjoining observations.
+  // TimeSeries<S> rollApply<S>(S Function(IntervalTuple<K> a, IntervalTuple<K> b) f) {
+  //   var ts = TimeSeries<S>();
+  //   if (length < 2) return ts;
+  //   for (var i=1; i<length; i++) {
+  //     ts.add(f(_data[i-1], _data[i]));
+  //   }
+  //   return ts;
+  // }
 
   /// Merge/Join two timeseries according to the function f.  Joining is done by
   /// the common time intervals.  This method should only be applied if time
@@ -460,17 +470,25 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   }
 
   /// Split a timeseries into non-overlapping subseries according to a function.
-  /// This is similar, but slighly different
-  /// than [groupByIndex] which returns an aggregated timeseries.
-  /// Function [f] should return a classification factor.
-  Map<T, TimeSeries<K>> splitByIndex<T>(T Function(Interval interval) f) {
+  /// This is similar, but slightly different than [groupByIndex] which returns
+  /// an aggregated timeseries.
+  ///
+  /// Function [f] should return a classification factor.  It does not have to 
+  /// provide a complete cover the domain of the original timeseries.
+  ///
+  /// For example to cut a timeseries spanning several years into the timeseries
+  /// with domains Dec-Feb,   
+  ///
+  Map<T, TimeSeries<K>> splitByIndex<T>(T? Function(Interval interval) f) {
     var grp = <T, TimeSeries<K>>{};
     var N = _data.length;
     for (var i = 0; i < N; i++) {
       var group = f(_data[i].interval);
-      grp
-          .putIfAbsent(group, () => TimeSeries<K>.fromIterable([]))
-          .add(IntervalTuple(_data[i].interval, _data[i].value));
+      if (group != null) {
+        grp
+            .putIfAbsent(group, () => TimeSeries<K>.fromIterable([]))
+            .add(IntervalTuple(_data[i].interval, _data[i].value));
+      }
     }
     return grp;
   }

@@ -165,7 +165,24 @@ var out = ts.partition((x) => x.value %% 2);
 ```
 
 To split a timeseries into several **non-overlapping** timeseries according to a 
-function that operates on the index, use the method `splitByIndex`.  
+function that operates on the index, use the method `splitByIndex`.  For example, 
+you have a daily timeseries containing several years of history and 
+wou want to extract all the timeseries from Nov-Mar of each year.  You can do 
+something like
+```dart
+var chunks = ts.splitByIndex((interval) {
+  if (interval.start.month >= 11) {
+    return Interval(TZDateTime.utc(interval.start.year, 11), 
+      TZDateTime.utc(interval.start.year + 1, 3));
+  } else if (interval.start.month <= 3) {
+    return Interval(TZDateTime.utc(interval.start.year - 1, 11), 
+      TZDateTime.utc(interval.start.year, 3));
+  } else {
+    return null;  // skip observations not in Nov-Mar
+  }
+});
+```
+
 
 
 ### Grouping and Aggregation
