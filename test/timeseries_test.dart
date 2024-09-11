@@ -581,16 +581,18 @@ void timeseriesTests() {
     });
 
     test('split a timeseries into other timeseries', () {
+      /// the test splits the timeseries with Jun19-Apr24 domain into 
+      /// 5 timeseries with periods Nov19-Mar20, Nov20-Mar21, ...
       var days = Term.parse('Jun19-Apr24', UTC).days();
       var ts = TimeSeries.fill(days, 1.0);
 
       var res = ts.splitByIndex((interval) {
         if (interval.start.month >= 11) {
           return Interval(TZDateTime.utc(interval.start.year, 11),
-              TZDateTime.utc(interval.start.year + 1, 3));
+              TZDateTime.utc(interval.start.year + 1, 4));
         } else if (interval.start.month <= 3) {
           return Interval(TZDateTime.utc(interval.start.year - 1, 11),
-              TZDateTime.utc(interval.start.year, 3));
+              TZDateTime.utc(interval.start.year, 4));
         } else {
           return null;
         }

@@ -24,6 +24,12 @@ TimeSeries<Map<K, T>> mergeAll<K, T>(Map<K, TimeSeries<T>> xs) {
   return out;
 }
 
+/// Convenience function to fill an hourly time series with a given value.
+/// As usual, make sure the timezones are matching...
+TimeSeries<K?> fillHourlyTimeseriesWithNull<K>(Term term, TimeSeries<K> ts) {
+  final nulls = TimeSeries.fill(term.hours(), null);
+  return nulls.merge(ts, joinType: JoinType.Left, f: (x, y) => y);
+}
 
 /// Construct 'similar' intervals from previous years.
 /// Say, given the [endInterval] '[2023-01-01 -> 2023-01-10)', and `count = 30`,
@@ -43,8 +49,9 @@ TimeSeries<Map<K, T>> mergeAll<K, T>(Map<K, TimeSeries<T>> xs) {
 ///  * the [endInterval] can be in any timezone.  The returned intervals will
 ///  maintain that timezone.
 ///
+@Deprecated('Use Term.generate()')
 List<Interval> getSameIntervalFromPreviousYears(Interval endInterval,
-    {int count=30}) {
+    {int count = 30}) {
   var yearEnd = endInterval.end.year;
   var yearStart = yearEnd - count + 1;
   var startMonth = endInterval.start.month;
@@ -54,12 +61,12 @@ List<Interval> getSameIntervalFromPreviousYears(Interval endInterval,
   for (var year = yearStart; year <= yearEnd; year++) {
     if (endMonth >= startMonth) {
       // don't need to deal with New Year
-        var start = endInterval.start.copyWith(year: year);
-        var end = endInterval.end.copyWith(year: year);
-        out.add(Interval(start, end));
+      var start = endInterval.start.copyWith(year: year);
+      var end = endInterval.end.copyWith(year: year);
+      out.add(Interval(start, end));
     } else {
       // term goes into next year
-      var start = endInterval.start.copyWith(year: year-1);
+      var start = endInterval.start.copyWith(year: year - 1);
       var end = endInterval.end.copyWith(year: year);
       out.add(Interval(start, end));
     }
@@ -67,9 +74,6 @@ List<Interval> getSameIntervalFromPreviousYears(Interval endInterval,
 
   return out;
 }
-
-
-
 
 /// Calculate the weighted mean of two timeseries over a given interval.
 /// The [x] timeseries and the [weights] timeseries need to have matching

@@ -254,7 +254,38 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   /// Packs a timeseries.  Wraps the static method for convenience.
   TimeSeries<K> pack() => TimeSeries.pack(_data);
-  //
+
+  /// Support several common timeseries that may appear from serialization.
+  /// Entries can be of this form:
+  /// ```dart
+  /// {'date': '2024-01-01', 'value': 10.1},
+  /// {'date': '2024-01-10', 'value': 11.5},
+  /// {'month': '2024-03', 'value': 31.5},
+  /// {'year': '2025', 'value': 27.1},
+  /// ```
+  // TimeSeries<K> fromJson<K>(List<Map<String, dynamic>> xs, Location location) {
+  //   var out = TimeSeries<K>();
+  //   for (var x in xs) {
+  //     late IntervalTuple<K> obs;
+  //     if (x.containsKey('date')) {
+  //       obs = IntervalTuple(
+  //           Date.fromIsoString(x['date']!, location: location), x['value']);
+  //     } else if (x.containsKey('month')) {
+  //       obs = IntervalTuple(
+  //           Month.fromIsoString(x['month']!, location: location), x['value']);
+  //     } else if (x.containsKey('year')) {
+  //       final start = TZDateTime(location, x['year']);
+  //       final end = TZDateTime(location, x['year'] + 1);
+  //       obs = IntervalTuple(Interval(start, end), x['value']);
+  //     } else {
+  //       throw ArgumentError('Observation doesn\'t have a supported key');
+  //     }
+  //     out.add(obs);
+  //   }
+
+  //   return out;
+  // }
+
   // /// Apply a function to adjoining observations.
   // TimeSeries<S> rollApply<S>(S Function(IntervalTuple<K> a, IntervalTuple<K> b) f) {
   //   var ts = TimeSeries<S>();
@@ -473,11 +504,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// This is similar, but slightly different than [groupByIndex] which returns
   /// an aggregated timeseries.
   ///
-  /// Function [f] should return a classification factor.  It does not have to 
+  /// Function [f] should return a classification factor.  It does not have to
   /// provide a complete cover the domain of the original timeseries.
   ///
   /// For example to cut a timeseries spanning several years into the timeseries
-  /// with domains Dec-Feb,   
+  /// with domains Dec-Feb,
   ///
   Map<T, TimeSeries<K>> splitByIndex<T>(T? Function(Interval interval) f) {
     var grp = <T, TimeSeries<K>>{};
