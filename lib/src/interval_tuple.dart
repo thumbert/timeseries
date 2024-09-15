@@ -13,7 +13,7 @@ class IntervalTuple<K> {
   String toString() => '$interval -> $value';
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other is! IntervalTuple) return false;
     var it = other as IntervalTuple<K>;
     return it.interval == interval && it.value == value;
