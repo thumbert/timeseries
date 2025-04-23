@@ -47,6 +47,11 @@ extension NumericTimeseriesExt on TimeSeries<num> {
         map((e) => IntervalTuple(e.interval, f(e.value))));
   }
 
+  TimeSeries<num> operator -() {
+    return TimeSeries.fromIterable(
+        map((e) => IntervalTuple(e.interval, -e.value)));
+  }
+
   /// Subtract two timeseries element wise. The subtraction is only performed
   /// on the intervals that match.
   TimeSeries<num> operator -(TimeSeries<num> other) {

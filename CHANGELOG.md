@@ -1,5 +1,8 @@
 # Changelog
 
+## Change 2025-04-23
+- Add unary minus operator extension for numeric timeseries. 
+
 ## Release 2024-09-10
 - Fix tests, add ridiculously simple `fillHourlyTimeSeriesWithNull` function 
   just so my pea sized brain doesn't have to get it wrong again.  

@@ -35,6 +35,13 @@ void tests() {
       expect(ts2.values.toList(), [2, 4, 6]);
     });
 
+    test('unary minus operator', () {
+      var index = Term.parse('1Jan19-4Jan19', UTC).days();
+      var ts = TimeSeries.from(index, [1, 2, 3]);
+      var ts2 = -ts;
+      expect(ts2.values.toList(), [-1, -2, -3]);
+    });
+
     test('add two time series', () {
       var index1 = Term.parse('1Jan19-4Jan19', UTC).days();
       var ts1 = TimeSeries<num>.from(index1, [1, 2, 3]);
