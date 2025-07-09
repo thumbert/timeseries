@@ -1,5 +1,8 @@
 # Changelog
 
+## Change 2025-07-08
+- Fix bug with head/tail when input is greater than timeseries length.
+
 ## Change 2025-04-23
 - Add unary minus operator extension for numeric timeseries. 
 

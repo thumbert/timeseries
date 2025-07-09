@@ -1,6 +1,7 @@
 library timeseries_base;
 
 import 'dart:collection';
+import 'dart:math' as math;
 import 'package:date/date.dart';
 import 'package:timeseries/timeseries.dart';
 import 'package:tuple/tuple.dart';
@@ -401,12 +402,14 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   /// Return the first few elements of this timeseries.
   TimeSeries<K> head({int n = 6}) {
-    return TimeSeries.fromIterable(sublist(0, n));
+    assert(n > 0, 'n must be positive');
+    return TimeSeries.fromIterable(sublist(0, math.min(n, length)));
   }
 
   /// Return the last few elements of this timeseries.
   TimeSeries<K> tail({int n = 6}) {
-    return TimeSeries.fromIterable(sublist(length - n));
+    assert(n > 0, 'n must be positive');
+    return TimeSeries.fromIterable(sublist(math.max(0,length - n)));
   }
 
   /// Partition this timeseries given a predicate [f].

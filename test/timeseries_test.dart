@@ -581,7 +581,7 @@ void timeseriesTests() {
     });
 
     test('split a timeseries into other timeseries', () {
-      /// the test splits the timeseries with Jun19-Apr24 domain into 
+      /// the test splits the timeseries with Jun19-Apr24 domain into
       /// 5 timeseries with periods Nov19-Mar20, Nov20-Mar21, ...
       var days = Term.parse('Jun19-Apr24', UTC).days();
       var ts = TimeSeries.fill(days, 1.0);
@@ -630,6 +630,10 @@ void timeseriesTests() {
       var tail = ts.tail();
       expect(tail.length, 6);
       expect(tail.first.interval, Date(2020, 1, 26, location: UTC));
+
+      //
+      expect(ts.tail(n: 40).length, 31);
+      expect(ts.head(n: 40).length, 31);
     });
   });
 
