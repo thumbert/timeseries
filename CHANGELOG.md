@@ -1,5 +1,8 @@
 # Changelog
 
+## Change 2025-08-11
+- Expose toYearly as an extension method.
+
 ## Change 2025-07-08
 - Fix bug with head/tail when input is greater than timeseries length.
 

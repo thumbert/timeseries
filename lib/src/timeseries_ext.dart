@@ -20,6 +20,11 @@ extension IterableExt<K> on Iterable<IntervalTuple<K>> {
   TimeSeries<T> toHourly<T>(T Function(List<K>) f) {
     return agg.toHourly(this, f);
   }
+
+  TimeSeries<T> toYearly<T>(T Function(List<K>) f) {
+    return agg.toYearly(this, f);
+  }
+
 }
 
 
