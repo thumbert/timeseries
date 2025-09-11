@@ -129,7 +129,7 @@ var hourlyTs = monthlyTs.interpolate( Duration(hours: 1) );
 ```
 View interpolation as the opposite of packing.  
 
-### Cut 
+#### Cut 
 
 You can restrict the range of the series using the `window` method.
 ```dart
