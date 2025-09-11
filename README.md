@@ -138,7 +138,7 @@ hourlyTs.window(Interval(TZDateTime.utc(2024), TZDateTime.utc(2025)));
 
 You can remove an interval from your series using the `removeInterval` method.
 ```dart
-hourlyTs.window(Interval(TZDateTime.utc(2024, 1, 10), TZDateTime.utc(2024, 2, 15))); 
+hourlyTs.removeInterval(Interval(TZDateTime.utc(2024, 1, 10), TZDateTime.utc(2024, 2, 15))); 
 ```
 
 
