@@ -329,6 +329,29 @@ void timeseriesTests() {
       expect(ts.length, 14);
     });
 
+    test('removeInterval: cut an interval', () {
+      var hours =
+          Interval(TZDateTime(location, 2017), TZDateTime(location, 2018))
+              .splitLeft((dt) => Hour.beginning(dt))
+              .toList();
+      var ts = TimeSeries.fill(hours, 1);
+      var y = ts.removeInterval(Interval(
+          TZDateTime(location, 2017, 3, 1), TZDateTime(location, 2017, 3, 10)));
+      expect(y.length, 8760 - 9 * 24);
+
+      y = ts.removeInterval(Interval(
+          TZDateTime(location, 2016, 3, 1), TZDateTime(location, 2017, 1, 3)));
+      expect(y.length, 8760 - 2 * 24);
+
+      y = ts.removeInterval(Interval(TZDateTime(location, 2017, 12, 30),
+          TZDateTime(location, 2018, 1, 3)));
+      expect(y.length, 8760 - 2 * 24);
+
+      y = ts.removeInterval(Interval(
+          TZDateTime(location, 2018, 1, 30), TZDateTime(location, 2018, 2, 3)));
+      expect(y.length, 8760);
+    });
+
     test('add a bunch of days at once with addAll()', () {
       var days = Interval(
               TZDateTime(location, 2016, 1, 1), TZDateTime(location, 2016, 2))

@@ -400,6 +400,18 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     return res;
   }
 
+  /// Remove the observations with intervals that overlap with the given interval.
+  TimeSeries<K> removeInterval(Interval interval) {
+    if (isEmpty) return this;
+    var iNew = interval.overlap(domain);
+    if (iNew == null) return this;
+    return TimeSeries.fromIterable([
+      ...window(Interval(domain.start, iNew.start)),
+      ...window(Interval(iNew.end, domain.end)),
+    ]);
+  }
+
+
   /// Return the first few elements of this timeseries.
   TimeSeries<K> head({int n = 6}) {
     assert(n > 0, 'n must be positive');

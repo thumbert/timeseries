@@ -1,7 +1,10 @@
 # Changelog
 
+## Change 2025-09-11
+- Add `removeInterval` method to cut an interval out of your timeseries. 
+
 ## Change 2025-08-11
-- Expose toYearly as an extension method.
+- Expose `toYearly` as an extension method.
 
 ## Change 2025-07-08
 - Fix bug with head/tail when input is greater than timeseries length.

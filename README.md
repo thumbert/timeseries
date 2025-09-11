@@ -129,6 +129,20 @@ var hourlyTs = monthlyTs.interpolate( Duration(hours: 1) );
 ```
 View interpolation as the opposite of packing.  
 
+### Cut 
+
+You can restrict the range of the series using the `window` method.
+```dart
+hourlyTs.window(Interval(TZDateTime.utc(2024), TZDateTime.utc(2025))); 
+```
+
+You can remove an interval from your series using the `removeInterval` method.
+```dart
+hourlyTs.window(Interval(TZDateTime.utc(2024, 1, 10), TZDateTime.utc(2024, 2, 15))); 
+```
+
+
+
 #### Fill in missing values
 
 Use the Last Observation Carried Forward rule to fill in missing values in a timeseries.
