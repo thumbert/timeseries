@@ -120,7 +120,7 @@ View packing as the opposite of interpolation.
 
 #### Interpolate
 Interpolate this timeseries by splitting up each interval into
-subintervals of a given duration with each subinterval having the
+sub-intervals of a given duration with each sub-interval having the
 same value as the original interval.
 ```dart
 // from a monthly series, create an hourly series

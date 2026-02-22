@@ -10,7 +10,7 @@ import 'package:collection/collection.dart';
 
 void windowTest() {
   group('TimeSeries window tests: ', () {
-    var location = getLocation('US/Eastern');
+    var location = getLocation('America/New_York');
     var days = Interval(
             TZDateTime(location, 2018, 1, 1), TZDateTime(location, 2018, 1, 10))
         .splitLeft((dt) => Date(dt.year, dt.month, dt.day, location: location));
@@ -131,7 +131,7 @@ void runningGroupTests() {
 }
 
 void timeseriesTests() {
-  var location = getLocation('US/Eastern');
+  var location = getLocation('America/New_York');
 
   var hours = Interval(TZDateTime(location, 2016), TZDateTime(location, 2017))
       .splitLeft((dt) => Hour.beginning(dt))

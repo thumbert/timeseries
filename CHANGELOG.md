@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-02-22 (version 3.0.5)
+- Bump up dependencies
+
 ## Change 2025-09-11
 - Add `removeInterval` method to cut an interval out of your timeseries. 
 
