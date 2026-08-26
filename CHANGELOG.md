@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-26
+- Implement a GroupByTerm class.  Experimental for now. 
+
 ## 2026-02-22 (version 3.0.5)
 - Bump up dependencies
 
