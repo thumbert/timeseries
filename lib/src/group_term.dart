@@ -3,10 +3,10 @@ import 'package:timezone/timezone.dart';
 
 import '../timeseries.dart';
 
-class GroupByTerm {
+class GroupTerm {
   /// Groups by month range, e.g. (12, 2) covers December through February.
   /// Do all data filtering before this grouping operation.
-  GroupByTerm.byMonthRange((int, int) monthRange)
+  GroupTerm.byMonthRange((int, int) monthRange)
       : monthRange = monthRange,
         dayRange = null {
     _f = (dt) {

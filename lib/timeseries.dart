@@ -2,7 +2,7 @@ library timeseries;
 
 export 'src/check_missing.dart';
 export 'src/common_aggregations.dart';
-export 'src/groupby_term.dart';
+export 'src/group_term.dart';
 export 'src/interval_tuple.dart';
 export 'src/time_tuple.dart';
 export 'src/timeseries_base.dart';
