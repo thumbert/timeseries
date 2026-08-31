@@ -11,7 +11,7 @@ timeseries value.
 **[Examples](#examples)**  
 
 **[Extracting/setting values](#extractingsetting-values)**  
-**[Operations on timeseries (pack, interpolate, fill)](#operations-on-timeseries)**  
+**[Operations on timeseries (arithmetic, pack, interpolate, fill)](#operations-on-timeseries)**  
 **[Partition and split](#partition-and-split)**  
 **[Grouping and aggregation](#grouping-and-aggregation)**  
 **[Combining several timeseries](#combining-several-timeseries)**  
@@ -110,6 +110,19 @@ otherwise.
 
 
 ### Operations on timeseries
+
+#### Arithmetic
+For convenience, the basic arithmetic operations have been implemented for 
+numeric timeseries `Timeseries<num>`.  The operations return only the matching 
+intervals (inner join).  
+
+```dart
+x + y; // element wise addition
+x - y; // element wise subtraction
+x * y; // element wise multiplication
+x / y; // element wise division
+```
+
 
 #### Pack
 Pack a timeseries by collapsing adjoining intervals with the same value into a 
