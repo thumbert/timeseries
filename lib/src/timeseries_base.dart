@@ -4,7 +4,6 @@ import 'dart:collection';
 import 'dart:math' as math;
 import 'package:date/date.dart';
 import 'package:timeseries/timeseries.dart';
-import 'package:tuple/tuple.dart';
 import 'package:timeseries/src/interval_tuple.dart';
 
 enum JoinType { Left, Right, Inner, Outer }
@@ -427,14 +426,14 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Partition this timeseries given a predicate [f].
   /// The first element of the returned tuple is the [true] branch, the
   /// second element is the [false] branch.
-  Tuple2<TimeSeries<K>, TimeSeries<K>> partition(
+  (TimeSeries<K>, TimeSeries<K>) partition(
       bool Function(IntervalTuple<K?>) f) {
     var left = TimeSeries<K>();
     var right = TimeSeries<K>();
     _data.forEach((x) {
       f(x) == true ? left.add(x) : right.add(x);
     });
-    return Tuple2(left, right);
+    return (left, right);
   }
 
   /// Get the observation at this interval.  Performs a binary search.
@@ -472,6 +471,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// <p> This can be used as the first step of an aggregation.  For example,
   /// to group all observations that fall in the same month, use
   /// f = (Interval dt) => Month(dt.start.year, dt.start.day)
+  /// 
+  /// Function [f] needs to provide a complete covering, that is every 
+  /// interval needs to be mapped to a group by the function [f].    
+  /// </p>
+  /// 
   TimeSeries<List<K>> groupByIndex(Interval Function(Interval interval) f) {
     var grp = <Interval, List<K>>{};
     var N = _data.length;
@@ -541,14 +545,14 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   /// Return the time series as a [Tuple2] in column format, first tuple value
   /// of the intervals, the second tuple value the time series values.
-  Tuple2<List<Interval>, List<K?>> toColumns() {
+  (List<Interval>, List<K?>) toColumns() {
     var i = <Interval>[];
     var v = <K?>[];
     forEach((e) {
       i.add(e.interval);
       v.add(e.value);
     });
-    return Tuple2(i, v);
+    return (i, v);
   }
 
   /// Extract the subset of observations with intervals that are *entirely*

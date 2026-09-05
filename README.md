@@ -238,6 +238,10 @@ var aggTs = x.toMonthly((List<num> es) => es.sum);
 ```
 if you import the extension `sum` from `package:collection`.
 
+See also the function `groupByHourRange` if you need to break an hourly timeseries 
+into a contiguous range of hours, say hour 23 to hour 7.   And see the `GroupTerm` 
+class for grouping a timeseries into contiguous range of months, e.g. Dec to Feb.  
+
 
 ### Combining several timeseries
 Use method ```merge``` to join (in an SQL sense) two timeseries.  

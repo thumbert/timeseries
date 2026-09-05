@@ -8,7 +8,7 @@ import 'package:timezone/timezone.dart';
 void tests() {
   group('group by term tests:', () {
     final location = getLocation('America/New_York');
-    test('fill hourly timeseries with nulls', () {
+    test('Group by month range', () {
       var term = Term.parse('Jan24-Dec25', location);
       var ts = TimeSeries.fill(term.hours(), 1);
       var grp = GroupTerm.byMonthRange((12, 2));

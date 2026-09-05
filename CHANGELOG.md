@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-05
+- Really remove the dependency on package Tuple!
+- Add function groupByHourRange to collect the observations of a timeseries 
+  into chunks of contiguous hour ranges.
+
 ## 2026-08-26
 - Implement a GroupTerm class.  Experimental for now. 
 

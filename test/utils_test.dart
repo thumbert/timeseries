@@ -9,6 +9,55 @@ import 'package:timezone/timezone.dart';
 void tests() {
   group('utils tests:', () {
     final location = getLocation('America/New_York');
+    test('group by hour range (3, 7)', () {
+      var term = Term.parse('Jan26', location);
+      var ts = TimeSeries.fill(term.hours(), 1.0);
+      var out = groupByHourRange(ts, (3, 7));
+      expect(out.length, 31);
+      var interval = out.keys.first;
+      expect(interval.start.day, 1);
+      expect(interval.start.hour, 3);
+      expect(interval.end.hour, 7);
+    });
+
+    test('group by hour range (23, 7)', () {
+      var term = Term.parse('1Jan26-3Jan26', location);
+      var ts = TimeSeries.fill(term.hours(), 1.0);
+      var out = groupByHourRange(ts, (23, 7));
+      expect(out.length, 4);
+      expect(out.keys.toList(), [
+        Interval(TZDateTime(location, 2025, 12, 31, 23),
+            TZDateTime(location, 2026, 1, 1, 7)),
+        Interval(TZDateTime(location, 2026, 1, 1, 23),
+            TZDateTime(location, 2026, 1, 2, 7)),
+        Interval(TZDateTime(location, 2026, 1, 2, 23),
+            TZDateTime(location, 2026, 1, 3, 7)),
+        Interval(TZDateTime(location, 2026, 1, 3, 23),
+            TZDateTime(location, 2026, 1, 4, 7)),
+      ]);
+      expect(out.values.map((ts) => ts.length), [7, 8, 8, 1]);
+    });
+
+    test('group by hour range (10, 10)', () {
+      var term = Term.parse('1Jan26-3Jan26', location);
+      var ts = TimeSeries.fill(term.hours(), 1.0);
+      var out = groupByHourRange(ts, (10, 10));
+      expect(out.length, 4);
+      expect(out.keys.toList(), [
+        Interval(TZDateTime(location, 2025, 12, 31, 10),
+            TZDateTime(location, 2026, 1, 1, 10)),
+        Interval(TZDateTime(location, 2026, 1, 1, 10),
+            TZDateTime(location, 2026, 1, 2, 10)),
+        Interval(TZDateTime(location, 2026, 1, 2, 10),
+            TZDateTime(location, 2026, 1, 3, 10)),
+        Interval(TZDateTime(location, 2026, 1, 3, 10),
+            TZDateTime(location, 2026, 1, 4, 10)),
+      ]);
+      expect(out.values.map((ts) => ts.length), [10, 24, 24, 14]);
+    });
+
+
+
     test('fill hourly timeseries with nulls', () {
       var term = Term.parse('2024-01-01', location);
       var ts = TimeSeries.fromIterable([

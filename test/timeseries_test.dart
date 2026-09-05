@@ -367,7 +367,7 @@ void timeseriesTests() {
               .splitLeft((dt) => Date.containing(dt));
       var ts = TimeSeries.fill(days, 1);
       var aux = ts.toColumns();
-      expect(aux.item1.length, aux.item2.length);
+      expect(aux.$1.length, aux.$2.length);
     });
 
     test('filter observations', () {
