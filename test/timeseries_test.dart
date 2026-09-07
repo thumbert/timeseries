@@ -697,16 +697,19 @@ void timeseriesTests() {
 
     test('fill missing observations', () {
       var ts = TimeSeries.fromIterable([
+        IntervalTuple(Date.utc(2001, 12, 30), -2),
         IntervalTuple(Date.utc(2002, 1, 2), 12),
         IntervalTuple(Date.utc(2002, 1, 3), 13),
         IntervalTuple(Date.utc(2002, 1, 6), 16),
         IntervalTuple(Date.utc(2002, 1, 8), 18),
+        IntervalTuple(Date.utc(2002, 1, 14), 24),
       ]);
       var days = Term.parse('1Jan02-10Jan02', UTC).days();
       var tsFilled = ts.fill(days, 5);
       expect(
           tsFilled,
           TimeSeries.fromIterable([
+            IntervalTuple(Date.utc(2001, 12, 30), -2),
             IntervalTuple(Date.utc(2002, 1, 1), 5),
             IntervalTuple(Date.utc(2002, 1, 2), 12),
             IntervalTuple(Date.utc(2002, 1, 3), 13),
@@ -717,6 +720,7 @@ void timeseriesTests() {
             IntervalTuple(Date.utc(2002, 1, 8), 18),
             IntervalTuple(Date.utc(2002, 1, 9), 5),
             IntervalTuple(Date.utc(2002, 1, 10), 5),
+            IntervalTuple(Date.utc(2002, 1, 14), 24),
           ]));
     });
 

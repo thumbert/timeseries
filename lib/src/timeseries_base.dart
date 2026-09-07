@@ -158,22 +158,25 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
 
   /// Fill this timeseries with a constant value over the specified intervals
   /// only when the intervals don't already exist in the timeseries.
-  /// 
+  ///
   /// The input [intervals] are required to be sorted in ascending order!
-  /// 
+  ///
   TimeSeries<K> fill(Iterable<Interval> intervals, K value) {
     var ts = TimeSeries<K>();
     var sourceIndex = 0;
     for (var interval in intervals) {
       while (sourceIndex < length &&
           this[sourceIndex].interval.start.isBefore(interval.start)) {
-        sourceIndex++;
+        ts.add(this[sourceIndex++]);
       }
       if (sourceIndex < length && this[sourceIndex].interval == interval) {
         ts.add(this[sourceIndex++]);
       } else {
         ts.add(IntervalTuple(interval, value));
       }
+    }
+    while (sourceIndex < length) {
+      ts.add(this[sourceIndex++]);
     }
     return ts;
   }
