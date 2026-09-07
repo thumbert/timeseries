@@ -38,6 +38,52 @@ void tests() {
       expect(out.values.map((ts) => ts.length), [7, 8, 8, 1]);
     });
 
+    test('group by hour range (23, 7) over DST spring', () {
+      var term = Term.parse('6Mar26-11Mar26', location);
+      var ts = TimeSeries.fill(term.hours(), 1.0);
+      var out = groupByHourRange(ts, (23, 7));
+      expect(out.length, 7);
+      expect(out.keys.toList(), [
+        Interval(TZDateTime(location, 2026, 3, 5, 23),
+            TZDateTime(location, 2026, 3, 6, 7)),
+        Interval(TZDateTime(location, 2026, 3, 6, 23),
+            TZDateTime(location, 2026, 3, 7, 7)),
+        Interval(TZDateTime(location, 2026, 3, 7, 23),
+            TZDateTime(location, 2026, 3, 8, 7)),
+        Interval(TZDateTime(location, 2026, 3, 8, 23),
+            TZDateTime(location, 2026, 3, 9, 7)),
+        Interval(TZDateTime(location, 2026, 3, 9, 23),
+            TZDateTime(location, 2026, 3, 10, 7)),
+        Interval(TZDateTime(location, 2026, 3, 10, 23),
+            TZDateTime(location, 2026, 3, 11, 7)),
+        Interval(TZDateTime(location, 2026, 3, 11, 23),
+            TZDateTime(location, 2026, 3, 12, 7)),
+      ]);
+      expect(out.values.map((ts) => ts.length), [7, 8, 7, 8, 8, 8, 1]);
+    });
+
+    test('group by hour range (23, 7) over DST fall', () {
+      var term = Term.parse('29Oct26-2Nov26', location);
+      var ts = TimeSeries.fill(term.hours(), 1.0);
+      var out = groupByHourRange(ts, (23, 7));
+      expect(out.length, 6);
+      expect(out.keys.toList(), [
+        Interval(TZDateTime(location, 2026, 10, 28, 23),
+            TZDateTime(location, 2026, 10, 29, 7)),
+        Interval(TZDateTime(location, 2026, 10, 29, 23),
+            TZDateTime(location, 2026, 10, 30, 7)),
+        Interval(TZDateTime(location, 2026, 10, 30, 23),
+            TZDateTime(location, 2026, 10, 31, 7)),
+        Interval(TZDateTime(location, 2026, 10, 31, 23),
+            TZDateTime(location, 2026, 11, 1, 7)),
+        Interval(TZDateTime(location, 2026, 11, 1, 23),
+            TZDateTime(location, 2026, 11, 2, 7)),
+        Interval(TZDateTime(location, 2026, 11, 2, 23),
+            TZDateTime(location, 2026, 11, 3, 7)),
+      ]);
+      expect(out.values.map((ts) => ts.length), [7, 8, 8, 9, 8, 1]);
+    });
+
     test('group by hour range (10, 10)', () {
       var term = Term.parse('1Jan26-3Jan26', location);
       var ts = TimeSeries.fill(term.hours(), 1.0);
@@ -55,8 +101,6 @@ void tests() {
       ]);
       expect(out.values.map((ts) => ts.length), [10, 24, 24, 14]);
     });
-
-
 
     test('fill hourly timeseries with nulls', () {
       var term = Term.parse('2024-01-01', location);

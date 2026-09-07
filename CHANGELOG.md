@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-09-07
+- Fix bug across DST for groupByHourRange. 
+
 ## 2026-09-05
 - Really remove the dependency on package Tuple!
 - Add function groupByHourRange to collect the observations of a timeseries 

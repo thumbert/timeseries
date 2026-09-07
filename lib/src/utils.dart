@@ -31,10 +31,10 @@ TimeSeries<Map<K, T>> mergeAll<K, T>(Map<K, TimeSeries<T>> xs) {
 ///
 /// The [hourRange] is a tuple of two integers representing the start and end
 /// hours.  If the start hour is after the end hour, the interval spills into
-/// the following day.  The [hourRange] is inclusive of both the start and end 
-/// hours.  If the start and end hours are the same, the interval spans a 
-/// full day.  
-/// 
+/// the following day.  The [hourRange] is inclusive of both the start and end
+/// hours.  If the start and end hours are the same, the interval spans a
+/// full day.
+///
 /// Values for the start/end hours should be between 0 and 23.
 ///
 /// Note that you'll likely have incomplete groups at the start and end of the
@@ -56,18 +56,18 @@ Map<Interval, TimeSeries<K>> groupByHourRange<K>(
     if (startHour > endHour) {
       if (e.interval.start.hour >= startHour) {
         end = TZDateTime(e.interval.start.location, e.interval.start.year,
-                e.interval.start.month, e.interval.start.day, endHour)
-            .add(const Duration(days: 1));
+            e.interval.start.month, e.interval.start.day + 1, endHour);
       } else {
         start = TZDateTime(e.interval.start.location, e.interval.start.year,
-                e.interval.start.month, e.interval.start.day, startHour)
-            .subtract(const Duration(days: 1));
+            e.interval.start.month, e.interval.start.day - 1, startHour);
       }
     } else if (startHour == endHour) {
       if (e.interval.start.isBefore(start)) {
-        start = start.subtract(const Duration(days: 1));
+        start = TZDateTime(e.interval.start.location, e.interval.start.year,
+            e.interval.start.month, e.interval.start.day - 1, startHour);
       } else {
-        end = start.add(const Duration(days: 1));
+        end = TZDateTime(e.interval.start.location, e.interval.start.year,
+            e.interval.start.month, e.interval.start.day + 1, endHour);
       }
     }
     final key = Interval(start, end);
