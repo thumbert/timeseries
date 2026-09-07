@@ -2,6 +2,7 @@
 
 ## 2026-09-07
 - Fix bug across DST for groupByHourRange. 
+- Add `fill` method to a timeseries.  Not sure why it didn't exist already!
 
 ## 2026-09-05
 - Really remove the dependency on package Tuple!

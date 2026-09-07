@@ -33,7 +33,10 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     }
   }
 
-  /// Create a TimeSeries with a constant value
+  /// Create a TimeSeries with a constant value.
+  ///
+  /// To fill missing intervals in an existing timeseries, see method [fill].
+  ///
   TimeSeries.fill(Iterable<Interval> index, K value) {
     index.forEach((Interval i) => add(IntervalTuple(i, value)));
   }
@@ -151,6 +154,28 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     var obs1 = observationAt(i1);
     var obs2 = observationAt(i2);
     return f(obs1.value, obs2.value);
+  }
+
+  /// Fill this timeseries with a constant value over the specified intervals
+  /// only when the intervals don't already exist in the timeseries.
+  /// 
+  /// The input [intervals] are required to be sorted in ascending order!
+  /// 
+  TimeSeries<K> fill(Iterable<Interval> intervals, K value) {
+    var ts = TimeSeries<K>();
+    var sourceIndex = 0;
+    for (var interval in intervals) {
+      while (sourceIndex < length &&
+          this[sourceIndex].interval.start.isBefore(interval.start)) {
+        sourceIndex++;
+      }
+      if (sourceIndex < length && this[sourceIndex].interval == interval) {
+        ts.add(this[sourceIndex++]);
+      } else {
+        ts.add(IntervalTuple(interval, value));
+      }
+    }
+    return ts;
   }
 
   /// Create a new timeseries using the Last Observation Carried Forward filling
@@ -410,7 +435,6 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
     ]);
   }
 
-
   /// Return the first few elements of this timeseries.
   TimeSeries<K> head({int n = 6}) {
     assert(n > 0, 'n must be positive');
@@ -420,14 +444,13 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// Return the last few elements of this timeseries.
   TimeSeries<K> tail({int n = 6}) {
     assert(n > 0, 'n must be positive');
-    return TimeSeries.fromIterable(sublist(math.max(0,length - n)));
+    return TimeSeries.fromIterable(sublist(math.max(0, length - n)));
   }
 
   /// Partition this timeseries given a predicate [f].
   /// The first element of the returned tuple is the [true] branch, the
   /// second element is the [false] branch.
-  (TimeSeries<K>, TimeSeries<K>) partition(
-      bool Function(IntervalTuple<K?>) f) {
+  (TimeSeries<K>, TimeSeries<K>) partition(bool Function(IntervalTuple<K?>) f) {
     var left = TimeSeries<K>();
     var right = TimeSeries<K>();
     _data.forEach((x) {
@@ -471,11 +494,11 @@ class TimeSeries<K> extends ListBase<IntervalTuple<K>> {
   /// <p> This can be used as the first step of an aggregation.  For example,
   /// to group all observations that fall in the same month, use
   /// f = (Interval dt) => Month(dt.start.year, dt.start.day)
-  /// 
-  /// Function [f] needs to provide a complete covering, that is every 
-  /// interval needs to be mapped to a group by the function [f].    
+  ///
+  /// Function [f] needs to provide a complete covering, that is every
+  /// interval needs to be mapped to a group by the function [f].
   /// </p>
-  /// 
+  ///
   TimeSeries<List<K>> groupByIndex(Interval Function(Interval interval) f) {
     var grp = <Interval, List<K>>{};
     var N = _data.length;

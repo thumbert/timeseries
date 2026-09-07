@@ -158,6 +158,32 @@ hourlyTs.removeInterval(Interval(TZDateTime.utc(2024, 1, 10), TZDateTime.utc(202
 
 #### Fill in missing values
 
+
+You can fill missing observations with a specific value using the `fill` method. 
+```dart
+ var ts = TimeSeries.fromIterable([
+  IntervalTuple(Date.utc(2002, 1, 2), 12),
+  IntervalTuple(Date.utc(2002, 1, 3), 13),
+  IntervalTuple(Date.utc(2002, 1, 6), 16),
+  IntervalTuple(Date.utc(2002, 1, 8), 18),
+]);
+// if days are all the days from 1Jan02 to 10Jan02
+var tsExtended = ts.fill(days, -1);
+// is TimeSeries.fromIterable([
+//   IntervalTuple(Date.utc(2002, 1, 1), -1),
+//   IntervalTuple(Date.utc(2002, 1, 2), 12),
+//   IntervalTuple(Date.utc(2002, 1, 3), 13),
+//   IntervalTuple(Date.utc(2002, 1, 4), -1),
+//   IntervalTuple(Date.utc(2002, 1, 5), -1),
+//   IntervalTuple(Date.utc(2002, 1, 6), 16),
+//   IntervalTuple(Date.utc(2002, 1, 7), -1),
+//   IntervalTuple(Date.utc(2002, 1, 8), 18),
+//   IntervalTuple(Date.utc(2002, 1, 9), -1),
+//   IntervalTuple(Date.utc(2002, 1, 10), -1),
+// ]);
+```
+
+
 Use the Last Observation Carried Forward rule to fill in missing values in a timeseries.
 ```dart
  var ts = TimeSeries.fromIterable([

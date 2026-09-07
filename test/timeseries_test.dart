@@ -694,6 +694,32 @@ void timeseriesTests() {
       var tsHourly = ts.interpolate(Duration(hours: 1));
       expect(tsHourly.length, 1440);
     });
+
+    test('fill missing observations', () {
+      var ts = TimeSeries.fromIterable([
+        IntervalTuple(Date.utc(2002, 1, 2), 12),
+        IntervalTuple(Date.utc(2002, 1, 3), 13),
+        IntervalTuple(Date.utc(2002, 1, 6), 16),
+        IntervalTuple(Date.utc(2002, 1, 8), 18),
+      ]);
+      var days = Term.parse('1Jan02-10Jan02', UTC).days();
+      var tsFilled = ts.fill(days, 5);
+      expect(
+          tsFilled,
+          TimeSeries.fromIterable([
+            IntervalTuple(Date.utc(2002, 1, 1), 5),
+            IntervalTuple(Date.utc(2002, 1, 2), 12),
+            IntervalTuple(Date.utc(2002, 1, 3), 13),
+            IntervalTuple(Date.utc(2002, 1, 4), 5),
+            IntervalTuple(Date.utc(2002, 1, 5), 5),
+            IntervalTuple(Date.utc(2002, 1, 6), 16),
+            IntervalTuple(Date.utc(2002, 1, 7), 5),
+            IntervalTuple(Date.utc(2002, 1, 8), 18),
+            IntervalTuple(Date.utc(2002, 1, 9), 5),
+            IntervalTuple(Date.utc(2002, 1, 10), 5),
+          ]));
+    });
+
     test('fill missing observations with locf rule', () {
       var ts = TimeSeries.fromIterable([
         IntervalTuple(Date.utc(2002, 1, 2), 12),
